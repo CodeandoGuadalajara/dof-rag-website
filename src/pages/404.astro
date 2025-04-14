@@ -1,0 +1,55 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 - Página no encontrada | DOF-RAG">
+  <div class="flex flex-col items-center justify-center py-16 md:py-24 text-center">
+    <div class="relative mb-8">
+      <div class="text-[10rem] md:text-[15rem] font-bold gradient-text leading-none">404</div>
+      <div class="absolute inset-0 blur-3xl opacity-30" style="background: var(--gradient-purple); z-index: -1;"></div>
+    </div>
+    
+    <h1 class="text-3xl md:text-4xl font-bold mb-4">Página no encontrada</h1>
+    
+    <p class="text-xl text-[var(--color-muted)] max-w-xl mx-auto mb-12">
+      La página que estás buscando no existe o ha sido movida a otra ubicación.
+    </p>
+    
+    <div class="flex flex-col md:flex-row gap-4 items-center">
+      <a href="/" class="inline-block gradient-border px-8 py-3 text-lg font-medium rounded-md hover:opacity-90 transition-opacity">
+        <span class="gradient-text">Ir al inicio</span>
+      </a>
+      
+      <a href="/about" class="inline-block px-8 py-3 text-lg font-medium border border-[var(--color-border)] rounded-md hover:border-[var(--color-accent)] transition-colors">
+        Acerca del proyecto
+      </a>
+    </div>
+  </div>
+  
+  <div class="mt-16 max-w-2xl mx-auto border border-[var(--color-border)] rounded-lg p-6" style="background-color: rgba(var(--color-bg-rgb), 0.6);">
+    <h2 class="text-xl font-bold mb-4">¿Buscabas algo específico?</h2>
+    <p class="mb-4 text-[var(--color-muted)]">
+      Si estabas buscando información sobre el proyecto DOF-RAG, puedes encontrar los siguientes recursos:
+    </p>
+    <ul class="space-y-2">
+      <li class="flex items-center text-[var(--color-muted)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <a href="/" class="hover:text-[var(--color-accent)]">Blog principal</a> - Últimas actualizaciones del proyecto
+      </li>
+      <li class="flex items-center text-[var(--color-muted)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <a href="/posts/introduccion-dof-rag" class="hover:text-[var(--color-accent)]">Introducción al proyecto</a> - Información general
+      </li>
+      <li class="flex items-center text-[var(--color-muted)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <a href="/about" class="hover:text-[var(--color-accent)]">Acerca de</a> - Detalles sobre el equipo y la metodología
+      </li>
+    </ul>
+  </div>
+</Layout> 

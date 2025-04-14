@@ -1,0 +1,118 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// Obtener todos los posts del blog usando Content Collections
+const allBlogPosts = await getCollection('blog', ({ data }: { data: { draft?: boolean } }) => {
+  return !data.draft;
+});
+
+// Función para extraer un extracto del contenido si es necesario
+function extractExcerpt(content: string, maxLength: number = 160): string {
+  // Eliminar cualquier contenido HTML/Markdown
+  const plainText = content
+    .replace(/<[^>]*>/g, '') // Eliminar etiquetas HTML
+    .replace(/#+\s+/g, '') // Eliminar headers markdown (#, ##, etc)
+    .replace(/\*\*/g, '') // Eliminar negrita
+    .replace(/\*/g, '') // Eliminar itálica
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Reemplazar enlaces [texto](url) con solo texto
+    .replace(/\n+/g, ' ') // Reemplazar saltos de línea con espacios
+    .trim();
+
+  // Devolver un extracto de longitud apropiada
+  if (plainText.length <= maxLength) return plainText;
+  return plainText.substring(0, maxLength).trim() + '...';
+}
+
+// Función para formatear la fecha de manera segura
+function formatDate(dateObj: Date): string {
+  try {
+    return dateObj.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    console.error(`Error al formatear la fecha:`, error);
+    return "Fecha no disponible";
+  }
+}
+
+// Ordenar posts por fecha, del más reciente al más antiguo
+const sortedPosts = [...allBlogPosts].sort((a, b) => {
+  return b.data.date.getTime() - a.data.date.getTime();
+});
+
+// Obtener posts destacados si existen
+const featuredPosts = sortedPosts.filter(post => post.data.featured);
+// Si no hay posts destacados, usar los más recientes
+const popularPosts = featuredPosts.length > 0 ? featuredPosts : sortedPosts.slice(0, 3);
+---
+
+<Layout title="DOF-RAG Blog - Inicio">
+  <section class="text-center py-16 md:py-24">
+    <h1 class="text-5xl md:text-7xl font-bold mb-6">
+      <span class="gradient-text">DOF-RAG</span>
+    </h1>
+    <p class="text-xl md:text-2xl max-w-3xl mx-auto text-[var(--color-muted)]">
+      Seguimiento y documentación de avances en el desarrollo de sistemas de recuperación 
+      y generación aumentada para el Diario Oficial de la Federación.
+    </p>
+  </section>
+
+  <div class="grid grid-cols-12 gap-8">
+    <!-- Sidebar con posts populares -->
+    <div class="col-span-12 md:col-span-3">
+      <div class="sticky top-24">
+        <h2 class="text-xl font-bold mb-6 pb-2 border-b border-[var(--color-border)]">Posts populares</h2>
+        <ul class="space-y-4">
+          {popularPosts.map(post => (
+            <li>
+              <a href={`/blog/${post.slug}`} class="hover:text-[var(--color-accent)]">{post.data.title}</a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="mt-12">
+          <h2 class="text-xl font-bold mb-4 pb-2 border-b border-[var(--color-border)]">Suscríbete</h2>
+          <p class="text-[var(--color-muted)] mb-4">Mantente al día con las novedades del proyecto</p>
+          <a href="#" class="inline-block gradient-border px-4 py-2 text-sm font-medium rounded-md hover:opacity-90">
+            <span class="gradient-text">RSS</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="col-span-12 md:col-span-9">
+      <h2 class="text-3xl font-bold mb-8">
+        <span class="gradient-text">Publicaciones recientes</span>
+      </h2>
+      
+      <div class="space-y-12">
+        {sortedPosts.map(post => (
+          <article class="blog-card">
+            <time datetime={post.data.date.toISOString()} class="text-sm text-[var(--color-muted)] block mb-3">
+              {formatDate(post.data.date)}
+            </time>
+            <h3 class="text-2xl font-bold mb-3">
+              <a href={`/blog/${post.slug}`} class="hover:text-[var(--color-accent)]">
+                {post.data.title}
+              </a>
+            </h3>
+            <p class="text-[var(--color-muted)] mb-4">{post.data.description || 'Sin descripción disponible'}</p>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-[var(--color-muted)]">Por {post.data.author || 'Autor desconocido'}</span>
+              <a href={`/blog/${post.slug}`} class="inline-flex items-center text-[var(--color-accent)] hover:underline">
+                Leer más
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>

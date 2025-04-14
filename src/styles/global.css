@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #13151a;
+  --color-bg-rgb: 19, 21, 26;
+  --color-text: #f3f4f6;
+  --color-accent: #7e22ce;
+  --color-accent-light: #a855f7;
+  --color-muted: #94a3b8;
+  --color-border: #2d303e;
+  --gradient-purple: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 50%, #c026d3 100%);
+}
+
+.light-theme {
+  --color-bg: #ffffff;
+  --color-bg-rgb: 255, 255, 255;
+  --color-text: #1e293b;
+  --color-accent: #7e22ce;
+  --color-accent-light: #a855f7;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --gradient-purple: linear-gradient(135deg, #c4b5fd 0%, #a855f7 50%, #d946ef 100%);
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200;
+    background-image: 
+      radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), rgba(30, 41, 59, 0) 35%),
+      radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), rgba(30, 41, 59, 0) 35%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 max-w-6xl;
+  }
+  
+  .blog-card {
+    @apply border border-[var(--color-border)] backdrop-blur-sm rounded-lg p-6 mb-8 transition-all hover:translate-y-[-2px] hover:shadow-lg;
+    background-color: rgba(var(--color-bg-rgb, 19, 21, 26), 0.6);
+  }
+
+  .gradient-text {
+    @apply text-transparent bg-clip-text;
+    background-image: var(--gradient-purple);
+  }
+  
+  .gradient-border {
+    position: relative;
+  }
+  
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 0.5rem;
+    padding: 1px;
+    background: var(--gradient-purple);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+  }
+}
