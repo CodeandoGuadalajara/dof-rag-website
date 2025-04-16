@@ -1,0 +1,32 @@
+backend:
+  name: github
+  branch: main  # Ajusta según la rama principal de tu repositorio
+  repo: Jorge5452/Blog-Dof-Rag  # Reemplaza USER con tu nombre de usuario de GitHub
+  site_domain: tu-dominio.com  # Dominio donde estará desplegado tu sitio
+  base_url: https://tu-dominio.com  # URL base de tu sitio en producción
+  auth_endpoint: oauth  # endpoint de autenticación (proporcionado por la integración)
+
+# Configuración de la interfaz de usuario
+locale: 'es'
+media_folder: "public/images/posts"  # Donde se guardarán las imágenes subidas
+public_folder: "/images/posts"  # URL pública para las imágenes
+
+# Opciones para la colección de publicaciones
+collections:
+  - name: "blog"
+    label: "Blog"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{year}}/{{month}}/{{slug}}"
+    nested:
+      depth: 3
+      summary: "{{title}}"
+    fields:
+      - { label: "Título", name: "title", widget: "string" }
+      - { label: "Fecha de publicación", name: "date", widget: "datetime" }
+      - { label: "Autor", name: "author", widget: "string" }
+      - { label: "Descripción", name: "description", widget: "text" }
+      - { label: "Etiquetas", name: "tags", widget: "list", default: [] }
+      - { label: "Destacado", name: "featured", widget: "boolean", default: false }
+      - { label: "Imagen", name: "image", widget: "image", required: false }
+      - { label: "Contenido", name: "body", widget: "markdown" } 
