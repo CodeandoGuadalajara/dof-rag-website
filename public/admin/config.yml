@@ -1,10 +1,10 @@
 backend:
   name: github
-  branch: main  # Ajusta según la rama principal de tu repositorio
-  repo: Jorge5452/Blog-Dof-Rag  # Reemplaza USER con tu nombre de usuario de GitHub
-  site_domain: dof-rag-blog.netlify.app  # Dominio donde estará desplegado tu sitio
-  base_url: https://dof-rag-blog.netlify.app  # URL base de tu sitio en producción
-  auth_endpoint: oauth  # endpoint de autenticación (proporcionado por la integración)
+  branch: main  
+  repo: Jorge5452/Blog-Dof-Rag  
+  site_domain: dof-rag-blog.netlify.app  
+  base_url: https://dof-rag-blog.netlify.app  
+  auth_endpoint: oauth
 
 # Configuración de la interfaz de usuario
 locale: 'es'
