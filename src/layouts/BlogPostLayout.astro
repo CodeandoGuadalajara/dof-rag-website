@@ -1,6 +1,7 @@
 ---
 import Layout from './Layout.astro';
 import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -90,11 +91,14 @@ const formattedDate = formatDate(date);
         )}
         
         {image && (
-          <img 
+          <Image 
             src={image} 
             alt={`Imagen para ${title}`} 
             class="w-full rounded-lg object-cover mb-8"
+            width={1200}
+            height={600}
             style="max-height: 400px;"
+            loading="eager"
           />
         )}
       </div>
