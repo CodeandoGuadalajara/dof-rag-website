@@ -1,5 +1,6 @@
 ---
 import Layout from './Layout.astro';
+import { Image } from 'astro:assets';
 
 interface Props {
   title?: string;
@@ -109,11 +110,14 @@ const formattedDate = formatDate(rawDate);
         <h1 class="text-3xl md:text-5xl font-bold mb-8 leading-tight">{title}</h1>
         
         {image && (
-          <img 
+          <Image 
             src={image} 
             alt={`Imagen para ${title}`} 
             class="w-full rounded-lg object-cover mb-8"
+            width={1200}
+            height={600}
             style="max-height: 400px;"
+            loading="eager"
           />
         )}
       </div>
