@@ -78,4 +78,31 @@
     mask-composite: exclude;
     z-index: -1;
   }
+
+  /* Blur reveal animation for title letters */
+  @keyframes blurFadeIn {
+    0% {
+      opacity: 0;
+      filter: blur(10px);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  .title-letter {
+    opacity: 0;
+    display: inline-block;
+    animation: blurFadeIn 0.8s ease-out forwards;
+    animation-delay: var(--delay);
+  }
+  
+  .subtitle-word {
+    opacity: 0;
+    display: inline-block;
+    margin-right: 0.35em;
+    animation: blurFadeIn 0.6s ease-out forwards; /* Slightly faster animation */
+    animation-delay: var(--delay);
+  }
 }
