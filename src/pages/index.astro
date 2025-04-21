@@ -47,16 +47,30 @@ const sortedPosts = [...allBlogPosts].sort((a, b) => {
 const featuredPosts = sortedPosts.filter(post => post.data.featured);
 // Si no hay posts destacados, usar los más recientes
 const popularPosts = featuredPosts.length > 0 ? featuredPosts : sortedPosts.slice(0, 3);
+// Add title letters for blur effect
+const titleText = "DOF-RAG";
+const titleLetters = Array.from(titleText);
+
+// Add subtitle words for blur effect (slightly faster)
+const subtitleText = "Seguimiento y documentación de avances en el desarrollo de sistemas de recuperación y generación aumentada para el Diario Oficial de la Federación.";
+const subtitleWords = subtitleText.split(" ");
 ---
 
 <Layout title="DOF-RAG Blog - Inicio">
   <section class="text-center py-16 md:py-24">
     <h1 class="text-5xl md:text-7xl font-bold mb-6">
-      <span class="gradient-text">DOF-RAG</span>
+      {titleLetters.map((letter, index) => (
+        <span class="gradient-text title-letter" style={`--delay: ${index * 0.1}s`}>
+          {letter}
+        </span>
+      ))}
     </h1>
     <p class="text-xl md:text-2xl max-w-3xl mx-auto text-[var(--color-muted)]">
-      Seguimiento y documentación de avances en el desarrollo de sistemas de recuperación 
-      y generación aumentada para el Diario Oficial de la Federación.
+      {subtitleWords.map((word, index) => (
+        <span class="subtitle-word" style={`--delay: ${index * 0.05}s`}>
+          {word}
+        </span>
+      ))}
     </p>
   </section>
 
