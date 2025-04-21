@@ -6,6 +6,7 @@ import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://dof-rag-blog.netlify.app/',
   output: 'server', // Necesario para las rutas OAuth
   adapter: netlify(),
   experimental: {
