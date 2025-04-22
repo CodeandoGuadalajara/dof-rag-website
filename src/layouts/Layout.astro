@@ -17,6 +17,24 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href="/rss.xml" />
 		<title>{title}</title>
+		<!-- Prevenir el flash de tema incorrecto -->
+		<script is:inline>
+			// Check localStorage first
+			const savedTheme = localStorage.getItem('theme');
+			
+			// If there's a saved preference, use it
+			if (savedTheme === 'light') {
+				document.documentElement.classList.add('light-theme');
+			} else if (savedTheme === 'dark') {
+				document.documentElement.classList.remove('light-theme');
+			} else {
+				// If no saved preference, check system preference
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				if (!prefersDark) {
+					document.documentElement.classList.add('light-theme');
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<header class="border-b border-[var(--color-border)] py-4 sticky top-0 backdrop-blur-md z-10" style="background-color: rgba(var(--color-bg-rgb), 0.8);">
@@ -96,9 +114,8 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 	const sunIcon = document.getElementById('sun-icon');
 	const moonIcon = document.getElementById('moon-icon');
 	
-	// Por defecto, usar tema oscuro (como Astro)
-	const savedTheme = localStorage.getItem('theme');
-	if (savedTheme === 'light') {
+	// Set initial state of the toggle based on current theme
+	if (document.documentElement.classList.contains('light-theme')) {
 		document.body.classList.add('light-theme');
 		moonIcon?.classList.add('hidden');
 		sunIcon?.classList.remove('hidden');
@@ -106,6 +123,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 	
 	themeToggle?.addEventListener('click', () => {
 		document.body.classList.toggle('light-theme');
+		document.documentElement.classList.toggle('light-theme'); // Sincronizar con HTML
 		sunIcon?.classList.toggle('hidden');
 		moonIcon?.classList.toggle('hidden');
 		
