@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 .cursor
 .vscode
+
+# Test files
+src/content/blog/test-post-*/
+public/images/posts/2024/04/*.svg
+
+# Gitignore
+.gitignore
