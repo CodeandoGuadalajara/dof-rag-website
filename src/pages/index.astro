@@ -8,23 +8,6 @@ const allBlogPosts = await getCollection('blog', ({ data }: { data: { draft?: bo
   return !data.draft;
 });
 
-// Función para extraer un extracto del contenido si es necesario
-function extractExcerpt(content: string, maxLength: number = 160): string {
-  // Eliminar cualquier contenido HTML/Markdown
-  const plainText = content
-    .replace(/<[^>]*>/g, '') // Eliminar etiquetas HTML
-    .replace(/#+\s+/g, '') // Eliminar headers markdown (#, ##, etc)
-    .replace(/\*\*/g, '') // Eliminar negrita
-    .replace(/\*/g, '') // Eliminar itálica
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Reemplazar enlaces [texto](url) con solo texto
-    .replace(/\n+/g, ' ') // Reemplazar saltos de línea con espacios
-    .trim();
-
-  // Devolver un extracto de longitud apropiada
-  if (plainText.length <= maxLength) return plainText;
-  return plainText.substring(0, maxLength).trim() + '...';
-}
-
 // Función para formatear la fecha de manera segura
 function formatDate(dateObj: Date): string {
   try {
@@ -349,4 +332,8 @@ const serializedPosts = JSON.stringify(
               </div>
             </div>
           </article>
-        `
+        `;
+      }
+    });
+  </script>
+</Layout>

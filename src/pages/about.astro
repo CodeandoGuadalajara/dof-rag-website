@@ -2,16 +2,31 @@
 import Layout from '../layouts/Layout.astro';
 
 const cardStyles = "border border-[var(--color-border)] rounded-lg p-6 hover:translate-y-[-2px] transition-transform backdrop-blur-sm";
+
+// Añadir para efecto de animación
+const titleText = "Acerca del Proyecto";
+const titleLetters = Array.from(titleText);
+
+const subtitleText = "Haciendo accesible la información del Diario Oficial de la Federación mediante tecnologías de vanguardia.";
+const subtitleWords = subtitleText.split(" ");
 ---
 
 <Layout title="Acerca de DOF-RAG">
   <div class="max-w-4xl mx-auto">
     <div class="text-center py-16 md:py-24">
       <h1 class="text-4xl md:text-6xl font-bold mb-6">
-        <span class="gradient-text">Acerca del Proyecto</span>
+        {titleLetters.map((letter, index) => (
+          <span class="gradient-text title-letter" style={`--delay: ${index * 0.1}s`}>
+            {letter === " " ? "\u00A0" : letter}
+          </span>
+        ))}
       </h1>
       <p class="text-xl md:text-2xl text-[var(--color-muted)]">
-        Haciendo accesible la información del Diario Oficial de la Federación mediante tecnologías de vanguardia.
+        {subtitleWords.map((word, index) => (
+          <span class="subtitle-word" style={`--delay: ${index * 0.05}s`}>
+            {word}
+          </span>
+        ))}
       </p>
     </div>
     
