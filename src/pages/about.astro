@@ -16,14 +16,14 @@ const subtitleWords = subtitleText.split(" ");
     <div class="text-center py-16 md:py-24">
       <h1 class="text-4xl md:text-6xl font-bold mb-6">
         {titleLetters.map((letter, index) => (
-          <span class="gradient-text title-letter" style={`--delay: ${index * 0.1}s`}>
+          <span class="gradient-text title-letter" style={`--delay: ${index * 0.05}s`}>
             {letter === " " ? "\u00A0" : letter}
           </span>
         ))}
       </h1>
       <p class="text-xl md:text-2xl text-[var(--color-muted)]">
         {subtitleWords.map((word, index) => (
-          <span class="subtitle-word" style={`--delay: ${index * 0.05}s`}>
+          <span class="subtitle-word" style={`--delay: ${index * 0.1}s`}>
             {word}
           </span>
         ))}
