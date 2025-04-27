@@ -15,7 +15,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
 		<meta name="generator" content={Astro.generator} />
-		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href={`${import.meta.env.BASE_URL}/rss.xml`} />
+		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href={`${import.meta.env.BASE_URL}rss.xml`} />
 		<title>{title}</title>
 		<!-- Prevenir el flash de tema incorrecto -->
 		<script is:inline>
@@ -44,7 +44,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 				</a>
 				<nav class="flex items-center gap-6">
 					<a href={import.meta.env.BASE_URL || '/'} class="hover:text-[var(--color-accent)]">Inicio</a>
-					<a href={`${import.meta.env.BASE_URL}/about`} class="hover:text-[var(--color-accent)]">Acerca de</a>
+					<a href={`${import.meta.env.BASE_URL}about`} class="hover:text-[var(--color-accent)]">Acerca de</a>
 					<button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--color-border)] ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -72,13 +72,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 						<h3 class="text-lg font-bold mb-4">Recursos</h3>
 						<ul class="space-y-2">
 							<li><a href={import.meta.env.BASE_URL || '/'} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Blog</a></li>
-							<li><a href={`${import.meta.env.BASE_URL}/about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Acerca de</a></li>
-							<li><a href={`${import.meta.env.BASE_URL}/rss.xml`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)] flex items-center">
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-									<path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"/>
-								</svg>
-								RSS
-							</a></li>
+							<li><a href={`${import.meta.env.BASE_URL}about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Acerca de</a></li>
 						</ul>
 					</div>
 					<div>
@@ -86,21 +80,6 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 						<p class="text-[var(--color-muted)]">
 							Correo: <a href="mailto:contacto@dofrag.mx" class="text-[var(--color-accent)] hover:underline">contacto@dofrag.mx</a>
 						</p>
-					</div>
-				</div>
-				
-				<div class="mt-8 border-t border-[var(--color-border)] pt-8">
-					<div class="flex flex-col md:flex-row justify-between items-center">
-						<p class="text-[var(--color-muted)] text-sm mb-4 md:mb-0">© {new Date().getFullYear()} DOF-RAG Project. Todos los derechos reservados.</p>
-						<div class="flex items-center">
-							<span class="text-[var(--color-muted)] text-sm mr-3">Suscríbete:</span>
-							<a href={`${import.meta.env.BASE_URL}/rss.xml`} class="flex items-center text-[var(--color-accent)] hover:underline" aria-label="RSS Feed">
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-									<path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"/>
-								</svg>
-								<span class="ml-1">RSS</span>
-							</a>
-						</div>
 					</div>
 				</div>
 			</div>
