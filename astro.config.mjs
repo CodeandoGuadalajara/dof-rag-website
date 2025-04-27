@@ -1,24 +1,13 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
-import decapCmsOauth from 'astro-decap-cms-oauth';
-import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://dof-rag-blog.netlify.app/',
-  output: 'server', // Necesario para las rutas OAuth
-  adapter: netlify(),
-  experimental: {
-    session: true // Habilitar sesiones experimentales
-  },
+  site: 'https://jorge5452.github.io',
+  base: '/Blog-Dof-Rag',
+  output: 'static', // Cambiado de 'server' a 'static' para GitHub Pages
   integrations: [
     tailwind(),
-    decapCmsOauth({
-      // Configuración por defecto
-      adminRoute: '/admin',
-      oauthLoginRoute: '/oauth',
-      oauthCallbackRoute: '/oauth/callback',
-    })
   ]
 });

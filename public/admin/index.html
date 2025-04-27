@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOF-RAG Blog Admin</title>
+    
+    <!-- Carga de Sveltia CMS -->
+    <link rel="stylesheet" href="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.css" />
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </head>
+  <body>
+    <!-- Configuración para Sveltia CMS -->
+    <script>
+      window.CMS_MANUAL_INIT = true;
+      window.addEventListener('load', function() {
+        CMS.init({
+          config: {
+            backend: {
+              name: 'github',
+              repo: 'Jorge5452/Blog-Dof-Rag',
+              branch: 'main',
+              base_url: 'https://jorge5452.github.io',
+              auth_type: 'implicit', // Para autenticación vía GitHub
+              auth_scope: 'repo' // Permisos para el repositorio
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html> 
