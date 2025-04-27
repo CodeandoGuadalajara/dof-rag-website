@@ -127,7 +127,7 @@ const formattedDate = formatDate(rawDate);
       </div>
       
       <div class="border-t border-[var(--color-border)] pt-8 mt-16">
-        <a href="/" class="inline-flex items-center text-[var(--color-accent)] hover:underline">
+        <a href={import.meta.env.BASE_URL || '/'} class="inline-flex items-center text-[var(--color-accent)] hover:underline">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>

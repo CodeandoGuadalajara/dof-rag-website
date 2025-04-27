@@ -23,7 +23,13 @@
               base_url: 'https://jorge5452.github.io',
               auth_type: 'implicit', // Para autenticación vía GitHub
               auth_scope: 'repo' // Permisos para el repositorio
-            }
+            },
+            load_config_file: true, // Cargar configuración desde config.yml
+            publish_mode: 'editorial_workflow',
+            local_backend: false,
+            // Establecer la URL base para las vistas previas y enlaces
+            site_url: 'https://jorge5452.github.io/Blog-Dof-Rag',
+            display_url: 'https://jorge5452.github.io/Blog-Dof-Rag'
           }
         });
       });
