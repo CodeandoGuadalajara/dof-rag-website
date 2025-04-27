@@ -30,6 +30,9 @@ jobs:
         run: npm ci
       - name: Build with Astro
         run: npm run build
+      # Crear archivo .nojekyll para indicar a GitHub Pages que no use Jekyll
+      - name: Create .nojekyll file
+        run: touch ./dist/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
