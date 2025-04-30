@@ -147,11 +147,15 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   }
   
   .prose code {
-    @apply bg-[var(--color-border)] px-1.5 py-0.5 rounded text-sm;
+    @apply px-1.5 py-0.5 rounded text-sm;
   }
   
   .prose pre {
     @apply bg-[#1a1d25] rounded-lg p-4 overflow-x-auto;
+  }
+  
+  .prose pre code {
+    @apply bg-transparent;
   }
   
   .prose a {
@@ -160,5 +164,30 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   
   .prose blockquote {
     @apply border-l-4 border-[var(--color-accent)] pl-4 italic;
+  }
+  
+  /* Estilos para hacer las tablas scrolleables horizontalmente */
+  .prose table {
+    @apply w-full border-collapse overflow-hidden my-6;
+  }
+  
+  .prose table {
+    @apply block overflow-x-auto max-w-full;
+  }
+  
+  .prose thead {
+    @apply bg-[var(--color-border)];
+  }
+  
+  .prose th {
+    @apply px-4 py-2 text-left font-bold;
+  }
+  
+  .prose td {
+    @apply px-4 py-2 border-t border-[var(--color-border)];
+  }
+  
+  .prose tr {
+    @apply border-b border-[var(--color-border)];
   }
 </style> 

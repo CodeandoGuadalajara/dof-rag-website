@@ -6,7 +6,7 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   site: 'https://jorge5452.github.io/Blog-Dof-Rag/',
   base: '/Blog-Dof-Rag/',
-  output: 'static', // Cambiado de 'server' a 'static' para GitHub Pages
+  output: 'static', 
   integrations: [
     tailwind(),
   ]
