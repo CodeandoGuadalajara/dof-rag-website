@@ -148,6 +148,7 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   
   .prose code {
     @apply px-1.5 py-0.5 rounded text-sm;
+    color: var(--color-code-text);
   }
   
   .prose pre {
@@ -176,18 +177,22 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   }
   
   .prose thead {
-    @apply bg-[var(--color-border)];
+    @apply bg-[var(--color-table-head-bg)] text-[var(--color-table-text)];
   }
   
   .prose th {
-    @apply px-4 py-2 text-left font-bold;
+    @apply px-4 py-2 text-left font-bold text-[var(--color-table-text)];
   }
   
   .prose td {
-    @apply px-4 py-2 border-t border-[var(--color-border)];
+    @apply px-4 py-2 border-t border-[var(--color-table-border)] text-[var(--color-text)];
   }
   
   .prose tr {
-    @apply border-b border-[var(--color-border)];
+    @apply border-b border-[var(--color-table-border)];
   }
-</style> 
+
+  .prose tbody tr:nth-child(even) {
+    background-color: var(--color-table-row-alt);
+  }
+</style>
