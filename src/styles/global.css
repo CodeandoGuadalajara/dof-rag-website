@@ -11,6 +11,11 @@
   --color-muted: #94a3b8;
   --color-border: #2d303e;
   --color-card: rgba(26, 28, 35, 0.7);
+  --color-code-text: #c4b5fd;
+  --color-table-head-bg: #2d303e;
+  --color-table-border: #3a3f52;
+  --color-table-row-alt: #1e2029;
+  --color-table-text: #ffffff;
   --gradient-purple: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 50%, #c026d3 100%);
 }
 
@@ -24,6 +29,11 @@ html.light-theme,
   --color-muted: #64748b;
   --color-border: #e2e8f0;
   --color-card: rgba(255, 255, 255, 0.7);
+  --color-code-text: #7e22ce;
+  --color-table-head-bg: #9333ea;
+  --color-table-border: #d8b4fe;
+  --color-table-row-alt: #f5f3ff;
+  --color-table-text: #ffffff;
   --gradient-purple: linear-gradient(135deg, #c4b5fd 0%, #a855f7 50%, #d946ef 100%);
 }
 
