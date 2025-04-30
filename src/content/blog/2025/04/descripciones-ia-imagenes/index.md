@@ -5,7 +5,7 @@ author: "Equipo DOF-RAG"
 description: 'Un análisis comparativo de diferentes modelos de IA en la tarea de describir imágenes para el proyecto DOF-RAG.'
 tags: ['DOF-RAG', 'IA', 'descripción-imágenes', 'Gemini', 'Ollama']
 featured: true
-image: "/Blog-Dof-Rag/images/posts/chatgpt-image-25-mar-2025-09_27_39-p.m..png"
+image: "/dof-rag-website/images/posts/chatgpt-image-25-mar-2025-09_27_39-p.m..png"
 ---
 
 En nuestro proyecto de extracción automática de descripciones de imágenes, hemos puesto a prueba varios modelos de IA para evaluar su capacidad de generar descripciones precisas y útiles. Los resultados han sido fascinantes, desde descripciones increíblemente detalladas hasta interpretaciones que nos han hecho cuestionar si la IA y nosotros estábamos mirando la misma imagen.
@@ -16,7 +16,7 @@ Mientras probábamos cómo los modelos de IA describen imágenes, analizamos var
 
 La imagen en cuestión es la siguiente:
 
-![Programa Precios de Garantía a Productos Alimentarios Básicos - SEGALMEX](/Blog-Dof-Rag/images/posts/2025/04/_page_337_Figure_4.jpeg)
+![Programa Precios de Garantía a Productos Alimentarios Básicos - SEGALMEX](/dof-rag-website/images/posts/2025/04/_page_337_Figure_4.jpeg)
 
 Como se puede apreciar, se trata de una infografía sobre un programa de precios de garantía para productos alimentarios básicos (maíz y frijol) del gobierno mexicano, a través de SEGALMEX. Sin embargo, las interpretaciones que recibimos de los diferentes modelos fueron interesantemente diversas.
 
