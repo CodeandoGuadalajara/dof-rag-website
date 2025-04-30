@@ -2,7 +2,7 @@ backend:
   name: github
   branch: main  
   repo: Jorge5452/Blog-Dof-Rag  
-  auth_type: implicit # Cambiado para Sveltia CMS
+  auth_type: implicit 
 
 # Configuración de la interfaz de usuario
 locale: 'es'
