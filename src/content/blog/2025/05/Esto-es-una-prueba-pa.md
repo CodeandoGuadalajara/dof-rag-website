@@ -3,7 +3,7 @@ title: Esto es una prueba pa
 date: 2025-05-05T06:00:00.000Z
 author: Yo
 description: CORAL BLANCO
-image: /images/posts/2025/05/Gato con cuchillo y zapatillas.png
+image: /images/posts/chatgpt-image-25-mar-2025-09_27_39-p.m..webp
 tags:
   - Gato
   - CY
@@ -11,4 +11,4 @@ tags:
 featured: true
 ---
 
-SI O NO 
+SI O NO
