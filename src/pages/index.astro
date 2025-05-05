@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
 
 // Obtener todos los posts del blog usando Content Collections
 const allBlogPosts = await getCollection('blog', ({ data }: { data: { draft?: boolean } }) => {
@@ -114,13 +113,14 @@ const serializedPosts = JSON.stringify(
               {post.data.image ? (
                 <div class="md:w-1/3 relative">
                   <a href={`${import.meta.env.BASE_URL}blog/${post.slug}/`} class="block w-full h-full overflow-hidden">
-                    <Image 
-                      src={post.data.image} 
+                    <img
+                      src={`${import.meta.env.BASE_URL}${(post.data.image || '').startsWith('/') ? (post.data.image || '').substring(1) : (post.data.image || '')}`}
                       alt={`Imagen para ${post.data.title}`}
                       class="w-full h-48 md:h-full object-cover transition-transform hover:scale-[1.05]"
-                      width={800}
-                      height={450}
+                      width="800"
+                      height="450"
                       loading="lazy"
+                      decoding="async"
                     />
                     <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity"></div>
                   </a>
@@ -190,6 +190,7 @@ const serializedPosts = JSON.stringify(
       // Configuración
       const useLocalPosts = true; // Cambiar a false para usar la API en lugar de los posts locales
       
+      /* // COMENTADO TEMPORALMENTE PARA EVITAR ERROR DE SINTAXIS
       loadMoreBtn.addEventListener('click', async () => {
         // Mostrar icono de carga
         loadingBtn(true);
@@ -224,10 +225,12 @@ const serializedPosts = JSON.stringify(
           
           if (nextPosts.length > 0) {
             // Renderizar nuevos posts
-            for (const post of nextPosts) {
-              const postHTML = createPostHTML(post);
-              postsContainer.insertAdjacentHTML('beforeend', postHTML);
-            }
+            // --- INICIO SECCIÓN PROBLEMÁTICA COMENTADA ---
+            // for (const post of nextPosts) {
+            //   const postHTML = createPostHTML(post);
+            //   postsContainer.insertAdjacentHTML('beforeend', postHTML);
+            // }
+            // --- FIN SECCIÓN PROBLEMÁTICA COMENTADA ---
             
             // Actualizar página actual
             loadMoreBtn.dataset.currentPage = nextPage.toString();
@@ -251,38 +254,41 @@ const serializedPosts = JSON.stringify(
           // Auto-eliminar mensaje después de 5 segundos
           setTimeout(() => errorMsg.remove(), 5000);
         } finally {
-          // Ocultar icono de carga
+          // Dejar de mostrar icono de carga
           loadingBtn(false);
         }
       });
+      */ // FIN COMENTADO TEMPORALMENTE
       
+      // Función para mostrar/ocultar el icono de carga en el botón
       function loadingBtn(isLoading) {
-        const textSpan = loadMoreBtn.querySelector('span');
+        const btnSpan = loadMoreBtn.querySelector('span');
         if (isLoading) {
-          loadingIcon.classList.remove('hidden');
-          textSpan.textContent = 'Cargando...';
+          if (btnSpan) btnSpan.classList.add('hidden');
+          if (loadingIcon) loadingIcon.classList.remove('hidden');
           loadMoreBtn.disabled = true;
         } else {
-          loadingIcon.classList.add('hidden');
-          textSpan.textContent = 'Cargar más';
+          if (btnSpan) btnSpan.classList.remove('hidden');
+          if (loadingIcon) loadingIcon.classList.add('hidden');
           loadMoreBtn.disabled = false;
         }
       }
       
+      // Función para formatear fecha (igual que en Astro frontmatter)
       function formatDate(dateString) {
-        const date = new Date(dateString);
         try {
-          return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
+          const date = new Date(dateString);
+          return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
         } catch (error) {
           return "Fecha no disponible";
         }
       }
       
+      // Función para crear el HTML de un post
       function createPostHTML(post) {
+        // Construir la URL de la imagen correctamente con BASE_URL
+        const imageUrl = post.image ? `${import.meta.env.BASE_URL}${(post.image || '').startsWith('/') ? (post.image || '').substring(1) : (post.image || '')}` : null;
+        
         return `
           <article class="blog-card bg-[var(--color-card)] rounded-xl overflow-hidden transition-transform hover:scale-[1.01] hover:shadow-md border border-[var(--color-border)]">
             <div class="flex flex-col md:flex-row">
@@ -290,12 +296,13 @@ const serializedPosts = JSON.stringify(
                 <div class="md:w-1/3 relative">
                   <a href="${import.meta.env.BASE_URL}blog/${post.slug}/" class="block w-full h-full overflow-hidden">
                     <img 
-                      src="${post.image}" 
+                      src="${imageUrl}" 
                       alt="Imagen para ${post.title}"
                       class="w-full h-48 md:h-full object-cover transition-transform hover:scale-[1.05]"
                       width="800"
                       height="450"
                       loading="lazy"
+                      decoding="async"
                     />
                     <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity"></div>
                   </a>

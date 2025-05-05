@@ -1,21 +1,25 @@
 {
-  "name": "blog-dof-rag",
+  "name": "dof-rag-website",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "tinacms dev -c \"astro dev\"",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint . --ext .astro,.js,.ts",
-    "format": "prettier --write . --plugin=prettier-plugin-astro --plugin=prettier-plugin-tailwindcss"
+    "format": "prettier --write . --plugin=prettier-plugin-astro --plugin=prettier-plugin-tailwindcss",
+    "tinacms": "tinacms"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.11",
     "@astrojs/tailwind": "^6.0.2",
+    "@tinacms/cli": "^1.9.5",
     "astro": "^5.6.2",
     "sharp": "^0.34.1",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "tinacms": "^2.7.5",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

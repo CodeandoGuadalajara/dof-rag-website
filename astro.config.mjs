@@ -1,13 +1,32 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
+import remarkAddBasepathToImages from './src/lib/remark-plugins/remark-add-basepath-to-images.js';
 
-// https://astro.build/config
 export default defineConfig({
-  site: 'https://jorge5452.github.io/Blog-Dof-Rag/',
-  base: '/Blog-Dof-Rag/',
-  output: 'static', // Cambiado de 'server' a 'static' para GitHub Pages
-  integrations: [
-    tailwind(),
-  ]
+  site: 'https://codeandoguadalajara.github.io',
+  base: '/dof-rag-website',
+  integrations: [tailwind()],
+  output: 'static',
+  // Garantiza que las rutas de TinaCMS funcionarán correctamente
+  trailingSlash: 'always',
+  markdown: {
+    remarkPlugins: [remarkAddBasepathToImages],
+  },
+  // Configuración adicional para TinaCMS
+  build: {
+    format: 'file'
+  },
+  server: {
+    port: 4321,
+    host: true
+  },
+  // Configuración de rutas para asegurar que TinaCMS funcione correctamente
+  vite: {
+    resolve: {
+      alias: {
+        '/@fs/': '/'
+      }
+    }
+  }
 });
