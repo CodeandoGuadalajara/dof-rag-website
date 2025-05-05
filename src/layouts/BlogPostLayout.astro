@@ -101,7 +101,7 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
         
         {image && (
           <img
-            src={`${import.meta.env.BASE_URL}${image.startsWith('/') ? image.substring(1) : image}`}
+            src={`${import.meta.env.BASE_URL}/${image.startsWith('/') ? image.substring(1) : image}`}
             alt={`Imagen para ${title}`}
             class="w-full rounded-lg object-cover mb-8"
             style="max-height: 400px;"
