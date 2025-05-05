@@ -1,5 +1,7 @@
 import { TinaNodeBackend, LocalBackendAuthProvider } from "@tinacms/datalayer";
 
+export const prerender = false; // Deshabilitar pre-renderizado para esta ruta API
+
 const isLocal = process.env.TINA_PUBLIC_IS_LOCAL === "true";
 
 /**
