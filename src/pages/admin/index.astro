@@ -1,0 +1,45 @@
+---
+// src/pages/admin/index.astro - Redirección al panel de administración
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redireccionando a TinaCMS</title>
+  <script is:inline>
+    // Función para obtener la URL correcta del admin
+    function getAdminUrl() {
+      // Si estamos en desarrollo (localhost)
+      if (window.location.hostname === 'localhost') {
+        // Redireccionar a puerto 4001 donde TinaCMS inicia su servidor en desarrollo
+        return `http://localhost:4001/admin/`;
+      } else {
+        // En producción, usar la ruta base del sitio
+        const basePath = '/dof-rag-website';
+        return `${window.location.origin}${basePath}/admin/`;
+      }
+    }
+    
+    // Realizar la redirección
+    window.location.href = getAdminUrl();
+  </script>
+</head>
+<body>
+  <div style="max-width: 600px; margin: 100px auto; text-align: center; font-family: sans-serif;">
+    <h1>Redireccionando al panel de administración</h1>
+    <p>Por favor espera mientras te redirigimos al panel de TinaCMS...</p>
+    <div style="margin-top: 30px;">
+      <p>Si no eres redirigido automáticamente, haz clic <a id="adminLink" href="#" target="_blank">aquí</a>.</p>
+      <script is:inline>
+        // Asignar la URL al enlace
+        const adminLink = document.getElementById('adminLink');
+        if (adminLink) {
+          adminLink.href = getAdminUrl();
+        }
+      </script>
+    </div>
+  </div>
+</body>
+</html> 

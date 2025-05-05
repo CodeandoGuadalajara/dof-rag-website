@@ -28,6 +28,11 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: npm ci
+      - name: Build TinaCMS
+        env:
+          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+        run: npx tinacms build
       - name: Build with Astro
         run: npm run build
       # Crear archivo .nojekyll para indicar a GitHub Pages que no use Jekyll
@@ -47,4 +52,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 
+        uses: actions/deploy-pages@v4

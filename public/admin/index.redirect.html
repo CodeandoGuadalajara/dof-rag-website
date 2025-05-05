@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redireccionando a TinaCMS</title>
+  <script>
+    const basePath = '/dof-rag-website';
+    
+    // Detectar y corregir ruta duplicada /admin/admin/
+    if (window.location.pathname.match(/\/admin\/admin\/?/)) {
+      const correctPath = window.location.pathname.replace(/\/admin\/admin\/?/, '/admin/');
+      window.location.href = window.location.origin + correctPath;
+      throw new Error('Redirección en proceso');
+    }
+    
+    // Redirección normal a la ruta de admin
+    if (window.location.pathname.endsWith('/admin/') || window.location.pathname.endsWith('/admin')) {
+      window.location.href = window.location.origin + basePath + '/admin/index.html';
+    } else if (window.location.pathname.includes('/admin/') && !window.location.pathname.includes('/admin/index.html')) {
+      const adminPart = window.location.pathname.split('/admin/')[1];
+      window.location.href = window.location.origin + basePath + '/admin/index.html#/' + adminPart;
+    }
+  </script>
+</head>
+<body>
+  <p>Redireccionando al panel de administración de TinaCMS...</p>
+</body>
+</html> 

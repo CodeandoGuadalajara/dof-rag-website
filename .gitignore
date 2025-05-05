@@ -32,3 +32,6 @@ public/images/posts/2024/04/*.svg
 
 # Gitignore
 .gitignore
+
+node_modules
+.env
