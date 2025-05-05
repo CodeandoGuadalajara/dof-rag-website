@@ -5,7 +5,7 @@ author: Equipo DOF-RAG
 description: 'Una iniciativa para mejorar la accesibilidad y comprensión de la información del Diario Oficial de la Federación.'
 tags: ['DOF-RAG', 'proyecto', 'introducción']
 featured: true
-image: "/Blog-Dof-Rag/images/posts/2025/04/introduccion-dof-rag.svg"
+image: "/dof-rag-website/images/posts/2025/04/introduccion-dof-rag.svg"
 ---
 
 

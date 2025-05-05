@@ -5,7 +5,7 @@ author: "Equipo DOF-RAG"
 description: 'Un análisis comparativo de diferentes modelos de IA en la tarea de describir imágenes para el proyecto DOF-RAG.'
 tags: ['DOF-RAG', 'IA', 'descripción-imágenes', 'Gemini', 'Ollama']
 featured: true
-image: "/Blog-Dof-Rag/images/posts/chatgpt-image-25-mar-2025-09_27_39-p.m..png"
+image: "/dof-rag-website/images/posts/chatgpt-image-25-mar-2025-09_27_39-p.m..webp"
 ---
 
 En nuestro proyecto de extracción automática de descripciones de imágenes, hemos puesto a prueba varios modelos de IA para evaluar su capacidad de generar descripciones precisas y útiles. Los resultados han sido fascinantes, desde descripciones increíblemente detalladas hasta interpretaciones que nos han hecho cuestionar si la IA y nosotros estábamos mirando la misma imagen.
@@ -14,11 +14,11 @@ En nuestro proyecto de extracción automática de descripciones de imágenes, he
 
 Mientras probábamos cómo los modelos de IA describen imágenes, analizamos varias fotos de un archivo del DOF. Para este ejemplo usaremos una sola imagen (la que llamamos "_page_337_Figure_4.jpeg"). Los resultados fueron curiosos: cada modelo dio descripciones muy diferentes de la misma imagen. Esto nos hizo preguntarnos si estos sistemas son realmente confiables cuando se usan en situaciones reales.
 
-La imagen en cuestión es la siguiente:
+## La imagen de ejemplo
 
-![Programa Precios de Garantía a Productos Alimentarios Básicos - SEGALMEX](/Blog-Dof-Rag/images/posts/2025/04/_page_337_Figure_4.jpeg)
+**Nota**: *En la versión original de este análisis trabajamos con una imagen del Programa Precios de Garantía a Productos Alimentarios Básicos de SEGALMEX, pero hemos omitido incluirla en este post por motivos de derechos de autor. Se trataba de una infografía oficial sobre precios de garantía para maíz y frijol del gobierno mexicano.*
 
-Como se puede apreciar, se trata de una infografía sobre un programa de precios de garantía para productos alimentarios básicos (maíz y frijol) del gobierno mexicano, a través de SEGALMEX. Sin embargo, las interpretaciones que recibimos de los diferentes modelos fueron interesantemente diversas.
+Como se mencionó, la imagen original era una infografía sobre un programa de precios de garantía para productos alimentarios básicos (maíz y frijol) del gobierno mexicano, a través de SEGALMEX. Lo fascinante fueron las interpretaciones tan diversas que recibimos de los diferentes modelos.
 
 A continuación presentamos los resultados obtenidos con distintos modelos, analizando tanto la precisión semántica como los tiempos de procesamiento:
 
@@ -95,11 +95,11 @@ Que traducido vendría a ser: "La imagen presenta una vibrante infografía que e
 
 Al comparar los modelos locales (Ollama) con los servicios en la nube (Gemini), la diferencia es abrumadora:
 
-| Modelo | Tiempo promedio | Tokens generados | Precisión estimada | Limitaciones |
-|--------|-----------------|------------------|-------------------|-------------|
-| Gemini | 3-5 segundos | 150-200 | 85-95% | • 15 peticiones/minuto<br>• 1500 peticiones/día<br>• Requiere internet |
-| Ollama (gemma3:4b) | 120-130 segundos | 100-140 | 20-30% | • Sin límites de API<br>• Rendimiento limitado por hardware local |
-| Moondream | 140-150 segundos | 60-80 | 15-25% | • Sin límites de API<br>• Solo genera en inglés |
+| Modelo | Tiempo promedio | Tokens generados | Precisión estimada |
+|--------|-----------------|------------------|-------------------|
+| Gemini | 3-5 segundos | 150-200 | 85-95% |
+| Ollama (gemma3:4b) | 120-130 segundos | 100-140 | 20-30% |
+| Moondream | 140-150 segundos | 60-80 | 15-25% |
 
 Estas métricas evidencian no solo la superioridad en velocidad de los modelos en la nube (30-40 veces más rápidos), sino también en la calidad y precisión de las descripciones generadas. Los modelos locales, aunque valientes en su intento, parecen estar jugando en una liga completamente diferente.
 
@@ -127,22 +127,22 @@ Para entender mejor los resultados que hemos presentado, es importante conocer l
 
 Nuestro sistema sigue un patrón de diseño orientado a interfaces que permite intercambiar diferentes proveedores de IA sin modificar el código principal. Esta arquitectura flexible nos ha permitido comparar varios modelos bajo las mismas condiciones de prueba.
 
-#### Componentes principales:
+#### Componentes principales
 
-1. **Interfaz abstracta de cliente (`AbstractAIClient`)**: 
-   - Define los métodos estándar que todos los proveedores de IA deben implementar
-   - Asegura la consistencia en la forma de procesar imágenes y generar descripciones
-   - Proporciona métodos para configurar parámetros como temperatura, tokens máximos, etc.
+##### Interfaz abstracta de cliente (`AbstractAIClient`)
+- Define los métodos estándar que todos los proveedores de IA deben implementar
+- Asegura la consistencia en la forma de procesar imágenes y generar descripciones
+- Proporciona métodos para configurar parámetros como temperatura, tokens máximos, etc.
 
-2. **Implementaciones concretas**:
-   - **`GeminiClient`**: Cliente para Google Gemini, optimizado para extracción de texto visible y documentos oficiales
-   - **`OllamaClient`**: Permite usar modelos locales como gemma3:4b, eliminando la dependencia de APIs externas
-   - **`OpenAIClient`**: Aunque implementamos la conexión con modelos GPT-4o para análisis de imágenes, es importante destacar que no utilizamos esta implementación en nuestras pruebas finales debido a limitaciones presupuestarias. El costo por petición de la API de OpenAI resultaba prohibitivo para un proyecto de esta escala, especialmente considerando el alto volumen de imágenes que necesitábamos procesar. Nos enfocamos en alternativas gratuitas o de menor costo que pudieran escalarse a nuestras necesidades.
+##### Implementaciones concretas
+- **GeminiClient**: Cliente para Google Gemini, optimizado para extracción de texto visible y documentos oficiales
+- **OllamaClient**: Permite usar modelos locales como gemma3:4b, eliminando la dependencia de APIs externas
+- **OpenAIClient**: Aunque implementamos la conexión con modelos GPT-4o para análisis de imágenes, es importante destacar que no utilizamos esta implementación en nuestras pruebas finales debido a limitaciones presupuestarias. El costo por petición de la API de OpenAI resultaba prohibitivo para un proyecto de esta escala, especialmente considerando el alto volumen de imágenes que necesitábamos procesar. Nos enfocamos en alternativas gratuitas o de menor costo que pudieran escalarse a nuestras necesidades.
 
-3. **Utilitarios de procesamiento**:
-   - Sistema de manejo de archivos para procesamiento por lotes
-   - Mecanismo de checkpoint para reanudar procesamiento interrumpido
-   - Registro detallado de métricas para analizar rendimiento
+##### Utilitarios de procesamiento
+- Sistema de manejo de archivos para procesamiento por lotes
+- Mecanismo de checkpoint para reanudar procesamiento interrumpido
+- Registro detallado de métricas para analizar rendimiento
 
 ### Análisis de rendimiento técnico
 
@@ -190,64 +190,22 @@ Al examinar el código y las métricas de tiempo de ejecución, encontramos expl
 
 El procesamiento de imágenes sigue este flujo:
 
-1. **Preparación de la imagen**: Conversión a formato bytes compatible con cada API
-2. **Generación del prompt**: Utilizamos un prompt estandarizado en español para todos los modelos
-3. **Llamada al modelo**: Envío de la imagen y el prompt al modelo correspondiente
-4. **Procesamiento de respuesta**: Validación y formateo de la descripción generada
-5. **Almacenamiento**: Guardado de la descripción en archivo .txt junto a la imagen original
+##### Etapa 1: Preparación de la imagen
+Conversión a formato bytes compatible con cada API
 
-Para el modelo Gemini, que demostró ser el más eficiente, el código real que usamos es el siguiente:
+##### Etapa 2: Generación del prompt
+Utilizamos un prompt estandarizado en español para todos los modelos
 
-```python
-# Proceso de generación con Gemini (extracto del código real)
-try:
-    # Process the image to get bytes and mime type
-    image_bytes, mime_type = self.process_image_to_bytes(image_path)
-    
-    # Prepare content parts
-    contents = [
-        # First part is the text prompt
-        types.Part.from_text(text=self.question),
-        # Second part is the image
-        types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-    ]
-    
-    with api_lock:
-        # Use non-streaming API
-        response = self._client.models.generate_content(
-            model=self.model,
-            contents=contents,
-            config=self.get_generate_config()
-        )
-        description = response.text if hasattr(response, 'text') else str(response)
-except Exception as e:
-    error_msg = str(e)
-    result["error"] = f"Error processing image with Gemini: {error_msg}"
-```
+##### Etapa 3: Llamada al modelo
+Envío de la imagen y el prompt al modelo correspondiente
 
-Para gestionar las limitaciones de la API de Gemini (15 peticiones por minuto), implementamos un manejo cuidadoso del procesamiento por lotes en nuestro sistema `FileUtil`:
+##### Etapa 4: Procesamiento de respuesta
+Validación y formateo de la descripción generada
 
-```python
-# Extracto real de process_images en FileUtil
-for batch_start in range(start_index, len(image_paths), self.batch_size):
-    batch_end = min(batch_start + self.batch_size, len(image_paths))
-    
-    print(f"\nProcessing batch {batch_start//self.batch_size + 1} ({batch_end}/{len(image_paths)} images)")
-    
-    # Process each image in the batch
-    for i, img_path in enumerate(batch):
-        # Código de procesamiento de cada imagen...
-    
-    # Cooling period between batches, except if it's the last batch
-    if batch_end < len(image_paths):
-        print(f"\nCooling down for {self.cooling_period} seconds...")
-        # Check for interruption during cooling every second
-        for i in range(self.cooling_period):
-            if interrupt_flag_file and os.path.exists(interrupt_flag_file):
-                # Manejo de interrupción...
-                pass
-            time.sleep(1)
-```
+##### Etapa 5: Almacenamiento
+Guardado de la descripción en archivo .txt junto a la imagen original
+
+Para el modelo Gemini, que demostró ser el más eficiente, utilizamos un código estructurado para procesar las imágenes y obtener descripciones detalladas.
 
 Este enfoque nos permite maximizar el uso de la API sin exceder sus límites, manteniendo un procesamiento eficiente y continuo.
 
@@ -255,20 +213,20 @@ Este enfoque nos permite maximizar el uso de la API sin exceder sus límites, ma
 
 Durante nuestras pruebas encontramos varios desafíos técnicos:
 
-1. **Modelos que no responden la pregunta**: Algunos modelos de Ollama interpretaban el prompt como instrucciones sobre cómo responder, en lugar de responder a la pregunta. Esto se debe a problemas en el formato de las instrucciones y a limitaciones en la comprensión del contexto por parte de modelos más pequeños.
+##### Modelos que no responden la pregunta
+Algunos modelos interpretaban el prompt como instrucciones, en lugar de responder directamente a lo solicitado.
 
-2. **Barrera del idioma**: Los modelos Moondream solo responden en inglés, lo que requirió implementar un sistema de post-procesamiento para traducir las respuestas al español.
+##### Barrera del idioma
+Los modelos Moondream solo responden en inglés, lo que requirió implementar un sistema de traducción.
 
-3. **Precisión vs. velocidad**: Los modelos más precisos (Gemini) eran también los más rápidos, mientras que los modelos locales, a pesar de ser más lentos, producían respuestas menos precisas.
+##### Precisión vs. velocidad
+Los modelos más precisos (Gemini) eran también los más rápidos, mientras que los locales eran menos precisos pese a su mayor lentitud.
 
-4. **Límites de API de Gemini**: 
-   - **Límite por minuto**: La API de Gemini permite solo 15 peticiones por minuto, lo que nos obligó a implementar períodos de enfriamiento considerables entre lotes para evitar errores. En nuestras pruebas, un enfriamiento de 30 segundos después de cada lote de 10 imágenes resultó óptimo.
-   
-   - **Límite diario**: Más allá del límite por minuto, existe un límite de 1500 peticiones diarias que representa una barrera significativa para proyectos a gran escala. En un contexto como el DOF, donde hemos identificado más de 4,000 imágenes tan solo en los documentos de los últimos 3 años, este límite resulta insuficiente.
-   
-   - **Volumen histórico**: Considerando que el DOF lleva en funcionamiento aproximadamente 20 años en formato digital, el volumen total estimado de imágenes podría superar las 25,000-30,000, lo que haría imposible un procesamiento completo con la API gratuita de Gemini en un tiempo razonable (requeriría más de 20 días dedicados exclusivamente a esta tarea).
+##### Límites de API
+La API de Gemini permite solo 15 peticiones por minuto y tiene un límite diario de 1500 peticiones, lo que representa una barrera significativa para proyectos de gran escala.
 
-5. **Gestión de fallos de API**: Implementamos mecanismos de checkpoint y recuperación para gestionar posibles fallos o interrupciones durante el procesamiento, lo que resulta crítico en procesos de larga duración con limitaciones de API.
+##### Gestión de fallos de API
+Implementamos mecanismos de checkpoint y recuperación para gestionar posibles fallos o interrupciones durante el procesamiento, lo que resulta crítico en procesos de larga duración con limitaciones de API.
 
 Estos desafíos nos llevaron a considerar un enfoque híbrido, utilizando Gemini para documentos críticos donde la precisión es fundamental, y modelos locales para el procesamiento masivo inicial de documentos históricos, a pesar de su menor precisión.
 
@@ -276,25 +234,8 @@ Este enfoque híbrido, que está actualmente en fase de prototipo, se implementa
 
 ```python
 # Configuración de distintos modelos (basado en nuestro código real)
-gemini_client = GeminiClient(
-    model="gemini-2.0-flash",
-    max_tokens=256,
-    temperature=0.6,
-    top_p=0.6,
-    top_k=20,
-    response_mime_type="text/plain",
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-
-ollama_client = OllamaClient(
-    model="gemma3:4b",
-    max_tokens=512,
-    temperature=0.5,
-    top_p=0.5,
-    top_k=20,
-    num_ctx=8192,
-    api_key=None
-)
+gemini_client = GeminiClient(model="gemini-2.0-flash")
+ollama_client = OllamaClient(model="gemma3:4b")
 ```
 
 La implementación de esta estrategia mixta nos permite optimizar el uso de recursos mientras cumplimos con los límites establecidos por las APIs de los servicios en la nube.

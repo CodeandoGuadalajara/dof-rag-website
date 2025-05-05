@@ -1,0 +1,8 @@
+# Redireccionar rutas duplicadas de admin
+RewriteEngine On
+
+# Redireccionar específicamente admin/admin a admin (duplicación de ruta)
+RewriteRule ^(.*)admin/admin/(.*)$ $1admin/$2 [R=301,L]
+
+# Para GitHub Pages específicamente
+RewriteRule ^dof-rag-website/admin/admin/(.*)$ /dof-rag-website/admin/$1 [R=301,L] 
