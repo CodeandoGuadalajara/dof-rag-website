@@ -45,4 +45,4 @@ En esta primera fase del proyecto, nos hemos propuesto:
 
 En próximas publicaciones, estaremos compartiendo avances específicos sobre cada componente del sistema, desafíos encontrados y soluciones implementadas.
 
-Agradecemos su interés en nuestro proyecto y los invitamos a seguir nuestro blog para mantenerse al tanto de los avances en DOF-RAG. 
+Agradecemos su interés en nuestro proyecto y los invitamos a seguir nuestro blog para mantenerse al tanto de los avances en DOF-RAG.
