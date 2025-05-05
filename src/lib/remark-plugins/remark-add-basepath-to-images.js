@@ -13,7 +13,10 @@ export default function remarkAddBasepathToImages() {
           // Solo añadir basePath si NO empieza ya con él
           if (!node.url.startsWith(basePath + '/')) {
             // console.log(`Plugin: Modifying URL. Original: ${node.url}`); // Log para depuración
-            node.url = basePath + node.url;
+            // Asegurarse de que el basePath termina con / y que node.url empieza con /
+            // para evitar doble barra o falta de barra
+            const cleanNodeUrl = node.url.startsWith('/') ? node.url.substring(1) : node.url;
+            node.url = `${basePath}/${cleanNodeUrl}`;
             // console.log(`Plugin: Modified URL. New: ${node.url}`); // Log para depuración
           }
         }
