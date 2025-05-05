@@ -8,8 +8,8 @@ export default defineConfig({
   base: '/dof-rag-website',
   integrations: [tailwind()],
   output: 'static',
-  // Garantiza que las rutas de TinaCMS funcionarán correctamente
-  trailingSlash: 'always',
+  // Cambiar a 'never' para evitar problemas con las rutas en GitHub Pages
+  trailingSlash: 'never',
   markdown: {
     remarkPlugins: [remarkAddBasepathToImages],
   },

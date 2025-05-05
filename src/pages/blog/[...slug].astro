@@ -10,10 +10,16 @@ import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
 export async function getStaticPaths() {
   // Si estamos en modo build (no SSR), generamos todas las rutas estáticas
   const blogEntries = await getCollection('blog');
-  return blogEntries.map(post => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+  return blogEntries.map(post => {
+    // Verifica si el post tiene un slug que incluye subcarpetas (con '/')
+    // Por ejemplo: "2025/04/introduccion-dof-rag"
+    const slugPath = post.slug;
+    
+    return {
+      params: { slug: slugPath },
+      props: { post },
+    };
+  });
 }
 
 // Soporte para SSR
@@ -33,13 +39,13 @@ if (slug) {
   } catch (error) {
     console.error(`Error loading post with slug "${slug}":`, error);
     // Si hay error, redirigimos a 404
-    return Astro.redirect('/404');
+    return Astro.redirect(`${import.meta.env.BASE_URL}/404`);
   }
 }
 
 // Si no se encontró el post, redirigimos a 404
 if (!post || !Content) {
-  return Astro.redirect('/404');
+  return Astro.redirect(`${import.meta.env.BASE_URL}/404`);
 }
 ---
 
