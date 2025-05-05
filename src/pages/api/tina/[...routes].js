@@ -1,5 +1,4 @@
 import { TinaNodeBackend, LocalBackendAuthProvider } from "@tinacms/datalayer";
-import { databaseClient } from "../../../../tina/__generated__/client";
 
 const isLocal = process.env.TINA_PUBLIC_IS_LOCAL === "true";
 
@@ -12,7 +11,6 @@ export async function ALL(context) {
   try {
     const handler = TinaNodeBackend({
       authProvider: LocalBackendAuthProvider(),
-      databaseClient,
       // Configuración adicional para mejorar el manejo de errores
       errorHandler: (err) => {
         console.error("TinaCMS API Error:", err);
