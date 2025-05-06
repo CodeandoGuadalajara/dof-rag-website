@@ -1,6 +1,18 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
+/**
+ * Endpoint API para cargar más posts con paginación
+ * 
+ * Parámetros de consulta:
+ * - offset: Número de posts a saltar (por defecto 0)
+ * - limit: Número máximo de posts a devolver (por defecto 6)
+ * 
+ * Respuesta:
+ * - posts: Array de posts paginados
+ * - hasMore: Booleano que indica si hay más posts disponibles
+ * - total: Número total de posts no paginados
+ */
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
