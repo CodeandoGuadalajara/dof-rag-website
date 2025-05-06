@@ -1,13 +1,17 @@
 ---
 title: Introducción al Proyecto DOF-RAG
-date: '2025-04-11T00:00:00Z'
+date: 2025-04-11T00:00:00.000Z
 author: Equipo DOF-RAG
-description: 'Una iniciativa para mejorar la accesibilidad y comprensión de la información del Diario Oficial de la Federación.'
-tags: ['DOF-RAG', 'proyecto', 'introducción']
+description: >-
+  Una iniciativa para mejorar la accesibilidad y comprensión de la información
+  del Diario Oficial de la Federación.
+image: /images/posts/2025/04/introduccion-dof-rag.svg
+tags:
+  - DOF-RAG
+  - proyecto
+  - introducción
 featured: true
-image: "/dof-rag-website/images/posts/2025/04/introduccion-dof-rag.svg"
 ---
-
 
 El **Proyecto DOF-RAG** surge como una iniciativa para mejorar la accesibilidad y comprensión de la información contenida en el Diario Oficial de la Federación (DOF) de México mediante el uso de tecnologías avanzadas de procesamiento de lenguaje natural y recuperación de información.
 
@@ -30,9 +34,9 @@ Nuestro sistema pretende democratizar el acceso a esta información, permitiendo
 
 El proyecto DOF-RAG integra diversas tecnologías de vanguardia:
 
-- **Vectorización semántica**: Para representar documentos en un espacio vectorial que captura su significado
-- **Bases de datos vectoriales**: Para almacenar y recuperar eficientemente la información vectorizada
-- **Modelos de lenguaje de gran escala**: Para generar respuestas precisas y coherentes
+* **Vectorización semántica**: Para representar documentos en un espacio vectorial que captura su significado
+* **Bases de datos vectoriales**: Para almacenar y recuperar eficientemente la información vectorizada
+* **Modelos de lenguaje de gran escala**: Para generar respuestas precisas y coherentes
 
 ## Objetivos iniciales
 
