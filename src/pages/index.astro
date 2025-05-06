@@ -180,86 +180,20 @@ const serializedPosts = JSON.stringify(
 
   <script define:vars={{ serializedPosts, POSTS_PER_PAGE }}>
     document.addEventListener('DOMContentLoaded', () => {
+      // Obtener referencias a elementos del DOM
       const loadMoreBtn = document.getElementById('load-more-btn');
       const postsContainer = document.getElementById('posts-container');
       const loadingIcon = document.getElementById('loading-icon');
+      
+      // Convertir los posts de JSON a objetos JS
       const allPosts = JSON.parse(serializedPosts);
       
+      // Verificar que los elementos existan antes de continuar
       if (!loadMoreBtn || !postsContainer) return;
       
       // Configuración
       const useLocalPosts = true; // Cambiar a false para usar la API en lugar de los posts locales
-      
-      /* // COMENTADO TEMPORALMENTE PARA EVITAR ERROR DE SINTAXIS
-      loadMoreBtn.addEventListener('click', async () => {
-        // Mostrar icono de carga
-        loadingBtn(true);
-        
-        // Obtener página actual
-        const currentPage = parseInt(loadMoreBtn.dataset.currentPage, 10);
-        const nextPage = currentPage + 1;
-        const startIndex = currentPage * POSTS_PER_PAGE;
-        const endIndex = nextPage * POSTS_PER_PAGE;
-        
-        try {
-          // Esperar un poco para mostrar la animación de carga (solo para demostración)
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          let nextPosts = [];
-          
-          if (useLocalPosts) {
-            // Método 1: Usar los posts ya cargados en el cliente
-            nextPosts = allPosts.slice(startIndex, endIndex);
-          } else {
-            // Método 2: Obtener posts a través de la API
-            const response = await fetch(`/api/more-posts.json?offset=${startIndex}&limit=${POSTS_PER_PAGE}`);
-            if (!response.ok) throw new Error('Error al cargar posts');
-            const data = await response.json();
-            nextPosts = data.posts;
-            
-            // Verificar si hay más posts según la API
-            if (!data.hasMore) {
-              loadMoreBtn.parentElement.classList.add('hidden');
-            }
-          }
-          
-          if (nextPosts.length > 0) {
-            // Renderizar nuevos posts
-            // --- INICIO SECCIÓN PROBLEMÁTICA COMENTADA ---
-            // for (const post of nextPosts) {
-            //   const postHTML = createPostHTML(post);
-            //   postsContainer.insertAdjacentHTML('beforeend', postHTML);
-            // }
-            // --- FIN SECCIÓN PROBLEMÁTICA COMENTADA ---
-            
-            // Actualizar página actual
-            loadMoreBtn.dataset.currentPage = nextPage.toString();
-            
-            // Si usamos posts locales, verificar si quedan más
-            if (useLocalPosts && endIndex >= allPosts.length) {
-              loadMoreBtn.parentElement.classList.add('hidden');
-            }
-          } else {
-            // No hay más posts, ocultar botón
-            loadMoreBtn.parentElement.classList.add('hidden');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          // Mostrar mensaje de error
-          const errorMsg = document.createElement('div');
-          errorMsg.className = 'text-red-500 text-center mt-4';
-          errorMsg.textContent = 'Error al cargar más posts. Inténtalo de nuevo.';
-          loadMoreBtn.parentElement.insertAdjacentElement('beforebegin', errorMsg);
-          
-          // Auto-eliminar mensaje después de 5 segundos
-          setTimeout(() => errorMsg.remove(), 5000);
-        } finally {
-          // Dejar de mostrar icono de carga
-          loadingBtn(false);
-        }
-      });
-      */ // FIN COMENTADO TEMPORALMENTE
-      
+                 
       // Función para mostrar/ocultar el icono de carga en el botón
       function loadingBtn(isLoading) {
         const btnSpan = loadMoreBtn.querySelector('span');
