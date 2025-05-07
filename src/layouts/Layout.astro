@@ -44,7 +44,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 				</a>
 				<nav class="flex items-center gap-6">
 					<a href={import.meta.env.BASE_URL || '/'} class="hover:text-[var(--color-accent)]">Inicio</a>
-					<a href={`${import.meta.env.BASE_URL}about`} class="hover:text-[var(--color-accent)]">Acerca de</a>
+					<a href={`${import.meta.env.BASE_URL}/about`} class="hover:text-[var(--color-accent)]">Acerca de</a>
 					<button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--color-border)] ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -72,7 +72,7 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 						<h3 class="text-lg font-bold mb-4">Recursos</h3>
 						<ul class="space-y-2">
 							<li><a href={import.meta.env.BASE_URL || '/'} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Blog</a></li>
-							<li><a href={`${import.meta.env.BASE_URL}about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Acerca de</a></li>
+							<li><a href={`${import.meta.env.BASE_URL}/about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Acerca de</a></li>
 						</ul>
 					</div>
 					<div>

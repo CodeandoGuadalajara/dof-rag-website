@@ -62,7 +62,7 @@ const maxCount = sortedTags.length > 0 ? sortedTags[0].count : 0;
           <div class="flex flex-wrap justify-center gap-4">
             {sortedTags.map(({ tag, count }) => (
               <a 
-                href={`${import.meta.env.BASE_URL}tags/${tag}/`}
+                href={`${import.meta.env.BASE_URL}/tags/${tag}`}
                 class={`${getTagSize(count, maxCount)} px-4 py-2 rounded-full bg-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors relative group`}
               >
                 <span class="relative z-10">#{tag}</span>
