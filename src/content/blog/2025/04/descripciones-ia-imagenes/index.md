@@ -17,8 +17,6 @@ tags:
 featured: true
 ---
 
-\\
-
 # El desafío de la información invisible en documentos oficiales
 
 El Diario Oficial de la Federación (DOF) publica miles de documentos cada año que contienen información crítica para ciudadanos, empresas y entidades gubernamentales. Un desafío particular que hemos identificado es la gran cantidad de información valiosa contenida exclusivamente en imágenes: tablas de datos, gráficas estadísticas, infografías explicativas, diagramas técnicos y mapas. Esta información visual permanece "invisible" para los sistemas tradicionales de búsqueda y recuperación de información.
