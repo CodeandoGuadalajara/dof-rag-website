@@ -32,7 +32,7 @@ Implementamos dos enfoques diferentes para resolver este problema:
 
 ### Enfoque 1: El método simplificado
 
-primer intento fue crear encabezados con un formato plano:
+El primer intento fue crear encabezados con un formato plano:
 
 ```
 Document: 01052025-DOF | Section: Título 1 > Subtítulo A > Apartado 3 | Page: 5
@@ -84,7 +84,7 @@ Aunque ambos métodos buscan solucionar el mismo problema, sus diferencias son f
 | ------------------------ | -------------------------------------------- | ---------------------------------------------------------------------- |
 | **Estructura**           | Lineal, concatenando títulos con separadores | Jerárquica, preservando niveles con sintaxis Markdown                  |
 | **Memoria de contexto**  | Hereda solo el último encabezado             | Mantiene la estructura completa de "encabezados abiertos"              |
-| **Representación**       | `Título > Subtítulo > Apartado`              | Formato multilinea con niveles `#`, `##`, `###`                        |
+| **Representación**       | `Título > Subtítulo > Apartado`              | Formato multilínea con niveles `#`, `##`, `###`                        |
 | **Manejo de niveles**    | Ignora la jerarquía de los encabezados       | Respeta y representa explícitamente la relación entre H1, H2, H3, etc. |
 | **Tratamiento especial** | No diferencia entre fragmentos               | El primer fragmento recibe un tratamiento especial                     |
 
@@ -102,6 +102,11 @@ Esta experiencia nos enseñó algo importante: el contexto lo es todo. Podemos t
 Es como pedirle a alguien que resuelva un rompecabezas sin mostrarle la imagen completa. Podría intentarlo, pero probablemente colocará algunas piezas en lugares incorrectos.
 
 ## ¿Qué sigue?
+
+Es importante destacar que nuestra solución actual depende fundamentalmente de dos factores:
+
+1. **Calidad de la jerarquía de títulos**: La efectividad del método depende de que los documentos tengan títulos y subtítulos bien definidos y semánticamente relevantes, no solo etiquetas genéricas como "Introducción" o "Capítulo 1" que aportan poco contexto real.
+2. **Precisión del extractor de markdown**: El extractor debe interpretar correctamente la jerarquía de encabezados, evitando confundir niveles (por ejemplo, H1 con H2), un problema que hemos detectado en la implementación actual.
 
 En el ecosistema, siguen surgiendo métodos innovadores para resolver el problema de la pérdida de contexto. Estos son algunos enfoques prometedores que podrían complementar nuestra solución actual:
 
