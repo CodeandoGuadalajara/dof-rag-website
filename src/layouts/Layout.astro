@@ -1,21 +1,46 @@
 ---
 import '../styles/global.css';
+import { getLangFromUrl, getLocalizedPathname, translatePath } from '../i18n/utils.ts';
+import { supportedLanguages, ui, type SupportedLanguage } from '../i18n/config';
 
 interface Props {
 	title?: string;
 }
 
 const { title = 'DOF-RAG Blog' } = Astro.props;
+const currentPath = Astro.url.pathname;
+const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
+
+// Importar traducciones
+const translations = lang === 'es' 
+  ? await import('../i18n/translations/es.json')
+  : await import('../i18n/translations/en.json');
+
+function t(key: string): string {
+  return (translations.default as Record<string, string>)[key] || key;
+}
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}/images/13910204.png`} />
+		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+		<link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
+		<link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}/apple-touch-icon.png`} />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href={`${import.meta.env.BASE_URL}rss.xml`} />
+		
+		<!-- SEO para contenido multilingüe -->
+		{supportedLanguages.map(supportedLang => (
+			<link 
+				rel="alternate" 
+				hreflang={supportedLang} 
+				href={getLocalizedPathname(currentPath, supportedLang as SupportedLanguage)} 
+			/>
+		))}
+		
 		<title>{title}</title>
 		<!-- Prevenir el flash de tema incorrecto -->
 		<script is:inline>
@@ -39,12 +64,33 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 	<body>
 		<header class="border-b border-[var(--color-border)] py-4 sticky top-0 backdrop-blur-md z-10" style="background-color: rgba(var(--color-bg-rgb), 0.8);">
 			<div class="container flex justify-between items-center">
-				<a href={import.meta.env.BASE_URL || '/'} class="text-2xl font-bold flex items-center">
+				<a href={`${import.meta.env.BASE_URL}/${lang}`} class="text-2xl font-bold flex items-center">
 					<span class="gradient-text">DOF-RAG</span>
 				</a>
 				<nav class="flex items-center gap-6">
-					<a href={import.meta.env.BASE_URL || '/'} class="hover:text-[var(--color-accent)]">Inicio</a>
-					<a href={`${import.meta.env.BASE_URL}/about`} class="hover:text-[var(--color-accent)]">Acerca de</a>
+					<a href={`${import.meta.env.BASE_URL}/${lang}`} class="hover:text-[var(--color-accent)]">{t('nav.home')}</a>
+					<a href={`${import.meta.env.BASE_URL}/${lang}/about`} class="hover:text-[var(--color-accent)]">{t('nav.about')}</a>
+					
+					<!-- Selector de idioma con clic en lugar de hover -->
+					<div class="relative" id="language-menu">
+						<button id="language-toggle" class="flex items-center hover:text-[var(--color-accent)]">
+							{t('nav.language')}
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</button>
+						<div id="language-dropdown" class="absolute right-0 mt-2 py-2 w-40 bg-[var(--color-card)] rounded-md shadow-xl border border-[var(--color-border)] hidden">
+							{Object.entries(ui).map(([langCode, langName]) => (
+								<a 
+									href={getLocalizedPathname(currentPath, langCode as SupportedLanguage)} 
+									class={`block px-4 py-2 hover:bg-[var(--color-border)] ${lang === langCode ? 'text-[var(--color-accent)]' : ''}`}
+								>
+									{langName}
+								</a>
+							))}
+						</div>
+					</div>
+					
 					<button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--color-border)] ml-2">
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -63,22 +109,22 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 			<div class="container">
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 					<div>
-						<h3 class="text-xl font-bold mb-4 gradient-text">DOF-RAG</h3>
+						<h3 class="text-xl font-bold mb-4 gradient-text">{t('footer.title')}</h3>
 						<p class="text-[var(--color-muted)]">
-							Proyecto de investigación para el procesamiento y análisis de información del Diario Oficial de la Federación.
+							{t('footer.description')}
 						</p>
 					</div>
 					<div>
-						<h3 class="text-lg font-bold mb-4">Recursos</h3>
+						<h3 class="text-lg font-bold mb-4">{t('footer.resources')}</h3>
 						<ul class="space-y-2">
-							<li><a href={import.meta.env.BASE_URL || '/'} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Blog</a></li>
-							<li><a href={`${import.meta.env.BASE_URL}/about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">Acerca de</a></li>
+							<li><a href={`${import.meta.env.BASE_URL}/${lang}`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">{t('nav.home')}</a></li>
+							<li><a href={`${import.meta.env.BASE_URL}/${lang}/about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">{t('nav.about')}</a></li>
 						</ul>
 					</div>
 					<div>
-						<h3 class="text-lg font-bold mb-4">Contacto</h3>
+						<h3 class="text-lg font-bold mb-4">{t('footer.contact')}</h3>
 						<p class="text-[var(--color-muted)]">
-							Correo: <a href="mailto:contacto@dofrag.mx" class="text-[var(--color-accent)] hover:underline">contacto@dofrag.mx</a>
+							{t('footer.email')}: <a href="mailto:contacto@dofrag.mx" class="text-[var(--color-accent)] hover:underline">contacto@dofrag.mx</a>
 						</p>
 					</div>
 				</div>
@@ -111,6 +157,43 @@ const { title = 'DOF-RAG Blog' } = Astro.props;
 			localStorage.setItem('theme', 'light');
 		} else {
 			localStorage.setItem('theme', 'dark');
+		}
+	});
+	
+	// Almacenar preferencia de idioma
+	document.addEventListener('DOMContentLoaded', () => {
+		// Obtener idioma actual de la URL
+		const currentPath = window.location.pathname;
+		const segments = currentPath.split('/').filter(Boolean);
+		const currentLang = segments[0];
+		
+		if (['es', 'en'].includes(currentLang)) {
+			localStorage.setItem('preferredLanguage', currentLang);
+		}
+		
+		// Menú desplegable de idiomas
+		const languageToggle = document.getElementById('language-toggle');
+		const languageDropdown = document.getElementById('language-dropdown');
+		
+		if (languageToggle && languageDropdown) {
+			// Mostrar/ocultar menú al hacer clic en el botón
+			languageToggle.addEventListener('click', (e) => {
+				e.stopPropagation();
+				languageDropdown.classList.toggle('hidden');
+			});
+			
+			// Cerrar el menú al hacer clic en cualquier lugar fuera de él
+			document.addEventListener('click', (e) => {
+				if (!languageDropdown.contains(e.target as Node) && 
+					!languageToggle.contains(e.target as Node)) {
+					languageDropdown.classList.add('hidden');
+				}
+			});
+			
+			// Evitar que el menú se cierre al hacer clic en él (para poder seleccionar un idioma)
+			languageDropdown.addEventListener('click', (e) => {
+				e.stopPropagation();
+			});
 		}
 	});
 </script>

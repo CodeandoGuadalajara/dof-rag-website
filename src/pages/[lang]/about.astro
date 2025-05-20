@@ -1,0 +1,205 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getLangFromUrl } from '../../i18n/utils.ts';
+import { supportedLanguages, type SupportedLanguage } from '../../i18n/config';
+
+// Obtener el idioma actual de la URL
+const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
+
+// Importar traducciones
+const translations = lang === 'es' 
+  ? await import('../../i18n/translations/es.json')
+  : await import('../../i18n/translations/en.json');
+
+function t(key: string): string {
+  return (translations.default as Record<string, string>)[key] || key;
+}
+
+// Definir los parámetros estáticos para la generación
+export function getStaticPaths() {
+  return supportedLanguages.map(lang => ({
+    params: { lang }
+  }));
+}
+
+// Contenido específico por idioma
+const content = {
+  es: {
+    title: "Acerca del proyecto",
+    description: "DOF-RAG es un proyecto que busca aplicar técnicas de Recuperación y Generación Aumentada (RAG) sobre los documentos del Diario Oficial de la Federación de México.",
+    sections: [
+      {
+        title: "Objetivo",
+        content: "El objetivo principal del proyecto DOF-RAG es desarrollar una herramienta que permita a los usuarios buscar, analizar y comprender la información contenida en el Diario Oficial de la Federación de manera más eficiente y accesible.",
+      },
+      {
+        title: "¿Qué es RAG?",
+        content: "RAG (Recuperación y Generación Aumentada) es una técnica que combina sistemas de recuperación de información con modelos de lenguaje generativo para proporcionar respuestas precisas y contextualizadas a partir de grandes volúmenes de documentos."
+      },
+      {
+        title: "Motivación",
+        content: "El Diario Oficial de la Federación contiene información vital sobre leyes, decretos, acuerdos y otras disposiciones gubernamentales. Sin embargo, navegar por este vasto volumen de información puede ser complejo y llevar mucho tiempo. Este proyecto busca hacer que esta información sea más accesible para investigadores, abogados, periodistas y ciudadanos en general."
+      }
+    ],
+    team: {
+      title: "Equipo",
+      members: [
+        {
+          name: "Dr. Carlos Gershenson",
+          role: "Director del Proyecto",
+          bio: "Investigador en sistemas complejos y computación aplicada."
+        },
+        {
+          name: "Mtra. Fernanda Ramírez",
+          role: "Investigadora Principal",
+          bio: "Especialista en procesamiento de lenguaje natural y análisis de documentos legales."
+        },
+        {
+          name: "Ing. Miguel Ángel Pérez",
+          role: "Desarrollador Senior",
+          bio: "Experto en arquitecturas de búsqueda e indexación de documentos."
+        }
+      ]
+    },
+    faq: {
+      title: "Preguntas Frecuentes",
+      questions: [
+        {
+          question: "¿Qué tipos de documentos incluye el proyecto?",
+          answer: "El proyecto incluye todos los documentos publicados en el Diario Oficial de la Federación, incluyendo leyes, decretos, acuerdos, convocatorias y otros documentos oficiales."
+        },
+        {
+          question: "¿Cómo se garantiza la precisión de las respuestas?",
+          answer: "Utilizamos una combinación de técnicas de embeddings de última generación, bases de datos vectoriales y modelos de lenguaje especializados, todo con supervisión humana para asegurar la calidad."
+        },
+        {
+          question: "¿Es un proyecto de código abierto?",
+          answer: "Sí, este es un proyecto de código abierto. Todos los componentes desarrollados están disponibles en nuestro repositorio de GitHub bajo licencia MIT."
+        }
+      ]
+    }
+  },
+  en: {
+    title: "About the Project",
+    description: "DOF-RAG is a project that applies Retrieval-Augmented Generation (RAG) techniques to documents from the Official Journal of the Federation of Mexico.",
+    sections: [
+      {
+        title: "Objective",
+        content: "The main objective of the DOF-RAG project is to develop a tool that allows users to search, analyze, and understand the information contained in the Official Journal of the Federation more efficiently and accessibly.",
+      },
+      {
+        title: "What is RAG?",
+        content: "RAG (Retrieval-Augmented Generation) is a technique that combines information retrieval systems with generative language models to provide precise and contextualized answers from large volumes of documents."
+      },
+      {
+        title: "Motivation",
+        content: "The Official Journal of the Federation contains vital information about laws, decrees, agreements, and other governmental provisions. However, navigating this vast volume of information can be complex and time-consuming. This project seeks to make this information more accessible to researchers, lawyers, journalists, and citizens in general."
+      }
+    ],
+    team: {
+      title: "Team",
+      members: [
+        {
+          name: "Dr. Carlos Gershenson",
+          role: "Project Director",
+          bio: "Researcher in complex systems and applied computing."
+        },
+        {
+          name: "Mtra. Fernanda Ramírez",
+          role: "Principal Researcher",
+          bio: "Specialist in natural language processing and legal document analysis."
+        },
+        {
+          name: "Ing. Miguel Ángel Pérez",
+          role: "Senior Developer",
+          bio: "Expert in document search and indexing architectures."
+        }
+      ]
+    },
+    faq: {
+      title: "Frequently Asked Questions",
+      questions: [
+        {
+          question: "What types of documents does the project include?",
+          answer: "The project includes all documents published in the Official Journal of the Federation, including laws, decrees, agreements, calls for proposals, and other official documents."
+        },
+        {
+          question: "How is the accuracy of the answers guaranteed?",
+          answer: "We use a combination of state-of-the-art embedding techniques, vector databases, and specialized language models, all with human supervision to ensure quality."
+        },
+        {
+          question: "Is this an open-source project?",
+          answer: "Yes, this is an open-source project. All developed components are available in our GitHub repository under the MIT license."
+        }
+      ]
+    }
+  }
+};
+
+// Seleccionar el contenido según el idioma
+const pageContent = lang === 'es' ? content.es : content.en;
+---
+
+<Layout title={t('about.title')}>
+  <section class="text-center py-16 md:py-24">
+    <h1 class="text-5xl md:text-7xl font-bold mb-6">
+      <span class="gradient-text">{pageContent.title}</span>
+    </h1>
+    <p class="text-xl md:text-2xl max-w-3xl mx-auto text-[var(--color-muted)]">
+      {pageContent.description}
+    </p>
+  </section>
+
+  <div class="max-w-4xl mx-auto">
+    <div class="space-y-16">
+      {pageContent.sections.map((section) => (
+        <section>
+          <h2 class="text-3xl font-bold mb-6 gradient-text">{section.title}</h2>
+          <p class="text-lg text-[var(--color-muted)]">{section.content}</p>
+        </section>
+      ))}
+
+      <section>
+        <h2 class="text-3xl font-bold mb-10 gradient-text">{pageContent.team.title}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {pageContent.team.members.map((member) => (
+            <div class="bg-[var(--color-card)] p-6 rounded-lg border border-[var(--color-border)]">
+              <h3 class="text-xl font-bold mb-2">{member.name}</h3>
+              <p class="text-[var(--color-accent)] mb-3">{member.role}</p>
+              <p class="text-[var(--color-muted)]">{member.bio}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold mb-10 gradient-text">{pageContent.faq.title}</h2>
+        <div class="space-y-6">
+          {pageContent.faq.questions.map((item, index) => (
+            <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg overflow-hidden">
+              <details class="group" open={index === 0}>
+                <summary class="flex cursor-pointer px-6 py-4 justify-between items-center">
+                  <h3 class="text-lg font-medium">{item.question}</h3>
+                  <span class="transition-transform duration-200 group-open:rotate-180">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </summary>
+                <div class="px-6 pb-4 text-[var(--color-muted)]">
+                  <p>{item.answer}</p>
+                </div>
+              </details>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+</style> 

@@ -26,9 +26,25 @@ pnpm-debug.log*
 .cursor
 .vscode
 
-# Test files
+# Test posts and related content
+# Test post content - specific patterns
 src/content/blog/test-post-*/
+src/content/blog/en/2025/*/test-*.md
+src/content/blog/es/2025/*/test-*.md
+src/content/blog/en/2025/*/prueba-*.md
+src/content/blog/es/2025/*/prueba-*.md
+src/content/blog/**/draft-*.md
+src/content/blog/**/borrador-*.md
+
+# Test post images
 public/images/posts/2024/04/*.svg
+public/images/posts/2025/**/*-test-*.jpg
+public/images/posts/2025/**/*-test-*.png
+public/images/posts/2025/**/*-test-*.webp
+public/images/posts/2025/**/*-prueba-*.jpg
+public/images/posts/2025/**/*-prueba-*.png
+public/images/posts/2025/**/*-prueba-*.webp
+public/images/posts/placeholder-*.svg
 
 # Gitignore
 .gitignore

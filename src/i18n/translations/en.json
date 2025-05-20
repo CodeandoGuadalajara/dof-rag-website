@@ -1,0 +1,51 @@
+{
+  "nav.home": "Home",
+  "nav.about": "About",
+  "nav.language": "Language",
+  
+  "footer.title": "DOF-RAG",
+  "footer.description": "Research project for processing and analyzing information from the Official Journal of the Federation.",
+  "footer.resources": "Resources",
+  "footer.contact": "Contact",
+  "footer.email": "Email",
+  
+  "home.title": "DOF-RAG Blog - Home",
+  "home.popular_posts": "Popular Posts",
+  "home.subscribe": "Subscribe",
+  "home.stay_updated": "Stay updated with the project news",
+  "home.recent_posts": "Recent Posts",
+  "home.load_more": "Load more",
+  "home.read_more": "Read more",
+  "home.subtitle": "Tracking and documenting progress in the development of retrieval and augmented generation systems for the Official Journal of the Federation.",
+  
+  "about.title": "About the project",
+  
+  "common.unknown_author": "Unknown author",
+  "common.date_not_available": "Date not available",
+  
+  "404.title": "404 - Page Not Found",
+  "404.heading": "Page Not Found",
+  "404.description": "The page you are looking for doesn't exist or has been moved.",
+  "404.go_home": "Go to home",
+  "404.about_project": "About the project",
+  "404.looking_for": "Looking for something specific?",
+  "404.resources_info": "If you were looking for information about the DOF-RAG project, you can find the following resources:",
+  "404.main_blog": "Main Blog",
+  "404.main_blog_desc": "Latest project updates",
+  "404.introduction": "Project Introduction",
+  "404.introduction_desc": "General information",
+  "404.about": "About",
+  "404.about_desc": "Details about the team and methodology",
+  
+  "tags.title": "Tags | DOF-RAG Blog",
+  "tags.heading": "All Tags",
+  "tags.description": "Explore our content by topics",
+  "tags.no_tags": "No tags available yet.",
+  "tags.back_to_home": "Back to home page",
+  "tags.view_all_tags": "View all tags",
+  "tags.post_singular": "post",
+  "tags.post_plural": "posts",
+  "tags.with_tag": "with this tag",
+  "tags.read_more": "Read more",
+  "tags.no_description": "No description available"
+} 
