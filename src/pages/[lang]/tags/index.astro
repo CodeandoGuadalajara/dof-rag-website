@@ -2,7 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
-import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config';
+import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config.ts';
 
 export async function getStaticPaths() {
   return supportedLanguages.map(lang => {
@@ -108,9 +108,7 @@ const maxCount = sortedTags.length > 0 ? sortedTags[0].count : 0;
         </div>
       ) : (
         <div class="text-center py-12">
-          <p class="text-[var(--color-muted)] text-lg">
-            {t('tags.no_tags')}
-          </p>
+          <p class="text-[var(--color-muted)] text-lg">{t('tags.no_tags')}</p>
         </div>
       )}
     </div>
@@ -135,4 +133,4 @@ const maxCount = sortedTags.length > 0 ? sortedTags[0].count : 0;
   a:hover {
     transform: translateY(-2px);
   }
-</style> 
+</style>

@@ -2,7 +2,7 @@
 import Layout from './Layout.astro';
 import type { CollectionEntry } from 'astro:content';
 import { getLangFromUrl } from '../i18n/utils.ts';
-import type { SupportedLanguage } from '../i18n/config';
+import type { SupportedLanguage } from '../i18n/config.ts';
 
 interface Props {
   post?: CollectionEntry<'blog'>;

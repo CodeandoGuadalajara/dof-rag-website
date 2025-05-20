@@ -16,12 +16,14 @@
   "home.recent_posts": "Recent Posts",
   "home.load_more": "Load more",
   "home.read_more": "Read more",
+  "home.no_more_posts": "No more posts to display",
   "home.subtitle": "Tracking and documenting progress in the development of retrieval and augmented generation systems for the Official Journal of the Federation.",
   
   "about.title": "About the project",
   
   "common.unknown_author": "Unknown author",
   "common.date_not_available": "Date not available",
+  "common.no_description": "No description available",
   
   "404.title": "404 - Page Not Found",
   "404.heading": "Page Not Found",

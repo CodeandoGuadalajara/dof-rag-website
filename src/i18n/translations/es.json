@@ -16,12 +16,14 @@
   "home.recent_posts": "Publicaciones recientes",
   "home.load_more": "Cargar más",
   "home.read_more": "Leer más",
+  "home.no_more_posts": "No hay más publicaciones para mostrar",
   "home.subtitle": "Seguimiento y documentación de avances en el desarrollo de sistemas de recuperación y generación aumentada para el Diario Oficial de la Federación.",
   
   "about.title": "Acerca del proyecto",
   
   "common.unknown_author": "Autor desconocido",
   "common.date_not_available": "Fecha no disponible",
+  "common.no_description": "Sin descripción disponible",
   
   "404.title": "404 - Página no encontrada",
   "404.heading": "Página no encontrada",

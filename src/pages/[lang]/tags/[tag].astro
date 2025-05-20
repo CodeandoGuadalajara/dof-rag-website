@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
-import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config';
+import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config.ts';
 
 // Tell Astro to prerender this page at build time
 export const prerender = true;

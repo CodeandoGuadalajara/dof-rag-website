@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getLangFromUrl, getLocalizedPathname } from '../i18n/utils.ts';
-import type { SupportedLanguage } from '../i18n/config';
+import type { SupportedLanguage } from '../i18n/config.ts';
 
 const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
 
