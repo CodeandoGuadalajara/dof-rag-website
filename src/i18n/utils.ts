@@ -42,6 +42,18 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
     baseSegments = import.meta.env.BASE_URL.split('/').filter(Boolean);
   }
   
+  // Manejar posible extensión .html (para GitHub Pages)
+  let hasHtmlExtension = false;
+  let lastSegment = '';
+  if (segments.length > 0) {
+    lastSegment = segments[segments.length - 1];
+    if (lastSegment.endsWith('.html')) {
+      hasHtmlExtension = true;
+      // Eliminar la extensión .html para el procesamiento
+      segments[segments.length - 1] = lastSegment.replace('.html', '');
+    }
+  }
+  
   // Filtrar los segmentos de la BASE_URL y el idioma actual
   const filteredSegments = segments.filter(segment => {
     // No incluir la BASE_URL en los segmentos
@@ -57,8 +69,22 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
     return true;
   });
   
-  // Reconstruir la ruta con la BASE_URL y el nuevo idioma
-  return `${import.meta.env.BASE_URL}/${lang}${filteredSegments.length > 0 ? '/' + filteredSegments.join('/') : ''}`;
+  // Reconstruir la ruta con la BASE_URL, el nuevo idioma y posiblemente la extensión .html
+  let localizedPath = `${import.meta.env.BASE_URL}/${lang}${filteredSegments.length > 0 ? '/' + filteredSegments.join('/') : ''}`;
+  
+  // Si la URL original tenía extensión .html, añadirla de nuevo
+  if (hasHtmlExtension) {
+    // Si el último segmento era un idioma (como es.html) y vamos a cambiar al inglés,
+    // no queremos que sea en/es.html sino en.html
+    if (supportedLanguages.includes(lastSegment.replace('.html', '') as SupportedLanguage)) {
+      localizedPath = `${import.meta.env.BASE_URL}/${lang}.html`;
+    } else {
+      // Para otras páginas, mantener la estructura
+      localizedPath += '.html';
+    }
+  }
+  
+  return localizedPath;
 }
 
 // Función para cargar traducciones
