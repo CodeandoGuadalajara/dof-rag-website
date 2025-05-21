@@ -51,6 +51,7 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
     baseSegments = import.meta.env.BASE_URL.split('/').filter(Boolean);
   }
   
+<<<<<<< HEAD
   // Filtrar: eliminar BASE_URL y el idioma
   const contentSegments = segments.filter(segment => {
     return !baseSegments.includes(segment) && !supportedLanguages.includes(segment as SupportedLanguage);
@@ -67,6 +68,25 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
   } else {
     return `${import.meta.env.BASE_URL}/${lang}`;
   }
+=======
+  // Filtrar los segmentos de la BASE_URL y el idioma actual
+  const filteredSegments = segments.filter(segment => {
+    // No incluir la BASE_URL en los segmentos
+    if (baseSegments.includes(segment)) {
+      return false;
+    }
+    
+    // No incluir el segmento de idioma actual (independientemente de su posición)
+    if (supportedLanguages.includes(segment as SupportedLanguage)) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Reconstruir la ruta con la BASE_URL y el nuevo idioma
+  return `${import.meta.env.BASE_URL}/${lang}${filteredSegments.length > 0 ? '/' + filteredSegments.join('/') : ''}`;
+>>>>>>> parent of 4f9e18c (feat: enhance getLocalizedPathname function to handle .html extensions for GitHub Pages, ensuring proper URL reconstruction based on language and last segment)
 }
 
 // Función para cargar traducciones
