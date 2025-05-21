@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
+import { getLangFromUrl } from '../../../i18n/utils.ts';
+import { dateFormatOptions, type SupportedLanguage } from '../../../i18n/config.ts';
+
+// Obtener el idioma actual de la URL
+const urlLang = getLangFromUrl(Astro.url) as SupportedLanguage;
+
+// Importar traducciones
+const translations = urlLang === 'es' 
+  ? await import('../../../i18n/translations/es.json')
+  : await import('../../../i18n/translations/en.json');
+
+function t(key: string): string {
+  return (translations.default as Record<string, string>)[key] || key;
+}
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  
+  return blogEntries.map(entry => {
+    // Detectar el idioma del post basado en la ruta si está en una carpeta específica de idioma
+    let postLang: SupportedLanguage = 'es'; // Idioma por defecto
+    
+    if (entry.slug.startsWith('en/')) {
+      postLang = 'en';
+    } else if (entry.slug.startsWith('es/')) {
+      postLang = 'es';
+    }
+    
+    // Obtener el slug sin el prefijo de idioma
+    let slug = entry.slug;
+    if (slug.startsWith('en/') || slug.startsWith('es/')) {
+      slug = slug.substring(3); // Eliminar el prefijo 'xx/'
+    }
+    
+    return {
+      params: { 
+        lang: postLang,
+        slug: slug 
+      },
+      props: { 
+        entry,
+        lang: postLang
+      },
+    };
+  });
+}
+
+const { entry, lang } = Astro.props;
+const entryLang = lang as SupportedLanguage;
+const { Content } = await entry.render();
+
+// Formatear la fecha según el idioma
+function formatDate(dateObj: Date): string {
+  try {
+    return dateObj.toLocaleDateString(
+      entryLang === 'es' ? 'es-ES' : 'en-US', 
+      dateFormatOptions[entryLang]
+    );
+  } catch (error) {
+    console.error(`Error al formatear la fecha:`, error);
+    return t('common.date_not_available');
+  }
+}
+---
+
+<BlogPostLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  date={formatDate(entry.data.date)}
+  author={entry.data.author || t('common.unknown_author')}
+  image={entry.data.image}
+  tags={entry.data.tags}
+  lang={entryLang}
+>
+  <Content />
+</BlogPostLayout> 

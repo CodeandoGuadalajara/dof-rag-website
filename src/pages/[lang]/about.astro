@@ -1,17 +1,40 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '../../layouts/Layout.astro';
+import { supportedLanguages, type SupportedLanguage } from '../../i18n/config';
+import { getLangFromUrl } from '../../i18n/utils';
+
+// Definir los parámetros estáticos para la generación
+export function getStaticPaths() {
+  return supportedLanguages.map(lang => ({
+    params: { lang }
+  }));
+}
 
 const cardStyles = "border border-[var(--color-border)] rounded-lg p-6 hover:translate-y-[-2px] transition-transform backdrop-blur-sm";
 
+// Obtener el idioma actual
+const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
+
+// Importar traducciones
+const translations = lang === 'es' 
+  ? await import('../../i18n/translations/es.json')
+  : await import('../../i18n/translations/en.json');
+
+function t(key: string): string {
+  return (translations as any).default[key] || key;
+}
+
 // Añadir para efecto de animación
-const titleText = "Acerca del Proyecto";
+const titleText = lang === 'es' ? "Acerca del Proyecto" : "About the Project";
 const titleLetters = Array.from(titleText);
 
-const subtitleText = "Haciendo accesible la información del Diario Oficial de la Federación mediante tecnologías de vanguardia.";
+const subtitleText = lang === 'es' 
+  ? "Haciendo accesible la información del Diario Oficial de la Federación mediante tecnologías de vanguardia."
+  : "Making information from Mexico's Official Journal of the Federation accessible through cutting-edge technologies.";
 const subtitleWords = subtitleText.split(" ");
 ---
 
-<Layout title="Acerca de DOF-RAG">
+<Layout title={t('about.page_title')}>
   <div class="max-w-4xl mx-auto">
     <div class="text-center py-16 md:py-24">
       <h1 class="text-4xl md:text-6xl font-bold mb-6">
@@ -31,34 +54,27 @@ const subtitleWords = subtitleText.split(" ");
     </div>
     
     <div class="space-y-16">
-      <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">¿Qué es DOF-RAG?</h2>
+        <section>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.what_is')}</h2>
         <div class="gradient-border p-6 rounded-lg">
           <p class="mb-4">
-            DOF-RAG es un proyecto de investigación y desarrollo que combina tecnologías de
-            Procesamiento de Lenguaje Natural (NLP) y Retrieval-Augmented Generation (RAG)
-            para facilitar el acceso y comprensión de la información contenida en el
-            Diario Oficial de la Federación de México.
+            {t('about.project_description')}
           </p>
           <p>
-            Nuestro objetivo es crear una herramienta que permita a usuarios de diversos
-            perfiles acceder de manera rápida y eficiente a la información legislativa y
-            normativa publicada en el DOF, presentándola de forma clara y contextualizada.
+            {t('about.project_objective')}
           </p>
         </div>
-      </section>
-      
+        </section>
+
       <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">Equipo</h2>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.team')}</h2>
         <p class="mb-8">
-          Somos un equipo multidisciplinario de investigadores, desarrolladores y 
-          expertos en ciencias de la computación e inteligencia artificial, comprometidos 
-          con mejorar el acceso a la información pública mediante el uso de tecnologías avanzadas.
+          {t('about.team_description')}
         </p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
-            <h3 class="font-bold text-xl mb-4 gradient-text">Área Técnica</h3>
+            <h3 class="font-bold text-xl mb-4 gradient-text">{t('about.tech_area')}</h3>
             <ul class="space-y-2 text-[var(--color-muted)]">
               <li class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -88,7 +104,7 @@ const subtitleWords = subtitleText.split(" ");
           </div>
           
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
-            <h3 class="font-bold text-xl mb-4 gradient-text">Área de Investigación</h3>
+            <h3 class="font-bold text-xl mb-4 gradient-text">{t('about.research_area')}</h3>
             <ul class="space-y-2 text-[var(--color-muted)]">
               <li class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,53 +131,48 @@ const subtitleWords = subtitleText.split(" ");
                 Evaluación de Calidad
               </li>
             </ul>
-          </div>
+            </div>
         </div>
       </section>
-      
+
       <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">Metodología</h2>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.methodology')}</h2>
         <p class="mb-6">
-          Nuestro enfoque se basa en la arquitectura RAG (Retrieval-Augmented Generation),
-          que combina la potencia de los modelos de lenguaje con bases de conocimiento específicas:
+          {t('about.methodology_description')}
         </p>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">01</div>
-            <h3 class="font-bold text-lg mb-3">Extracción de datos</h3>
+            <h3 class="font-bold text-lg mb-3">{t('about.data_extraction')}</h3>
             <p class="text-[var(--color-muted)]">
-              Recopilamos y procesamos sistemáticamente la información publicada en el DOF,
-              transformándola en formatos estructurados para su análisis.
+              {t('about.data_extraction_description')}
             </p>
           </div>
           
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">02</div>
-            <h3 class="font-bold text-lg mb-3">Indexación vectorial</h3>
+            <h3 class="font-bold text-lg mb-3">{t('about.vector_indexing')}</h3>
             <p class="text-[var(--color-muted)]">
-              Convertimos los documentos en representaciones vectoriales que capturan su
-              significado semántico, permitiendo búsquedas precisas y contextuales.
+              {t('about.vector_indexing_description')}
             </p>
           </div>
           
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">03</div>
-            <h3 class="font-bold text-lg mb-3">Generación aumentada</h3>
+            <h3 class="font-bold text-lg mb-3">{t('about.augmented_generation')}</h3>
             <p class="text-[var(--color-muted)]">
-              Utilizamos modelos de lenguaje avanzados que, apoyados en la información
-              recuperada, generan respuestas precisas y coherentes.
+              {t('about.augmented_generation_description')}
             </p>
-          </div>
-        </div>
+                </div>
+            </div>
       </section>
       
       <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">Contacto</h2>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.contact')}</h2>
         <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6); padding: 2rem; text-align: center;">
           <p class="mb-6 text-xl">
-            Si estás interesado en nuestro proyecto o tienes alguna pregunta, no dudes en
-            contactarnos:
+            {t('about.contact_description')}
           </p>
           <a href="mailto:contacto@dofrag.mx" class="inline-block gradient-border px-6 py-3 text-lg font-medium rounded-md hover:opacity-90">
             <span class="gradient-text">contacto@dofrag.mx</span>
@@ -170,4 +181,4 @@ const subtitleWords = subtitleText.split(" ");
       </section>
     </div>
   </div>
-</Layout> 
+</Layout>

@@ -10,12 +10,12 @@ export default defineConfig({
   output: 'static',
   // Cambiar a 'never' para evitar problemas con las rutas en GitHub Pages
   trailingSlash: 'never',
-  markdown: {
-    remarkPlugins: [remarkAddBasepathToImages],
-  },
-  // Configuración adicional para TinaCMS
+  // Configuración para manejar páginas dinámicas en GitHub Pages
   build: {
     format: 'file'
+  },
+  markdown: {
+    remarkPlugins: [remarkAddBasepathToImages],
   },
   server: {
     port: 4321,
