@@ -25,7 +25,7 @@ function t(key: string): string {
 }
 
 // Añadir para efecto de animación
-const titleText = lang === 'es' ? "Acerca del Proyecto" : "About the Project";
+const titleText = lang === 'es' ? "Acerca de DOF-RAG" : "About DOF-RAG";
 const titleLetters = Array.from(titleText);
 
 const subtitleText = lang === 'es' 
@@ -54,7 +54,8 @@ const subtitleWords = subtitleText.split(" ");
     </div>
     
     <div class="space-y-16">
-        <section>
+      <!-- Qué es DOF-RAG -->
+      <section>
         <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.what_is')}</h2>
         <div class="gradient-border p-6 rounded-lg">
           <p class="mb-4">
@@ -64,118 +65,107 @@ const subtitleWords = subtitleText.split(" ");
             {t('about.project_objective')}
           </p>
         </div>
-        </section>
-
-      <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.team')}</h2>
-        <p class="mb-8">
-          {t('about.team_description')}
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
-            <h3 class="font-bold text-xl mb-4 gradient-text">{t('about.tech_area')}</h3>
-            <ul class="space-y-2 text-[var(--color-muted)]">
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.tech_area_item1')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.tech_area_item2')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.tech_area_item3')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.tech_area_item4')}
-              </li>
-            </ul>
-          </div>
-          
-          <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
-            <h3 class="font-bold text-xl mb-4 gradient-text">{t('about.research_area')}</h3>
-            <ul class="space-y-2 text-[var(--color-muted)]">
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.research_area_item1')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.research_area_item2')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.research_area_item3')}
-              </li>
-              <li class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {t('about.research_area_item4')}
-              </li>
-            </ul>
-            </div>
-        </div>
       </section>
 
+      <!-- Cómo funciona el sistema -->
       <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.methodology')}</h2>
-        <p class="mb-6">
-          {t('about.methodology_description')}
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.how_it_works')}</h2>
+        <div class="gradient-border p-6 rounded-lg mb-6">
+          <p class="mb-4">
+            {t('about.how_it_works_description')}
+          </p>
+          <p>
+            {t('about.how_it_works_additional')}
+          </p>
+        </div>
+        
+        <p class="mb-6 text-lg">
+          {t('about.key_processes')}
         </p>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">01</div>
-            <h3 class="font-bold text-lg mb-3">{t('about.data_extraction')}</h3>
             <p class="text-[var(--color-muted)]">
-              {t('about.data_extraction_description')}
+              {t('about.process_1')}
             </p>
           </div>
           
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">02</div>
-            <h3 class="font-bold text-lg mb-3">{t('about.vector_indexing')}</h3>
             <p class="text-[var(--color-muted)]">
-              {t('about.vector_indexing_description')}
+              {t('about.process_2')}
             </p>
           </div>
           
           <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
             <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">03</div>
-            <h3 class="font-bold text-lg mb-3">{t('about.augmented_generation')}</h3>
             <p class="text-[var(--color-muted)]">
-              {t('about.augmented_generation_description')}
+              {t('about.process_3')}
             </p>
-                </div>
-            </div>
+          </div>
+          
+          <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
+            <div class="text-3xl font-bold text-[var(--color-accent)] mb-4">04</div>
+            <p class="text-[var(--color-muted)]">
+              {t('about.process_4')}
+            </p>
+          </div>
+        </div>
       </section>
       
+      <!-- Nuestro equipo -->
       <section>
-        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.contact')}</h2>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.team')}</h2>
+        <p class="mb-6">
+          {t('about.team_description')}
+        </p>
+        
+        <div class={`${cardStyles} bg-gradient-to-br from-[rgba(var(--color-bg-rgb),0.8)] to-[rgba(var(--color-accent-rgb),0.1)]`}>
+          <div class="space-y-6">
+            <ul class="space-y-4">
+              <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-lg">{t('about.team_member_1')}</span>
+              </li>
+              <li class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-lg">{t('about.team_member_2')}</span>
+              </li>
+            </ul>
+            
+            <div class="mt-8 pt-6 border-t border-[var(--color-border)]">
+              <p class="text-lg leading-relaxed">
+                {t('about.team_purpose')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Sobre este blog -->
+      <section>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.about_blog')}</h2>
+        <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6);">
+          <p class="text-[var(--color-muted)]">
+            {t('about.blog_description')}
+          </p>
+        </div>
+      </section>
+      
+      <!-- ¿Quieres saber más? -->
+      <section>
+        <h2 class="text-3xl font-bold mb-6 gradient-text">{t('about.want_to_know_more')}</h2>
         <div class={cardStyles} style="background-color: rgba(var(--color-bg-rgb), 0.6); padding: 2rem; text-align: center;">
           <p class="mb-6 text-xl">
             {t('about.contact_description')}
           </p>
           <a href="mailto:contacto@dofrag.mx" class="inline-block gradient-border px-6 py-3 text-lg font-medium rounded-md hover:opacity-90">
-            <span class="gradient-text">contacto@dofrag.mx</span>
+            <span class="gradient-text">{t('about.contact_email')}</span>
           </a>
         </div>
       </section>
