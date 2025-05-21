@@ -33,42 +33,15 @@ export function translatePath(path: string, targetLang: SupportedLanguage): stri
 
 // Función para obtener ruta de base según el idioma
 export function getLocalizedPathname(pathname: string, lang: SupportedLanguage): string {
-  // Determinar la ruta de la página actual sin idioma
-  let currentRoute = '';
+  // Eliminar el idioma actual de la ruta si existe
+  const segments = pathname.split('/').filter(Boolean);
   
-  // Normalizar la ruta: convertir '/es/about.html' o '/es/about' o '/es/about/' a 'about'
-  const normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-  
-  // Eliminar la extensión .html si existe
-  const withoutHtml = normalizedPath.replace(/\.html$/, '');
-  
-  // Obtener segmentos de la ruta
-  const segments = withoutHtml.split('/').filter(Boolean);
-  
-  // Extraer los segmentos de BASE_URL para filtrarlos
+  // Eliminar la BASE_URL si está presente
   let baseSegments: string[] = [];
   if (typeof import.meta.env.BASE_URL === 'string') {
     baseSegments = import.meta.env.BASE_URL.split('/').filter(Boolean);
   }
   
-<<<<<<< HEAD
-  // Filtrar: eliminar BASE_URL y el idioma
-  const contentSegments = segments.filter(segment => {
-    return !baseSegments.includes(segment) && !supportedLanguages.includes(segment as SupportedLanguage);
-  });
-  
-  // Si tenemos segmentos después de filtrar, usamos el primero como la ruta actual
-  if (contentSegments.length > 0) {
-    currentRoute = contentSegments[0];
-  }
-  
-  // Construir la URL con el idioma solicitado y la ruta actual
-  if (currentRoute) {
-    return `${import.meta.env.BASE_URL}/${lang}/${currentRoute}`;
-  } else {
-    return `${import.meta.env.BASE_URL}/${lang}`;
-  }
-=======
   // Filtrar los segmentos de la BASE_URL y el idioma actual
   const filteredSegments = segments.filter(segment => {
     // No incluir la BASE_URL en los segmentos
@@ -83,10 +56,22 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
     
     return true;
   });
+
+  // Manejar el último segmento para quitar la extensión .html si existe
+  if (filteredSegments.length > 0) {
+    const lastSegment = filteredSegments[filteredSegments.length - 1];
+    if (lastSegment.endsWith('.html')) {
+      filteredSegments[filteredSegments.length - 1] = lastSegment.replace('.html', '');
+    }
+  }
   
-  // Reconstruir la ruta con la BASE_URL y el nuevo idioma
-  return `${import.meta.env.BASE_URL}/${lang}${filteredSegments.length > 0 ? '/' + filteredSegments.join('/') : ''}`;
->>>>>>> parent of 4f9e18c (feat: enhance getLocalizedPathname function to handle .html extensions for GitHub Pages, ensuring proper URL reconstruction based on language and last segment)
+  // Para la página principal
+  if (filteredSegments.length === 0) {
+    return `${import.meta.env.BASE_URL}/${lang}`;
+  }
+  
+  // Para el resto de páginas, mantener la estructura adecuada
+  return `${import.meta.env.BASE_URL}/${lang}/${filteredSegments.join('/')}`;
 }
 
 // Función para cargar traducciones
