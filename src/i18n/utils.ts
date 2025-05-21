@@ -33,58 +33,40 @@ export function translatePath(path: string, targetLang: SupportedLanguage): stri
 
 // Función para obtener ruta de base según el idioma
 export function getLocalizedPathname(pathname: string, lang: SupportedLanguage): string {
-  // Eliminar el idioma actual de la ruta si existe
-  const segments = pathname.split('/').filter(Boolean);
+  // Determinar la ruta de la página actual sin idioma
+  let currentRoute = '';
   
-  // Eliminar la BASE_URL si está presente
+  // Normalizar la ruta: convertir '/es/about.html' o '/es/about' o '/es/about/' a 'about'
+  const normalizedPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  
+  // Eliminar la extensión .html si existe
+  const withoutHtml = normalizedPath.replace(/\.html$/, '');
+  
+  // Obtener segmentos de la ruta
+  const segments = withoutHtml.split('/').filter(Boolean);
+  
+  // Extraer los segmentos de BASE_URL para filtrarlos
   let baseSegments: string[] = [];
   if (typeof import.meta.env.BASE_URL === 'string') {
     baseSegments = import.meta.env.BASE_URL.split('/').filter(Boolean);
   }
   
-  // Manejar posible extensión .html (para GitHub Pages)
-  let hasHtmlExtension = false;
-  let lastSegment = '';
-  if (segments.length > 0) {
-    lastSegment = segments[segments.length - 1];
-    if (lastSegment.endsWith('.html')) {
-      hasHtmlExtension = true;
-      // Eliminar la extensión .html para el procesamiento
-      segments[segments.length - 1] = lastSegment.replace('.html', '');
-    }
-  }
-  
-  // Filtrar los segmentos de la BASE_URL y el idioma actual
-  const filteredSegments = segments.filter(segment => {
-    // No incluir la BASE_URL en los segmentos
-    if (baseSegments.includes(segment)) {
-      return false;
-    }
-    
-    // No incluir el segmento de idioma actual (independientemente de su posición)
-    if (supportedLanguages.includes(segment as SupportedLanguage)) {
-      return false;
-    }
-    
-    return true;
+  // Filtrar: eliminar BASE_URL y el idioma
+  const contentSegments = segments.filter(segment => {
+    return !baseSegments.includes(segment) && !supportedLanguages.includes(segment as SupportedLanguage);
   });
   
-  // Reconstruir la ruta con la BASE_URL, el nuevo idioma y posiblemente la extensión .html
-  let localizedPath = `${import.meta.env.BASE_URL}/${lang}${filteredSegments.length > 0 ? '/' + filteredSegments.join('/') : ''}`;
-  
-  // Si la URL original tenía extensión .html, añadirla de nuevo
-  if (hasHtmlExtension) {
-    // Si el último segmento era un idioma (como es.html) y vamos a cambiar al inglés,
-    // no queremos que sea en/es.html sino en.html
-    if (supportedLanguages.includes(lastSegment.replace('.html', '') as SupportedLanguage)) {
-      localizedPath = `${import.meta.env.BASE_URL}/${lang}.html`;
-    } else {
-      // Para otras páginas, mantener la estructura
-      localizedPath += '.html';
-    }
+  // Si tenemos segmentos después de filtrar, usamos el primero como la ruta actual
+  if (contentSegments.length > 0) {
+    currentRoute = contentSegments[0];
   }
   
-  return localizedPath;
+  // Construir la URL con el idioma solicitado y la ruta actual
+  if (currentRoute) {
+    return `${import.meta.env.BASE_URL}/${lang}/${currentRoute}`;
+  } else {
+    return `${import.meta.env.BASE_URL}/${lang}`;
+  }
 }
 
 // Función para cargar traducciones
