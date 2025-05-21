@@ -194,27 +194,6 @@ function t(key: string): string {
 			languageDropdown.addEventListener('click', (e) => {
 				e.stopPropagation();
 			});
-			
-			// Corregir los enlaces de idioma para GitHub Pages
-			const fixHtmlExtension = () => {
-				// Solo aplicar en producción (GitHub Pages)
-				if (window.location.hostname === 'codeandoguadalajara.github.io') {
-					const langLinks = languageDropdown.querySelectorAll('a');
-					langLinks.forEach(link => {
-						// Si estamos en about o alguna otra página específica, añadir .html
-						const href = link.getAttribute('href');
-						if (href) {
-							const urlParts = href.split('/');
-							// Si hay más segmentos después del idioma
-							if (urlParts.length > 3 && !href.endsWith('/')) {
-								link.setAttribute('href', `${href}.html`);
-							}
-						}
-					});
-				}
-			};
-			
-			fixHtmlExtension();
 		}
 	});
 </script>

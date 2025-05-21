@@ -12,7 +12,7 @@ export default defineConfig({
   trailingSlash: 'never',
   // Configuración para manejar páginas dinámicas en GitHub Pages
   build: {
-    format: 'file'
+    format: 'directory'
   },
   markdown: {
     remarkPlugins: [remarkAddBasepathToImages],
