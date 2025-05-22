@@ -3,6 +3,7 @@ import Layout from './Layout.astro';
 import type { CollectionEntry } from 'astro:content';
 import { getLangFromUrl } from '../i18n/utils.ts';
 import type { SupportedLanguage } from '../i18n/config.ts';
+import GiscusComments from '../components/GiscusComments.astro';
 
 interface Props {
   post?: CollectionEntry<'blog'>;
@@ -148,6 +149,9 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
       <div class="prose prose-lg dark:prose-invert prose-a:text-[var(--color-accent)] max-w-none mb-12">
         <slot />
       </div>
+      
+      <!-- Componente de comentarios -->
+      <GiscusComments language={lang} />
       
       <div class="border-t border-[var(--color-border)] pt-8 mt-16">
         <a href={`${import.meta.env.BASE_URL}/${lang}`} class="inline-flex items-center text-[var(--color-accent)] hover:underline">

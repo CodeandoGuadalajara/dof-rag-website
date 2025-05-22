@@ -13,12 +13,12 @@
     function getAdminUrl() {
       // Si estamos en desarrollo (localhost)
       if (window.location.hostname === 'localhost') {
-        // Redireccionar a puerto 4001 donde TinaCMS inicia su servidor en desarrollo
-        return `http://localhost:4001/admin/`;
+        // En desarrollo, TinaCMS se ejecuta en el puerto 4001
+        return `http://localhost:4001/`;
       } else {
         // En producción, usar la ruta base del sitio
         const basePath = '/dof-rag-website';
-        return `${window.location.origin}${basePath}/admin/`;
+        return `${window.location.origin}${basePath}/admin/index.html`;
       }
     }
     

@@ -1,0 +1,44 @@
+---
+import { siteConfig } from '../config';
+
+// Obtener la configuración de Giscus desde el archivo de configuración
+const { repo, repoId, category, categoryId, mapping, reactionsEnabled, emitMetadata, inputPosition, theme, lang, loading } = siteConfig.giscus;
+
+// Se pueden pasar props personalizadas para sobreescribir la configuración global
+const { 
+  language = lang,
+  commentTheme = theme
+} = Astro.props;
+---
+
+<section class="giscus-comments mt-12 pt-8 border-t border-[var(--color-border)]">
+  <h2 class="text-2xl font-bold mb-6">Comentarios</h2>
+  
+  <div class="giscus"></div>
+
+  <script 
+    src="https://giscus.app/client.js"
+    data-repo={repo}
+    data-repo-id={repoId}
+    data-category={category}
+    data-category-id={categoryId}
+    data-mapping={mapping}
+    data-strict="0"
+    data-reactions-enabled={reactionsEnabled}
+    data-emit-metadata={emitMetadata}
+    data-input-position={inputPosition}
+    data-theme={commentTheme}
+    data-lang={language}
+    data-loading={loading}
+    crossorigin="anonymous"
+    async>
+  </script>
+</section>
+
+<style>
+  .giscus-frame {
+    width: 100%;
+    margin-top: 1rem;
+    border: none;
+  }
+</style> 
