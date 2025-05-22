@@ -16,6 +16,7 @@ El Proyecto DOF-RAG busca transformar la manera en que ciudadanos, investigadore
 - **[Tailwind CSS](https://tailwindcss.com/)**: Framework CSS para diseño rápido y responsivo.
 - **[TinaCMS](https://tina.io/)**: Headless CMS basado en Git para edición de contenido.
 - **[Content Collections](https://docs.astro.build/en/guides/content-collections/)**: Sistema integrado de Astro para gestión de contenido estructurado.
+- **[Giscus](https://giscus.app/)**: Sistema de comentarios impulsado por GitHub Discussions.
 - **Remark Plugin Personalizado**: Para corrección automática de rutas de imágenes (ver sección Manejo de Rutas).
 - **Modo Oscuro/Claro**: Cambio automático y manual de tema según preferencias del usuario.
 
@@ -29,6 +30,7 @@ El Proyecto DOF-RAG busca transformar la manera en que ciudadanos, investigadore
 ├── src/
 │   ├── assets/           # Assets procesados por Astro (fuentes, iconos)
 │   ├── components/       # Componentes Astro reutilizables
+│   │   └── GiscusComments.astro  # Componente para sistema de comentarios
 │   ├── content/          # Content Collections (blog)
 │   │   └── blog/         # Contenido de los posts en Markdown
 │   ├── layouts/          # Plantillas Astro para páginas y posts
@@ -49,6 +51,7 @@ El Proyecto DOF-RAG busca transformar la manera en que ciudadanos, investigadore
 - **Posts destacados**: Resalte de contenido importante.
 - **Diseño responsivo**: Experiencia óptima en todos los dispositivos.
 - **Edición de contenido con TinaCMS**: Interfaz visual para editar posts.
+- **Sistema de comentarios con Giscus**: Comentarios integrados utilizando GitHub Discussions.
 
 ## 🧞 Comandos de Desarrollo
 
@@ -149,6 +152,26 @@ Si la URL raíz (`https://[usuario].github.io/dof-rag-website/`) devuelve un 404
 
 1.  La configuración `base` en `astro.config.mjs` coincida exactamente con el nombre de tu repositorio (`/dof-rag-website`).
 2.  El archivo `.nojekyll` se esté creando correctamente en el directorio `dist` durante el `npm run build` (esto suele ser automático con Astro estático).
+
+## Configuración del Sistema de Comentarios (Giscus)
+
+El blog utiliza [Giscus](https://giscus.app/) como sistema de comentarios, que funciona basado en GitHub Discussions. Para configurarlo correctamente:
+
+1. Asegúrate de que tu repositorio en GitHub sea **público** y tenga habilitada la función de **Discussions**.
+2. Instala la [aplicación Giscus](https://github.com/apps/giscus) en tu repositorio.
+3. Visita [giscus.app](https://giscus.app/) y configura las opciones según tus preferencias.
+4. Actualiza los valores de configuración en `src/config.js` con los IDs y parámetros generados por Giscus:
+   ```js
+   giscus: {
+     repo: "tu-usuario/tu-repositorio",
+     repoId: "ID-generado-por-giscus",
+     category: "Nombre-de-categoria",
+     categoryId: "ID-generado-por-giscus",
+     // ... otros parámetros
+   }
+   ```
+
+Los comentarios aparecerán automáticamente al final de cada post del blog. El componente `GiscusComments.astro` gestiona la renderización e integración del widget de comentarios.
 
 ---
 

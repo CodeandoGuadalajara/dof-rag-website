@@ -23,4 +23,20 @@ export const siteConfig = {
     // Si no hay ruta, devuelve una imagen predeterminada
     return "/dof-rag-website/images/default.jpg";
   },
+  
+  // Configuración para el sistema de comentarios Giscus
+  giscus: {
+    // Información del repositorio
+    repo: "CodeandoGuadalajara/dof-rag-website",
+    repoId: "R_kgDOOikkDg",
+    category: "General",
+    categoryId: "DIC_kwDOOikkDs4Cqb2K",
+    mapping: "pathname",
+    reactionsEnabled: "1",
+    emitMetadata: "0",
+    inputPosition: "bottom",
+    theme: "preferred_color_scheme",
+    lang: "es",
+    loading: "lazy"
+  }
 }; 
