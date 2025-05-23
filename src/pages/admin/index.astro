@@ -7,9 +7,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redireccionando a TinaCMS</title>
-  <script is:inline>
-    // Función para obtener la URL correcta del admin
+  <title>Redireccionando a TinaCMS</title>  <script is:inline>
+    // Función para obtener la URL correcta del admin - versión optimizada
     function getAdminUrl() {
       // Si estamos en desarrollo (localhost)
       if (window.location.hostname === 'localhost') {
@@ -18,12 +17,17 @@
       } else {
         // En producción, usar la ruta base del sitio
         const basePath = '/dof-rag-website';
-        return `${window.location.origin}${basePath}/admin/index.html`;
+        return `${window.location.origin}${basePath}/admin/`;
       }
     }
     
-    // Realizar la redirección
-    window.location.href = getAdminUrl();
+    // Prevenir bucles de redirección
+    if (!window.location.href.includes('redirecting=true')) {
+      const targetUrl = getAdminUrl();
+      // Agregar parámetro para evitar bucles
+      const separator = targetUrl.includes('?') ? '&' : '?';
+      window.location.href = `${targetUrl}${separator}redirecting=true`;
+    }
   </script>
 </head>
 <body>

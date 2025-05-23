@@ -25,8 +25,7 @@ jobs:
           node-version: "18"
           cache: 'npm'
       - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Install dependencies
+        uses: actions/configure-pages@v4      - name: Install dependencies
         run: npm ci
       - name: Build TinaCMS
         env:
@@ -35,6 +34,16 @@ jobs:
         run: npx tinacms build
       - name: Build with Astro
         run: npm run build
+      # Verificar que los archivos de TinaCMS se generaron correctamente
+      - name: Verify TinaCMS build
+        run: |
+          if (Test-Path "./public/admin/index.html") {
+            Write-Host "✅ TinaCMS generó correctamente el index.html"
+          } else {
+            Write-Host "❌ No se encontró index.html generado por TinaCMS"
+            exit 1
+          }
+        shell: pwsh
       # Crear archivo .nojekyll para indicar a GitHub Pages que no use Jekyll
       - name: Create .nojekyll file
         run: touch ./dist/.nojekyll
