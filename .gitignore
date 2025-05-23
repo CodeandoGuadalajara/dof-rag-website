@@ -20,12 +20,6 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# TinaCMS - archivos generados automáticamente
-public/admin/index.html
-public/admin/index.html.bak
-public/admin/index.redirect.html
-# Permitir que TinaCMS genere estos archivos durante el build
-
 # jetbrains setting folder
 .idea/
 

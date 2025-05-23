@@ -14,14 +14,11 @@ export default defineConfig({
   clientId: process.env.TINA_PUBLIC_CLIENT_ID || process.env.NEXT_PUBLIC_TINA_CLIENT_ID,
   // Get this from tina.io
   token: process.env.TINA_TOKEN,
+
   build: {
     outputFolder: "admin",
     publicFolder: "public",
     basePath: "dof-rag-website",
-  },
-  // Configuración mejorada para producción
-  admin: {
-    disabled: false,
   },
   media: {
     tina: {
