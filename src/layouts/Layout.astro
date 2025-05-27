@@ -26,9 +26,28 @@ function t(key: string): string {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
-		<link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
-		<link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}/apple-touch-icon.png`} />
+		
+		<!-- Favicons para diferentes navegadores y dispositivos -->
+		<link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
+		<link rel="icon" type="image/png" sizes="16x16" href={`${import.meta.env.BASE_URL}favicon-16x16.png`} />
+		<link rel="icon" type="image/png" sizes="32x32" href={`${import.meta.env.BASE_URL}favicon-32x32.png`} />
+		
+		<!-- Apple Touch Icon -->
+		<link rel="apple-touch-icon" sizes="180x180" href={`${import.meta.env.BASE_URL}apple-touch-icon.png`} />
+		
+		<!-- Android Chrome Icons -->
+		<link rel="icon" type="image/png" sizes="192x192" href={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} />
+		<link rel="icon" type="image/png" sizes="512x512" href={`${import.meta.env.BASE_URL}android-chrome-512x512.png`} />
+		
+		<!-- Web App Manifest -->
+		<link rel="manifest" href={`${import.meta.env.BASE_URL}site.webmanifest`} />
+		
+		<!-- Meta tags adicionales para móviles -->
+		<meta name="theme-color" content="#1a1a1a" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="apple-mobile-web-app-title" content="DOF-RAG" />
+		
 		<meta name="generator" content={Astro.generator} />
 		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href={`${import.meta.env.BASE_URL}rss.xml`} />
 		
