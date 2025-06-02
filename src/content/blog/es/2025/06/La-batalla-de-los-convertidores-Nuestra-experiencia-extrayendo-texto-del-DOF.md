@@ -107,7 +107,7 @@ Lo que nos llama la atención:
 
 En el universo de la conversión de PDF a markdown, no hay balas de plata. Nuestra elección de Marker representa un compromiso entre calidad, tiempo y características, pero seguimos experimentando y mejorando nuestro pipeline.
 
-La extracción y procesamiento de documentos es solo el primer paso en nuestro proyecto DOF-RAG. Una vez convertidos a markdown, estos documentos pasan por un proceso de chunking (fragmentación), vectorización y finalmente se integran en nuestro sistema de recuperación aumentada por generación (RAG) para proporcionar respuestas precisas a consultas sobre el contenido del DOF.
+La extracción y procesamiento de documentos es solo el primer paso en nuestro proyecto. Una vez convertidos a markdown, estos documentos pasan por un proceso de chunking (fragmentación), vectorización y finalmente se integran en nuestro sistema de recuperación aumentada por generación (RAG) para proporcionar respuestas precisas a consultas sobre el contenido del DOF.
 
 ***
 
