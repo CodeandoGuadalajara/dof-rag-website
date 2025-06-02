@@ -15,7 +15,7 @@ tags:
 featured: true
 ---
 
-La batalla de los convertidores: PDF vs. Markdown
+# La batalla de los convertidores: PDF vs. Markdown
 
 Si alguna vez has intentado extraer información estructurada de un PDF, probablemente conoces ese sentimiento... ese momento exacto en que te das cuenta de que has entrado en un laberinto del que no será fácil salir.
 
