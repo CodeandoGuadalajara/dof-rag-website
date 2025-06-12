@@ -46,7 +46,7 @@ Decidimos probar varias herramientas para ver cuál se adaptaba mejor a nuestras
 | PyMuPDF          | 6 seg                   | 2              | Extremadamente rápido, buena extracción de imágenes                                 | No reconoce títulos ni jerarquía, resultado apenas utilizable        |
 | pymupdf4llm      | 77 seg                  | 8              | Rápido, calidad similar a Marker                                                    | Sin extracción de imágenes, sin paginación                           |
 
-> **Nota**: Todas las pruebas se realizaron en una laptop con Intel Core i5-11300H (3.10 GHz), 16GB RAM, Windows 11 Pro y NVIDIA GeForce GTX 1651.
+> **Nota**: Todas las pruebas se realizaron en una laptop con Intel Core i5-11300H (3.10 GHz), 16GB RAM, Windows 11 Pro y NVIDIA GeForce GTX 1650.
 
 ## ¿Y el ganador es...?
 
