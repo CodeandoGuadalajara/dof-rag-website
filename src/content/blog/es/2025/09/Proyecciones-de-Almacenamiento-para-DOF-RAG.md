@@ -109,18 +109,39 @@ Los resultados muestran overhead consistente (\~3x) independiente de la dimensi�
 
 Aplicando los factores de overhead medidos empíricamente:
 
+**Proyección para 25 años:**
+
 | Dimensión | Chunks (GB) | Documentos (MB) | Imágenes (MB) | **Total (GB)** |
 | --------- | ----------- | --------------- | ------------- | -------------- |
 | **512d**  | 57.30       | 3.56            | 267.33        | **57.56**      |
 | **768d**  | 59.55       | 3.56            | 267.33        | **59.82**      |
 | **1024d** | 65.98       | 3.56            | 267.33        | **66.24**      |
 
+**Proyección para 1 año:**
+Para una perspectiva más inmediata, las proyecciones anuales son:
+
+| Dimensión | Chunks Anuales | Almacenamiento Chunks | **Total Anual (GB)** |
+| --------- | -------------- | --------------------- | -------------------- |
+| **512d**  | 109,500        | 2.35 GB               | **2.35**             |
+| **768d**  | 109,500        | 2.44 GB               | **2.44**             |
+| **1024d** | 109,500        | 2.70 GB               | **2.70**             |
+
+**Diferencias anuales:**
+
+* 768d vs 512d: +0.09 GB (+3.8%)
+* 1024d vs 512d: +0.35 GB (+14.9%)
+
 ### Análisis de Diferencias
 
-**Incremento de almacenamiento:**
+**Incremento de almacenamiento (25 años):**
 
 * 768d vs 512d: +2.26 GB (+4%)
 * 1024d vs 512d: +8.68 GB (+15%)
+
+**Incremento de almacenamiento (1 año):**
+
+* 768d vs 512d: +0.09 GB (+3.8%)
+* 1024d vs 512d: +0.35 GB (+14.9%)
 
 ### Escalabilidad por Volumen
 
@@ -197,7 +218,6 @@ Este análisis proporciona un marco metodológico replicable para evaluar decisi
 * `db_qwen_1024.duckdb` - Embeddings 1024 dimensiones (enero 2025)
 
 **Limitaciones y escalabilidad:** Aunque el análisis se basó en un mes de datos debido a las limitaciones computacionales del proceso de generación de embeddings, los factores de overhead identificados son extrapolables a volúmenes mayores, ya que representan propiedades estructurales inherentes de DuckDB.
-
 **Archivos de soporte y replicación:**
 
 * [Script principal de análisis](https://github.com/CodeandoGuadalajara/dof-rag/blob/embedding-overhead-analysis/overhead_analysis/embedding_overhead_analysis.py) - Algoritmo completo de medición y cálculo
