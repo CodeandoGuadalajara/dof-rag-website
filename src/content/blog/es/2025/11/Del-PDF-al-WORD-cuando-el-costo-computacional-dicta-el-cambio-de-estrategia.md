@@ -18,7 +18,7 @@ tags:
 
 Hay momentos en el desarrollo de software donde la teoría se encuentra con la realidad de forma brutal. Uno de esos momentos llegó cuando intentamos escalar nuestro sistema de procesamiento de documentos del Diario Oficial de la Federación. Lo que funcionaba perfectamente con unos cuantos archivos se convirtió en una pesadilla computacional al enfrentarnos con **décadas de publicaciones diarias**.
 
-En [nuestro análisis anterior](/es/blog/La-batalla-de-los-convertidores-Nuestra-experiencia-extrayendo-texto-del-DOF), evaluamos exhaustivamente diferentes convertidores PDF-to-Markdown. Elegimos Marker como nuestra herramienta principal por su equilibrio entre calidad y características. Pero había un problema que ninguna optimización de código podía resolver: **el costo computacional de procesar PDFs monumentales simplemente no escalaba**.
+En [nuestro análisis anterior](https://codeandoguadalajara.github.io/dof-rag-website/es/blog/2025/06/la-batalla-de-los-convertidores-nuestra-experiencia-extrayendo-texto-del-dof/), evaluamos exhaustivamente diferentes convertidores PDF-to-Markdown. Elegimos Marker como nuestra herramienta principal por su equilibrio entre calidad y características. Pero había un problema que ninguna optimización de código podía resolver: **el costo computacional de procesar PDFs monumentales simplemente no escalaba**.
 
 La solucion fue replantear completamente la estrategia de origen: **dejar de descargar PDFs y empezar a trabajar con archivos WORD**.
 Esta es la historia de cómo un cambio aparentemente simple en el formato de archivo transformó radicalmente nuestro pipeline de procesamiento, implementado hace aproximadamente un mes y que hoy es la base de nuestra operación.
@@ -58,7 +58,7 @@ Hacer las cuentas fue deprimente: **procesar décadas de DOFs con este enfoque r
 
 ## Las herramientas que no escalaron
 
-En [nuestro análisis anterior sobre convertidores PDF-to-Markdown](/es/blog/La-batalla-de-los-convertidores-Nuestra-experiencia-extrayendo-texto-del-DOF), evaluamos exhaustivamente diferentes herramientas. Los resultados fueron reveladores: todas funcionaban bien en casos individuales, pero al escalar a miles de documentos, la historia cambiaba radicalmente.
+En nuestro análisis anterior sobre convertidores PDF-to-Markdown, evaluamos exhaustivamente diferentes herramientas. Los resultados fueron reveladores: todas funcionaban bien en casos individuales, pero al escalar a miles de documentos, la historia cambiaba radicalmente.
 
 Recapitulando los hallazgos más relevantes:
 
@@ -80,7 +80,7 @@ También probamos **PyMuPDF** (extremadamente rápido a 6 segundos, pero con cal
 
 No era culpa de las herramientas. Era culpa nuestra por intentar usar un martillo de precisión para demoler un edificio.
 
-> 💡 **Para el análisis completo** con tablas comparativas, métricas detalladas y evaluación de cada herramienta, consulta nuestro post anterior: [La batalla de los convertidores](/es/blog/La-batalla-de-los-convertidores-Nuestra-experiencia-extrayendo-texto-del-DOF).
+> 💡 **Para el análisis completo** con tablas comparativas, métricas detalladas y evaluación de cada herramienta, consulta nuestro post anterior: [La batalla de los convertidores](https://codeandoguadalajara.github.io/dof-rag-website/es/blog/2025/06/la-batalla-de-los-convertidores-nuestra-experiencia-extrayendo-texto-del-dof/).
 
 ## El descubrimiento: WORD como salvavidas inesperado
 
@@ -248,7 +248,7 @@ El cambio a archivos WORD resolvió el problema de **adquisición** de datos, pe
 
 ### La evolución de nuestra estrategia de procesamiento
 
-1. **[Junio 2025](/es/blog/La-batalla-de-los-convertidores-Nuestra-experiencia-extrayendo-texto-del-DOF):** Evaluamos convertidores PDF-to-Markdown y elegimos Marker
+1. **[Junio 2025](https://codeandoguadalajara.github.io/dof-rag-website/es/blog/2025/06/la-batalla-de-los-convertidores-nuestra-experiencia-extrayendo-texto-del-dof/exto-del-DOF):** Evaluamos convertidores PDF-to-Markdown y elegimos Marker
 2. **Octubre 2025 (este post):** Descubrimos archivos WORD segmentados y cambiamos la estrategia de adquisición
 3. **Próxima entrega:** Conversión eficiente de WORD a Markdown
 
@@ -262,7 +262,7 @@ En nuestra próxima entrega del blog profundizaremos en:
 
 ## Conclusiones: cuando cambiar es evolucionar
 
-Este cambio de PDFs a WORD no fue planificado desde el inicio. Después de [evaluar meticulosamente diferentes convertidores PDF-to-Markdown](/es/blog/La-batalla-de-los-convertidores-Nuestra-experiencia-extrayendo-texto-del-DOF) y elegir Marker como nuestra mejor opción, descubrimos que el problema real no era *cómo* procesábamos los PDFs, sino *por qué* procesábamos PDFs en primer lugar.
+Este cambio de PDFs a WORD no fue planificado desde el inicio. Después de evaluar meticulosamente diferentes convertidores PDF-to-Markdown y elegir Marker como nuestra mejor opción, descubrimos que el problema real no era *cómo* procesábamos los PDFs, sino *por qué* procesábamos PDFs en primer lugar.
 
 Fue una **evolución necesaria** dictada por la realidad del escalamiento. Y ese es un patrón común en proyectos de datos reales: **la arquitectura teóricamente perfecta a menudo cede ante la arquitectura prácticamente viable**.
 
