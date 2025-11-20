@@ -1,5 +1,5 @@
 ---
-title: 'Cuatro pasos para domar el DOF: conversión, limpieza, análisis y estructura'
+title: 'Cuatro pasos para procesar el DOF: conversión, limpieza, análisis y estructura'
 date: 2025-11-19T06:00:00.000Z
 author: Equipo DOF-RAG
 description: >-
