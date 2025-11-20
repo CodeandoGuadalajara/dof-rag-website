@@ -205,7 +205,7 @@ El análisis automático de imágenes nos permite:
 * **Tiempo total**: 288 segundos (\~4.8 minutos) para 55 imágenes
 * **Velocidad**: \~11 imágenes por minuto (con rate limiting)
 * **Precisión de descripciones**: Alta para tablas y gráficos estructurados
-* **Costo**: \~0.001 USD por 1000 imágenes (Gemini Flash-Lite tier gratuito)
+* **Costo**: \~0.40 USD por 1,000,000 tokens de salida (tarifa pública de Gemini 2.5 Flash-Lite)
 
 ## El flujo completo en acción
 
