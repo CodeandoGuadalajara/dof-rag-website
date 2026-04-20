@@ -145,9 +145,40 @@ La mayoría son documentos cortos — avisos, nombramientos, fe de erratas. Pero
 
 5. **Procesamiento paralelo es indispensable.** A 8.7 archivos/segundo con 4 workers, la conversión tomó ~20 horas. Secuencialmente habría tardado más de 3 días.
 
-## ¿Qué sigue?
+## ¿Qué sigue? Los PDFs escaneados
 
-Los 647,017 archivos Markdown están listos. El siguiente paso en el pipeline es la generación de embeddings para construir el sistema de búsqueda semántica. Pero esa es una historia para otro post.
+Los 647,017 archivos Markdown están listos. Pero aquí viene la parte que no esperábamos.
+
+El DOF no siempre publicó archivos .doc individuales. Antes de 1999, las ediciones solo existían en papel, y el sitio del DOF las digitalizó como PDFs escaneados — imágenes de cada página, sin texto extraíble. Y cuando decimos "antes de 1999", hablamos de **décadas**: el sitio tiene PDFs desde al menos 1990, con algunas ediciones aisladas de 1920 y 1922.
+
+¿La escala real? Analizamos lo que tenemos descargado y lo que falta:
+
+| Periodo | Tipo de PDF | Texto extraíble |
+|---------|------------|-----------------|
+| 1920-1922 | Ediciones aisladas | No |
+| 1990-2004 | Escaneado (imágenes) | **No** |
+| 2005-2008 | Escaneado | **No** |
+| 2009-2011 | Transición (mixto) | Parcial |
+| 2012-2025 | Mayormente digital | Sí |
+
+Hemos descargado 6,079 ediciones (2002-2025, 102 GB), pero **todavía faltan los PDFs de 1990-2001** — unos 12 años, aproximadamente 3,000 ediciones más. Estimamos entre **650,000 y 850,000 páginas escaneadas** en total. Es decir: décadas de leyes, decretos, tarifas arancelarias, avisos y resoluciones que actualmente solo existen como imágenes inaccesibles.
+
+### OCR con modelos de visión-lenguaje
+
+La buena noticia es que los modelos de OCR basados en VLMs (Vision-Language Models) han avanzado enormemente. Referencias recientes como el [trabajo de Daniel van Stren](https://danielvanstrien.xyz/posts/2026/re-ocr-collections/) y los [benchmarks de LightOn](https://lighton.ai/lighton-blogs/open-source-lightonocr-2-just-outscored-claude-gpt-5-qwen3-mistral-and-mathpix-at-table-extraction) muestran que modelos como **LightOnOCR-2** (1B parámetros, Apache 2.0) pueden procesar documentos escaneados a ~$0.002 por página con calidad profesional — superando incluso a GPT-5 mini y Claude Sonnet 4.6 en extracción de tablas.
+
+El plan:
+
+1. **Descargar** los PDFs faltantes (1990-2001)
+2. **Ejecutar OCR** con modelos VLM via Hugging Face Jobs (GPU en la nube)
+3. **Generar Markdown** limpio a partir de las imágenes escaneadas
+4. **Integrar** con los 647,017 archivos .md ya existentes
+
+Costo estimado: **~$800-1,500 USD** para toda la colección. Sí, menos de lo que cuesta un café por día durante un año para digitalizar décadas del registro oficial de México.
+
+Más allá del RAG, esto tiene un valor enorme como patrimonio documental. Cualquiera que haya intentado buscar una ley o decreto de los 90s en el sitio del DOF sabe la frustración: PDFs escaneados que no se pueden buscar, páginas que hay que hojear una por una. Digitalizar esto es un servicio público.
+
+Esa es una historia para otro post. Stay tuned :-p
 
 El código de conversión está disponible en nuestro [repositorio de GitHub](https://github.com/CodeandoGuadalajara/dof-rag).
 
