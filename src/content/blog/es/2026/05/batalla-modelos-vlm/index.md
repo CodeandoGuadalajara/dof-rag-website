@@ -38,6 +38,26 @@ Así que decidimos hacer una comparación sistemática. Corrimos **6 modelos** d
 
 Todos se probaron con el mismo prompt optimizado para indexación RAG en español, pidiendo: tipo de imagen, identificadores legales, contenido literal y vocabulario de búsqueda. Sin descripciones visuales.
 
+## El prompt utilizado
+
+Para todas las imágenes se utilizó el mismo **system prompt**:
+
+> Eres un sistema de indexacion para un motor RAG (Retrieval Augmented Generation) sobre documentos legales mexicanos en espanol.
+>
+> Tu unica tarea es generar una descripcion de imagenes optimizada para busqueda semantica. La imagen original estara disponible en la fase de generacion de respuestas, por lo que NO debes describir aspectos visuales como colores, bordes o diseno grafico.
+>
+> Genera una descripcion que incluya obligatoriamente:
+> 1. TIPO: Indica si es tabla, diagrama, grafica, mapa, organigrama, figura, fotografia, etc.
+> 2. IDENTIFICADORES LEGALES: Numero de articulo, fraccion, inciso, nombre del reglamento, decreto, ley, norma oficial mexicana (NOM), DOF, fecha o cualquier referencia legal que aparezca en la imagen o se infiera del contexto del documento.
+> 3. CONTENIDO LITERAL: Todos los valores numericos, rangos, categorias, claves, abreviaturas y terminos tecnicos exactamente como aparecen.
+> 4. VOCABULARIO DE BUSQUEDA: Los terminos legales y tecnicos en espanol que un abogado, funcionario publico, notario o investigador usaria al buscar este contenido.
+>
+> NO incluyas descripciones visuales, frases introductorias, comillas, markdown, listas con guiones, o cualquier formato especial.
+>
+> Responde UNICAMENTE con la descripcion en texto corrido, en espanol, entre 4 y 8 oraciones.
+
+Para cada imagen, el **user prompt** incluye el contexto extraído del documento markdown que rodea la imagen (800 caracteres antes y 200 después). Puedes expandir cada sección para ver el prompt exacto que se le envió al modelo.
+
 ## Los resultados — imagen por imagen
 
 ---
@@ -45,6 +65,24 @@ Todos se probaron con el mismo prompt optimizado para indexación RAG en españo
 ### Imagen 01 — Diagrama técnico de componentes mecánicos (cinta métrica)
 
 ![Diagrama técnico de componentes mecánicos (cinta métrica)](/images/posts/model-comparison/img01.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> lece en 7.1.
+> 
+> **5.2** Exactitud de la cinta
+> 
+> Las líneas que indiquen las divisiones de la cinta deben ser como máximo de 0,40 mm de ancho, perpendiculares al eje longitudinal de la cinta, ser claras, exactas y resistentes al uso. La longitud de las líneas deben ser variables en razón directa del valor mayor que limitan las unidades con números de orden indicados con caracteres arábigos, por lo menos para los decímetros y unidades mayores. Las cintas tipo 1 deben subdividirse en milímetros en toda su extensión; las cintas tipo 2, deben subdividirse por lo menos en decímetros y el primer decímetro subdividido en milímetros, tanto las tolerancias de longitud como la carga a que debe sujetarse l
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -84,6 +122,22 @@ VOCABULARIO DE BUSQUEDA: diagrama, formas geométricas, círculo, rectángulo, r
 ### Imagen 02 — Diagrama técnico de componente mecánico
 
 ![Diagrama técnico de componente mecánico](/images/posts/model-comparison/img02.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> erpendiculares al eje longitudinal de la cinta, ser claras, exactas y resistentes al uso. La longitud de las líneas deben ser variables en razón directa del valor mayor que limitan las unidades con números de orden indicados con caracteres arábigos, por lo menos para los decímetros y unidades mayores. Las cintas tipo 1 deben subdividirse en milímetros en toda su extensión; las cintas tipo 2, deben subdividirse por lo menos en decímetros y el primer decímetro subdividido en milímetros, tanto las tolerancias de longitud como la carga a que debe sujetarse la cinta para medir su exactitud se indican en la tabla 1, comprobándose como se establece en 7.1
+> 
+> **FIGURA 1** Flexómetro con cinta métrica 
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -127,6 +181,26 @@ VOCABULARIO DE BUSQUEDA: diagrama, objeto circular, forma interior, flecha, inde
 ![Logotipo del Instituto Federal Electoral (IFE)](/images/posts/model-comparison/img03.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> l 25 de mayo de 1999, de manera que el Instituto Federal Electoral esté en aptitud de suscribir convenios de apoyo y colaboración directamente con las Agrupaciones Políticas Nacionales. En todo caso, dichos convenios tendrán que ser aprobados con anterioridad por la Comisión de Capacitación Electoral y Educación Cívica.
+> 
+> **CUARTO.-** Notifíquese por oficio el presente Acuerdo a las Agrupaciones Políticas Nacionales.
+> 
+> **QUINTO.-** Publíquese el presente Acuerdo en el **Diario Oficial de la Federación**.
+> 
+> El presente acuerdo fue aprobado en sesión extraordinaria del Consejo General celebrada el 16 de diciembre de 2004.- El Consejero Presidente del Consejo General, **Luis Carlos Ugalde Ramírez*
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (2.0s):
@@ -163,6 +237,26 @@ VOCABULARIO DE BUSQUEDA: Autoridad electoral, organismo público, elecciones, pr
 ### Imagen 04 — Logotipo de la Secretaría de Salud
 
 ![Logotipo de la Secretaría de Salud](/images/posts/model-comparison/img04.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> El Comité de Moléculas Nuevas de la Comisión Federal para la Protección contra Riesgos Sanitarios, quedará constituido a más tardar treinta días después de la publicación del presente Decreto, y deberá aprobar y publicar en el Diario Oficial de la Federación su Reglamento Interior a más tardar noventa días después de haber quedado constituido.
+> 
+> Dado en la Residencia del Poder Ejecutivo Federal, en la Ciudad de México, Distrito Federal, a los veinte días del mes de diciembre de dos mil siete.- **Felipe de Jesús Calderón Hinojosa**.- Rúbrica.- El Secretario de Salud, **José Ángel Córdova Villalobos**.- Rúbrica.
+> 
+> ## CALENDARIO de gasto del Presupuesto de Egresos de la Federación 2008.
+> 
+> ### Al m
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -206,6 +300,38 @@ VOCABULARIO DE BUSQUEDA: logotipo, emblema, símbolo, dependencia gubernamental,
 ![Imagen de documento oficial 2010](/images/posts/model-comparison/img05.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> e fugas.
+> 
+> **7.2.6.2** Del recipiente portátil.
+> 
+> No debe haber fugas de gas en ningún punto de la unión de la válvula del recipiente con la tubería flexible del calefactor.
+> 
+> **7.3** Estabilidad del aparato, dispositivos de fijación y desplazamiento.
+> 
+> **7.3.1** Fundamento.
+> 
+> Este método de prueba tiene como objeto verificar que los calefactores de ambiente cubiertos por esta Norma pueden ser operados de manera fácil y segura cuando están instalados, en caso de aparatos fijos o cuando están en movimiento, en caso de los aparatos móviles.
+> 
+> **7.3.2** Reactivos y materiales.
+> 
+> \- Recipiente portátil
+> 
+> \- Madera de 0,025 ± 0,005 x 1 ± 0,01 x 1 ± 0,01 m.
+> 
+> \- Cuña construida según figura 1, cuyo grosor 
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (3.2s):
@@ -245,6 +371,24 @@ VOCABULARIO DE BUSQUEDA: Mercado interno, consumo interno, producción, exportac
 ### Imagen 06 — Formato de certificación de gasto (Caravanas de la Salud)
 
 ![Formato de certificación de gasto (Caravanas de la Salud)](/images/posts/model-comparison/img06.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> valor total de la producción de las empresas beneficiarias del cupo en los tres años calendario anteriores al inicial del periodo de vigencia del cupo para el cual solicita asignación, ponderada por 0.35; más
+> 
+> > c\. La participación del valor de las inversiones en activos fijos realizadas en México por cada empresa, en el valor total de las inversiones de las empresas beneficiarias del cupo en los tres años calendario anteriores al inicial del periodo de vigencia del cupo para el cual solicita asignación, ponderado por 0.20.
+> 
+> > Todo lo anterior multiplicado por el monto del cupo total del periodo de vigencia que corresponda, descontando los montos señalados en el primer párrafo de la fracció
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -291,6 +435,32 @@ VOCABULARIO DE BUSQUEDA: Formato de certificación de gasto, Programa Caravanas 
 ![Tablas de la Comisión Nacional de Hidrocarburos (CNH)](/images/posts/model-comparison/img07.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> e Acuerdo se substanciarían conforme a las disposiciones vigentes al inicio del trámite respectivo.
+> 
+> Ciudad de México, a 12 de diciembre de 2019.- Comisionados Integrantes del Órgano de Gobierno de la Comisión Nacional de Hidrocarburos.- El Comisionado Presidente, **Rogelio Hernández Cázares**.- Rúbrica.- Los Comisionados: **Alma América Porres Luna**, **Sergio Henrivier Pimentel Vargas**, **Néstor Martínez Romero**, **Héctor Moreira Rodríguez**.- Rúbricas.
+> 
+> Formato PAGNA
+> 
+> Parte 1 de 18 Características y componentes
+> 
+> Parte 4 de 18 Responsable Oficial
+> 
+> Parte 13 de 18 Censo de equipos
+> 
+> \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (3.0s):
@@ -327,6 +497,30 @@ VOCABULARIO DE BUSQUEDA: Actividad, inversión, evaluación, máxima RGA, hidroc
 ### Imagen 08 — Documento oficial con encabezado
 
 ![Documento oficial con encabezado](/images/posts/model-comparison/img08.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> ción**
+> 
+> **Derogado**
+> 
+> #### TRANSITORIOS
+> 
+> **Primero**. El presente Acuerdo entrará en vigor al día hábil siguiente de su publicación en el Diario Oficial de la Federación.
+> 
+> **Segundo.** Los trámites iniciados ante la Comisión con anterioridad a la entrada en vigor del presente Acuerdo se substanciarían conforme a las disposiciones vigentes al inicio del trámite respectivo.
+> 
+> Ciudad de México, a 12 de diciembre de 2019.- Comisionados Integrantes del Órgano de Gobierno de la Comisión Nacional de Hidrocarburos.- El Comisionado Presidente, **Rogelio Hernández Cázares**.- Rúbrica.- Los Comisionados: **Alma América Porres Luna**, **Sergio Henrivier Pimentel Vargas**, **Néstor Martínez Romero**, **Hé
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -370,6 +564,24 @@ VOCABULARIO DE BUSQUEDA: plan de seguridad, modelo de operación, urna electrón
 ![Figura técnica simple](/images/posts/model-comparison/img09.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> es Legislativo y Judicial, así como los entes autónomos deberán publicar en el Diario Oficial de la Federación, los ingresos del periodo, incluyendo los rendimientos financieros; egresos; destino y saldo de los fideicomisos en los que participen, en los términos de las disposiciones generales aplicables".
+> 
+> **SEGUNDO.-** Que de conformidad con lo señalado en el supuesto normativo presupuestal federal en comento, el Instituto Nacional Electoral presenta la siguiente información:
+> 
+> **INFORME DEL FIDEICOMISO \"FONDO PARA EL CUMPLIMIENTO DEL PROGRAMA DE INFRAESTRUCTURA INMOBILIARIA Y PARA LA ATENCIÓN CIUDADANA Y MEJORAMIENTO DE MÓDULOS DEL INSTITUTO NACIONAL ELECTORAL" CON LA FIDUCIARIA BANCO NACI
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (2.6s):
@@ -409,6 +621,20 @@ VOCABULARIO DE BUSQUEDA: Variación, variabilidad, cambio, modificación, fluctu
 ### Imagen 10 — Figura técnica simple
 
 ![Figura técnica simple](/images/posts/model-comparison/img10.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> os A, B, E y F de la actual Sección Primera, Capítulo V, Título Segundo para quedar como siguen "De la Metodología General Estándar para la calificación de Cartera Crediticia de Consumo no Revolvente", "De la Metodología General Estándar para la calificación de Cartera Crediticia de Consumo correspondiente a operaciones de tarjeta de crédito y otros créditos revolventes", "De la cobertura por riesgo de crédito", "De la Metodología General Estándar para la Cartera Crediticia de Microcrédito" respectivamente; 91; 91 Bis; 91 Bis 1, fracciones I, inciso a), inciso b), segundo párrafo, II, incisos a) y b) variable, y segundo párrafo, III, inciso a), inciso b) segundo párrafo, IV, incisos a) y b) 
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -452,6 +678,24 @@ VOCABULARIO DE BUSQUEDA: variables, diagrama, ley de transparencia, acceso a la 
 ![Documento con gráfica/tabla extensa](/images/posts/model-comparison/img11.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> la alta dirección capacitados de la Entidad Federativa sobre el nuevo Sistema de Justicia Laboral previo al 1° de octubre de 2020.
+> 
+> > **2. Indicadores:** Los indicadores son útiles para poder medir con claridad los resultados obtenidos con la aplicación de programas, procesos o acciones específicos, con el fin de obtener el diagnóstico de una situación, comparar las características de una población o para evaluar las variaciones de un evento.
+> 
+> > Permite identificar las diferencias existentes entre los resultados planeados y obtenidos como base para la toma de decisiones, fijar el rumbo y alinear los esfuerzos hacia la consecución de las metas establecidas con el fin de lograr mejoras en los 
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (3.0s):
@@ -490,6 +734,28 @@ VOCABULARIO DE BÚSQUEDA: Póliza de seguro, ramo, suma asegurada, prima neta, d
 ![Figura o logo pequeño](/images/posts/model-comparison/img12.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> rogramas, procesos o acciones específicas, con el fin de obtener el diagnóstico de una situación, comparar las características de una población o para evaluar las variaciones en un evento.
+> 
+> Los indicadores permiten identificar las diferencias existentes entre los resultados planeados y obtenidos como base para la toma de decisiones, fijar el rumbo y alinear los esfuerzos hacia la consecución de las metas establecidas con el fin de lograr mejoras en los Programas.
+> 
+> **Los indicadores que deberán medirse son los siguientes:**
+> 
+> **a. Impacto de los spots en radio y televisión,** medido a través de los segundos que éstos estarán al aire; debiendo ser como mínimo \_\_\_\_\_\_\_\_\_segundos:
+> 
+> **b. I
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (2.5s):
@@ -526,6 +792,22 @@ VOCABULARIO DE BUSQUEDA: Estadísticas laborales, registro de trabajadores, impr
 ### Imagen 13 — Imagen de documento oficial
 
 ![Imagen de documento oficial](/images/posts/model-comparison/img13.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> s instituciones de crédito presentarán sus posturas sin conocer las demás posturas presentadas o cualquier información relacionada. En este caso, la institución postora recibirá la información de las demás posturas hasta que el Banco de México dé a conocer a todas las instituciones de crédito postoras los resultados de la Subasta de Crédito en Dólares conforme a lo dispuesto en el numeral 8, o
+> 
+> > b\) Interactivas: aquellas en que las instituciones de crédito que presenten sus posturas puedan conocer la tasa marginal de asignación de la Subasta de Crédito en Dólares a partir del momento en que el monto total de las posturas presentadas por todas las instituciones de crédito postoras sea igual
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
@@ -569,6 +851,24 @@ VOCABULARIO DE BUSQUEDA: Definiciones legales, Ley General de Salud, Salud publi
 ![Figura o diagrama](/images/posts/model-comparison/img19.png)
 
 <details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> |
+> +-------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------+
+> | Nombre o Razón Social:                                                                                            | RFC                                                                  |
+> |                                                                                                                   |                                                                      |
+> |                                                                                                                   |              
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
+
+<details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
 
 **Gemini 3.1 Flash Lite** (2.6s):
@@ -605,6 +905,22 @@ VOCABULARIO DE BUSQUEDA: Servicios de salud, Atencion medica, Prestacion de serv
 ### Imagen 20 — Mapa geográfico de zona de veda (Sinaloa)
 
 ![Mapa geográfico de zona de veda (Sinaloa)](/images/posts/model-comparison/img20.png)
+
+<details>
+<summary><strong>Prompt utilizado</strong></summary>
+
+**User prompt:**
+
+> Contexto del documento donde aparece esta imagen:
+> """ 
+> Ley General de Mejora Regulatoria y Quinto del "Acuerdo que fija los lineamientos que deberán ser observados por las dependencias y organismos descentralizados de la Administración Pública Federal, en cuanto a la emisión de los actos administrativos de carácter general a los que les resulta aplicable el artículo 69-H de la Ley Federal de Procedimiento Administrativo", publicado en el Diario Oficial de la Federación, el 8 de marzo de 2017, realizará las acciones de simplificación sobre el trámite indicado en el anexo correspondiente del AIR, en un plazo de seis meses contados a partir de la entrada en vigor de la presente Acuerdo.
+> 
+> Ciudad de México, a 22 de abril de 2020.- El Secretario de Ag
+> """ 
+> 
+> Con base en este contexto y en la imagen, genera la descripcion para indexacion RAG.
+
+</details>
 
 <details>
 <summary><strong>Ver respuestas de cada modelo</strong></summary>
