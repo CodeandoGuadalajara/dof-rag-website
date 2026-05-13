@@ -122,15 +122,19 @@ El DOF no publica la misma cantidad todos los años:
 
 ## Distribución por tamaño
 
-| Categoría | Ejemplo | Páginas aprox. | % del total |
-|-----------|---------|-----------------|-------------|
-| Minúsculos (<1 KB) | Portadas, fe de erratas | 1 | ~3% |
-| Pequeños (1-10 KB) | Avisos típicos | 1-3 | ~70% |
-| Medianos (10-100 KB) | Documentos normales | 3-15 | ~20% |
-| Grandes (100 KB-1 MB) | Documentos extensos | 15-80 | ~5% |
-| Muy grandes (>1 MB) | Tarifas, listados | 80+ | ~1% |
+Hay dos tipos de documentos con perfiles muy distintos:
 
-La mayoría son documentos cortos de 1-3 páginas. Un 6% son documentos extensos y un 1% son archivos bastante grandes (tarifas arancelarias, listados completos).
+**AVISOS** (88% del total, promedio 21 KB): edictos, nombramientos, convocatorias, licitaciones. La mayoría son documentos cortos de 1-2 páginas.
+
+**Documentos DOF** (12% del total, promedio 265 KB): decretos, leyes, reglamentos, acuerdos. Aquí sí hay documentos extensos — el 30% tiene entre 10 y 100 KB (varias páginas) y un 30% supera los 100 KB (decenas de páginas).
+
+| Categoría | Ejemplo | % del total |
+|-----------|---------|-------------|
+| Minúsculos (<1 KB) | Portadas, fe de erratas | ~3% |
+| Pequeños (1-10 KB) | Avisos, edictos | ~71% |
+| Medianos (10-100 KB) | Documentos normales | ~20% |
+| Grandes (100 KB-1 MB) | Decretos, reglamentos extensos | ~5% |
+| Muy grandes (>1 MB) | Tarifas arancelarias, listados | ~1% |
 
 ## Lo que nos dejó este proceso
 
