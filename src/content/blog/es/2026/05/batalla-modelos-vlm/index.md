@@ -1,5 +1,5 @@
 ---
-title: "Batalla de modelos VLM: ¿Quién describe mejor las imágenes del DOF?"
+title: "¿Quién describe mejor las imágenes del DOF?"
 date: 2026-05-12
 author: Equipo DOF-RAG
 description: >-
@@ -17,9 +17,7 @@ tags:
 featured: true
 ---
 
-# Batalla de modelos VLM: ¿Quién describe mejor las imágenes del DOF?
-
-La verdad es que cuando empezamos a evaluar modelos para generar descripciones de imágenes del Diario Oficial de la Federación, pensábamos que la respuesta sería obvia.Spoiler: no lo fue :-p
+# ¿Quién describe mejor las imágenes del DOF?
 
 Nuestro pipeline de [enriquecimiento de imágenes](https://github.com/CodeandoGuadalajara/dof-rag/pull/53) necesita generar descripciones textuales optimizadas para **búsqueda semántica** — no descripciones visuales bonitas, sino texto que un abogado o funcionario público realmente buscaría. El reto es que las imágenes del DOF son muy diversas: logos institucionales, tablas densas, diagramas técnicos, mapas geográficos, formatos administrativos...
 
@@ -956,37 +954,6 @@ VOCABULARIO DE BUSQUEDA: mapa, sistema lagunar, zona de veda permanente, Altata-
 
 ---
 
-
-## Resumen de velocidad
-
-| Modelo | Tiempo promedio por imagen |
-|--------|---------------------------|
-| Gemini 2.5 Flash Lite | ~1.6s |
-| GPT-5.4 Nano | ~2.7s |
-| Gemini 3.1 Flash Lite | ~2.8s |
-| Claude 3 Haiku | ~3.1s |
-| Qwen 3.5 Flash | ~13.5s |
-| Qwen 3.6 Flash | ~29s |
-
-## Nuestras observaciones
-
-**Gemini 2.5 Flash Lite** es el más rápido y consistente. Sigue bien las instrucciones, produce captions concisas y no alucina referencias legales. Ideal como opción por defecto.
-
-**Gemini 3.1 Flash Lite** es el más detallado y verbaloso. El problema: tiende a alucinar referencias legales que no están en la imagen (por ejemplo, inventó "NOM-046-SCFI-1999" para un simple diagrama). Útil si quieres más contexto pero requiere validación.
-
-**GPT-5.4 Nano** tiene buena extracción de contenido literal pero tiende a incluir descripciones visuales a pesar de la instrucción contraria. Se truncó en imágenes complejas por el límite de tokens.
-
-**Qwen 3.5 y 3.6 Flash** son las más lentas (4-18x más que Gemini Flash Lite). Producen descripciones muy detalladas pero con mucha "paja" visual que no sirve para RAG. También tienden a incluir descripciones de colores y layout.
-
-**Claude 3 Haiku** es el que mejor sigue instrucciones — las captions más limpias y sin descripciones visuales. Pero a veces es demasiado breve y omite contenido importante. También es 5x más caro que Gemini Flash Lite.
-
-## Nuestra elección
-
-Para un pipeline de 98,000 imágenes, **Gemini 2.5 Flash Lite** ofrece el mejor balance de velocidad, calidad, costo y seguimiento de instrucciones. No es perfecto, pero a ~$1.87 por todo el dataset, es difícil justificar algo más caro.
-
-Si el presupuesto no fuera limitante, haríamos un enfoque de dos etapas: Gemini Flash Lite para la mayoría, y Claude Haiku para las imágenes donde Flash Lite produzca captions muy cortas o vacías.
-
-¿Tú qué opinas? ¿Alguna experiencia similar con modelos de visión? 🙈
 
 ## Resumen de velocidad
 
