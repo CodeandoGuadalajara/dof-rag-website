@@ -21,7 +21,7 @@ featured: true
 
 Nuestro pipeline de [enriquecimiento de imágenes](https://github.com/CodeandoGuadalajara/dof-rag/pull/53) necesita generar descripciones textuales optimizadas para **búsqueda semántica** — no descripciones visuales bonitas, sino texto que un abogado o funcionario público realmente buscaría. El reto es que las imágenes del DOF son muy diversas: logos institucionales, tablas densas, diagramas técnicos, mapas geográficos, formatos administrativos...
 
-Así que decidimos hacer una comparación sistemática. Corrimos **6 modelos** de visión a través de **OpenRouter** sobre **15 imágenes** representativas del DOF y comparamos calidad, velocidad y capacidad de seguir instrucciones.
+Este es el primer experimento de una serie. Empezamos con **6 modelos**, **15 imágenes** y un prompt específico. A partir de estos resultados planeamos iterar: ajustar el prompt, probar con otras imágenes, explorar otros modelos. Pero estos primeros datos ya nos dan una buena idea de por dónde empezar.
 
 ## Los contendientes
 
@@ -966,9 +966,9 @@ VOCABULARIO DE BUSQUEDA: mapa, sistema lagunar, zona de veda permanente, Altata-
 | Qwen 3.5 Flash | ~13.5s |
 | Qwen 3.6 Flash | ~29s |
 
-## Nuestras observaciones
+## Observaciones
 
-**Gemini 2.5 Flash Lite** es el más rápido y consistente. Sigue bien las instrucciones, produce captions concisas y no alucina referencias legales. Ideal como opción por defecto.
+**Gemini 2.5 Flash Lite** es el más rápido y consistente. Sigue bien las instrucciones, produce captions concisas y no alucina referencias legales.
 
 **Gemini 3.1 Flash Lite** es el más detallado y verbaloso. El problema: tiende a alucinar referencias legales que no están en la imagen (por ejemplo, inventó "NOM-046-SCFI-1999" para un simple diagrama). Útil si quieres más contexto pero requiere validación.
 
@@ -978,10 +978,13 @@ VOCABULARIO DE BUSQUEDA: mapa, sistema lagunar, zona de veda permanente, Altata-
 
 **Claude 3 Haiku** es el que mejor sigue instrucciones — las captions más limpias y sin descripciones visuales. Pero a veces es demasiado breve y omite contenido importante. También es 5x más caro que Gemini Flash Lite.
 
-## Nuestra elección
+## Primeras conclusiones y siguientes pasos
 
-Para un pipeline de 98,000 imágenes, **Gemini 2.5 Flash Lite** ofrece el mejor balance de velocidad, calidad, costo y seguimiento de instrucciones. No es perfecto, pero a ~$1.87 por todo el dataset, es difícil justificar algo más caro.
+Con este primer experimento, **Gemini 2.5 Flash Lite** parece la mejor opción para empezar: rápido, barato (~$1.87 por 98k imágenes) y razonablemente bueno siguiendo instrucciones. Pero quedan varias preguntas abiertas:
 
-Si el presupuesto no fuera limitante, haríamos un enfoque de dos etapas: Gemini Flash Lite para la mayoría, y Claude Haiku para las imágenes donde Flash Lite produzca captions muy cortas o vacías.
+- **El prompt** fue diseñado para un caso específico. Seguramente podemos mejorarlo — por ejemplo, separar el tratamiento de logos (donde sobra información) vs tablas densas (donde falta).
+- **Las 15 imágenes** son una muestra pequeña. Necesitamos probar con más imágenes y de más tipos para confirmar estos resultados.
+- **Otros modelos** — nuevos modelos salen constantemente, y modelos como LightOnOCR podrían tener mejor desempeño en documentos gubernamentales.
+- **Enfoque de dos etapas** — si el presupuesto lo permite, combinar Flash Lite para la mayoría con Claude Haiku para los casos donde Flash Lite produce captions muy cortas podría ser lo óptimo.
 
-¿Tú qué opinas? ¿Alguna experiencia similar con modelos de visión? 🙈
+Iremos compartiendo más resultados en siguientes posts.
