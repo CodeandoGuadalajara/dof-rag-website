@@ -20,13 +20,5 @@ export default defineConfig({
   server: {
     port: 4321,
     host: true
-  },
-  // Configuración de rutas para asegurar que TinaCMS funcione correctamente
-  vite: {
-    resolve: {
-      alias: {
-        '/@fs/': '/'
-      }
-    }
   }
 });
