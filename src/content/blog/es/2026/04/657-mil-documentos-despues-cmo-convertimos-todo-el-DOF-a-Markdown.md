@@ -103,6 +103,8 @@ for paragraph in doc.paragraphs:
 | `python-docx` | 1 | ✅ Exitoso |
 | **Total** | **657,867** | **100% convertido** |
 
+El tradeoff de usar `catdoc` y `python-docx` es que solo extraen texto plano: sin imágenes, sin estructura de encabezados (h1, h2, h3...). Los Markdown que produce LibreOffice + pandoc sí tienen jerarquía de títulos y las imágenes embebidas, que es información valiosa para el RAG. Pero mejor tener el texto sin formato que no tener nada — estos 640 archivos representan menos del 0.1% del total.
+
 ## Distribución por año
 
 El DOF no publica la misma cantidad todos los años:
@@ -120,15 +122,15 @@ El DOF no publica la misma cantidad todos los años:
 
 ## Distribución por tamaño
 
-| Categoría | Ejemplo | % del total |
-|-----------|---------|-------------|
-| Minúsculos (<1 KB) | Portadas, fe de erratas | ~3% |
-| Pequeños (1-10 KB) | Avisos típicos | ~70% |
-| Medianos (10-100 KB) | Documentos normales | ~20% |
-| Grandes (100 KB-1 MB) | Documentos extensos | ~5% |
-| Muy grandes (>1 MB) | Tarifas, listados | ~1% |
+| Categoría | Ejemplo | Páginas aprox. | % del total |
+|-----------|---------|-----------------|-------------|
+| Minúsculos (<1 KB) | Portadas, fe de erratas | 1 | ~3% |
+| Pequeños (1-10 KB) | Avisos típicos | 1-3 | ~70% |
+| Medianos (10-100 KB) | Documentos normales | 3-15 | ~20% |
+| Grandes (100 KB-1 MB) | Documentos extensos | 15-80 | ~5% |
+| Muy grandes (>1 MB) | Tarifas, listados | 80+ | ~1% |
 
-La mayoría son documentos cortos. Un 6% son documentos extensos y un 1% son archivos bastante grandes (tarifas arancelarias, listados completos).
+La mayoría son documentos cortos de 1-3 páginas. Un 6% son documentos extensos y un 1% son archivos bastante grandes (tarifas arancelarias, listados completos).
 
 ## Lo que nos dejó este proceso
 
@@ -148,17 +150,9 @@ La mayoría son documentos cortos. Un 6% son documentos extensos y un 1% son arc
 
 Los 657,867 archivos Markdown están listos, pero no son todo el DOF.
 
-Antes de 1999 el DOF solo existía en papel. El sitio del DOF digitalizó esas ediciones como PDFs escaneados — imágenes de cada página, sin texto extraíble. Hay PDFs desde al menos 1990, con algunas ediciones aisladas de 1920 y 1922.
+Antes de 1999 el DOF solo existía en papel. El sitio del DOF digitalizó esas ediciones como PDFs escaneados — imágenes de cada página, sin texto extraíble. También hay PDFs escaneados para algunos periodos posteriores donde no hay archivos .word.
 
-| Periodo | Tipo de PDF | Texto extraíble |
-|---------|------------|-----------------|
-| 1920-1922 | Ediciones aisladas | No |
-| 1990-2004 | Escaneado (imágenes) | No |
-| 2005-2008 | Escaneado | No |
-| 2009-2011 | Transición (mixto) | Parcial |
-| 2012-2025 | Mayormente digital | Sí |
-
-Hemos descargado 6,079 ediciones (2002-2025, 102 GB). Faltan los PDFs de 1990-2001 — unos 12 años, aproximadamente 3,000 ediciones más. Estimamos entre **650,000 y 850,000 páginas escaneadas** en total.
+Hemos descargado 6,079 ediciones en PDF (2002-2025, 102 GB). Faltan los PDFs de 1990-2001 — unos 12 años, aproximadamente 3,000 ediciones más. Estimamos entre **650,000 y 850,000 páginas escaneadas** en total: décadas de leyes, decretos y avisos que actualmente solo existen como imágenes.
 
 ### OCR con modelos de visión-lenguaje
 
