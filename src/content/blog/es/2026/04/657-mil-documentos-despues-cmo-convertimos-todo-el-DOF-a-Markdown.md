@@ -17,15 +17,13 @@ tags:
 featured: true
 ---
 
-# 657,867 documentos: la conversión masiva que sí terminó
+# 657 mil documentos después: cómo convertimos TODO el DOF a Markdown
 
-Si [ya platicamos](https://codeandoguadalajara.github.io/dof-rag-website/es/blog/2025/11/cuatro-pasos-para-domar-el-dof-conversin-limpieza-anlisis-y-estructura/) de nuestro pipeline de procesamiento —la versión elegante con sus cuatro pasos bien definidos— ahora toca hablar de la versión real: la que convirtió **todos** los archivos .doc del DOF. Sin excepción. Sin "ya quedan unos pocos pero no pasa nada".
-
-Spoiler: sí pasaba. Y la solución fue más creativa de lo que esperábamos.
+Si [ya platicamos](https://codeandoguadalajara.github.io/dof-rag-website/es/blog/2025/11/cuatro-pasos-para-domar-el-dof-conversin-limpieza-anlisis-y-estructura/) de nuestro pipeline de procesamiento —la versión elegante con sus cuatro pasos bien definidos— ahora toca hablar de la versión real: la que convirtió **todos** los archivos .doc del DOF. Sin excepción.
 
 ## El número: 657,867
 
-Ese es el total de archivos .doc que tiene el Diario Oficial de la Federación desde enero de 1999 hasta abril de 2026. Veintisiete años de documentos gubernamentales: leyes, decretos, avisos, convocatorias, resoluciones... todo lo que el gobierno publica oficialmente, en formato Word binario.
+Ese es el total de archivos .doc que tiene el Diario Oficial de la Federación desde enero de 1999 hasta abril de 2026. Veintisiete años de documentos gubernamentales: leyes, decretos, avisos, convocatorias, resoluciones... todo en formato Word binario.
 
 El directorio fuente pesa **71 GB**. Y necesitábamos convertir cada uno de esos archivos a Markdown limpio para poder generar embeddings y construir nuestro sistema RAG.
 
@@ -66,24 +64,24 @@ Para estar seguros de que no nos faltaba nada, comparamos nuestros archivos .doc
 - 2 ediciones extraordinarias de fin de semana confirmadas como solo-PDF escaneado (no existen versiones Word)
 - Pre-1999: no hay archivos word en el sitio del DOF, solo PDFs escaneados
 
-## La batalla de las imágenes
+## Las imágenes que faltaban
 
 Un descubrimiento importante durante la conversión: el ~1.7% de los archivos (~10,800) tenían referencias a imágenes rotas. El problema era que pandoc se ejecutó sin `--extract-media`, así que los .md decían `![](media/imagen.png)` pero las imágenes nunca se extrajeron.
 
 La solución fue agregar `--extract-media` al comando de pandoc y reconvertir esos archivos. Resultado: **90,370 imágenes** extraídas correctamente, que suman ~25 GB adicionales al directorio de salida.
 
-## Los rebeldes: cuando LibreOffice dice que no
+## Cuando LibreOffice dice que no
 
 LibreOffice cubrió el 99.90% de los archivos. Pero hubo 640 archivos (principalmente AVISOS del sistema SIDOF) que simplemente lo hacían colapsar. Dos tipos de falla:
 
 - **Timeout:** LibreOffice se quedaba colgado procesándolos. Ni 600 segundos × 3 reintentos fueron suficientes.
 - **Formato no reconocido:** LibreOffice los rechazaba.
 
-### La solución alternativa: herramientas de nicho
+### La solución: herramientas más simples
 
 Analizamos los archivos fallidos y descubrimos que no todos eran iguales. Usamos el comando `file` de Linux para ver qué había realmente detrás de esas extensiones .doc:
 
-#### catdoc: el héroe silencioso
+#### catdoc
 
 La mayoría eran archivos .doc legítimos en formato OLE (Word 97-2003). LibreOffice simplemente se ahogaba con su tamaño o complejidad. Pero ahí estaba **`catdoc`**, una herramienta minimalista que extrae texto directamente del formato binario sin intentar renderizar nada.
 
@@ -91,7 +89,7 @@ La mayoría eran archivos .doc legítimos en formato OLE (Word 97-2003). LibreOf
 catdoc archivo.doc > archivo.md
 ```
 
-¿El resultado? Extrajo texto limpio de los 640 archivos en menos de un segundo cada uno. Sin timeouts. Sin drama.
+Extrajo texto limpio de los 640 archivos en menos de un segundo cada uno. Sin timeouts.
 
 #### python-docx: para los disfrazados
 
@@ -127,7 +125,7 @@ Una curiosidad que descubrimos al ver los resultados: el DOF no publica la misma
 | 2020 | 16,733 | Menor (pandemia) |
 | 2026 | 5,436 | Datos parciales (ene-abr) |
 
-El periodo 2011-2014 fue la era dorada de la publicación en el DOF. Desde entonces, la tendencia va a la baja. Curioso.
+El periodo 2011-2014 fue la era dorada de la publicación en el DOF. Desde entonces, la tendencia va a la baja.
 
 ## Distribución de tamaños
 
@@ -141,15 +139,15 @@ El periodo 2011-2014 fue la era dorada de la publicación en el DOF. Desde enton
 | Muy grandes (>1 MB) | Tarifas, listados | ~1% | |
 | Minúsculos (<1 KB) | Portadas, fe de erratas | ~3% | |
 
-La mayoría son documentos cortos — avisos, nombramientos, fe de erratas. Pero hay un 6% que son documentos serios, y un 1% que son verdaderos monstruos.
+La mayoría son documentos cortos — avisos, nombramientos, fe de erratas. Pero hay un 6% que son documentos serios, y un 1% que son bastante grandes.
 
-## Lecciones aprendidas
+## Lo que aprendimos
 
 1. **No dependas de una sola herramienta.** LibreOffice cubre el 99.9%, pero ese 0.1% restante te va a doler si no tienes un plan B. Tener `catdoc` y `python-docx` como respaldo hizo la diferencia entre "casi terminamos" y "100% convertido".
 
 2. **Verifica el formato real, no la extensión.** Que un archivo diga `.doc` no significa que sea .doc. Verificar los magic bytes (`PK` = ZIP, `ÐÏ` = OLE) te ahorra horas de debugging.
 
-3. **El timeout mata la productividad.** Cuando un archivo falla consistentemente, reintentar con el mismo timeout solo desperdicia tiempo. Detectar los archivos problemáticos y cambiar de estrategia es más eficiente.
+3. **Cuando algo falla consistentemente, cambia de estrategia.** Reintentar con el mismo timeout solo desperdicia tiempo. Detectar los archivos problemáticos y usar otra herramienta fue más eficiente.
 
 4. **Las imágenes importan.** El primer run sin `--extract-media` dejó ~10,800 archivos con referencias rotas. Siempre verifica que los outputs tengan todo lo que el contenido referencia.
 
@@ -159,7 +157,7 @@ La mayoría son documentos cortos — avisos, nombramientos, fe de erratas. Pero
 
 ## ¿Qué sigue? Los PDFs escaneados
 
-Los 657,867 archivos Markdown están listos. Pero aquí viene la parte que no esperábamos.
+Los 657,867 archivos Markdown están listos. Pero hay más.
 
 El DOF no siempre publicó archivos .doc individuales. Antes de 1999, las ediciones solo existían en papel, y el sitio del DOF las digitalizó como PDFs escaneados — imágenes de cada página, sin texto extraíble. Y cuando decimos "antes de 1999", hablamos de **décadas**: el sitio tiene PDFs desde al menos 1990, con algunas ediciones aisladas de 1920 y 1922.
 
@@ -173,11 +171,11 @@ El DOF no siempre publicó archivos .doc individuales. Antes de 1999, las edicio
 | 2009-2011 | Transición (mixto) | Parcial |
 | 2012-2025 | Mayormente digital | Sí |
 
-Hemos descargado 6,079 ediciones (2002-2025, 102 GB), pero **todavía faltan los PDFs de 1990-2001** — unos 12 años, aproximadamente 3,000 ediciones más. Estimamos entre **650,000 y 850,000 páginas escaneadas** en total. Es decir: décadas de leyes, decretos, tarifas arancelarias, avisos y resoluciones que actualmente solo existen como imágenes inaccesibles.
+Hemos descargado 6,079 ediciones (2002-2025, 102 GB), pero **todavía faltan los PDFs de 1990-2001** — unos 12 años, aproximadamente 3,000 ediciones más. Estimamos entre **650,000 y 850,000 páginas escaneadas** en total.
 
 ### OCR con modelos de visión-lenguaje
 
-La buena noticia es que los modelos de OCR basados en VLMs (Vision-Language Models) han avanzado enormemente. Referencias recientes como el [trabajo de Daniel van Stren](https://danielvanstrien.xyz/posts/2026/re-ocr-collections/) y los [benchmarks de LightOn](https://lighton.ai/lighton-blogs/open-source-lightonocr-2-just-outscored-claude-gpt-5-qwen3-mistral-and-mathpix-at-table-extraction) muestran que modelos como **LightOnOCR-2** (1B parámetros, Apache 2.0) pueden procesar documentos escaneados a ~$0.002 por página con calidad profesional — superando incluso a GPT-5 mini y Claude Sonnet 4.6 en extracción de tablas.
+La buena noticia es que los modelos de OCR basados en VLMs han avanzado mucho. Referencias recientes como el [trabajo de Daniel van Stren](https://danielvanstrien.xyz/posts/2026/re-ocr-collections/) y los [benchmarks de LightOn](https://lighton.ai/lighton-blogs/open-source-lightonocr-2-just-outscored-claude-gpt-5-qwen3-mistral-and-mathpix-at-table-extraction) muestran que modelos como **LightOnOCR-2** (1B parámetros, Apache 2.0) pueden procesar documentos escaneados a ~$0.002 por página con calidad profesional — superando incluso a GPT-5 mini y Claude Sonnet 4.6 en extracción de tablas.
 
 El plan:
 
@@ -186,11 +184,11 @@ El plan:
 3. **Generar Markdown** limpio a partir de las imágenes escaneadas
 4. **Integrar** con los 657,867 archivos .md ya existentes
 
-Costo estimado: **~$800-1,500 USD** para toda la colección. Sí, menos de lo que cuesta un café por día durante un año para digitalizar décadas del registro oficial de México.
+Costo estimado: **~$800-1,500 USD** para toda la colección. Menos de lo que cuesta un café por día durante un año para digitalizar décadas del registro oficial de México.
 
 Más allá del RAG, esto tiene un valor enorme como patrimonio documental. Cualquiera que haya intentado buscar una ley o decreto de los 90s en el sitio del DOF sabe la frustración: PDFs escaneados que no se pueden buscar, páginas que hay que hojear una por una. Digitalizar esto es un servicio público.
 
-Esa es una historia para otro post. Stay tuned :-p
+Esa es una historia para otro post :-p
 
 El código de conversión está disponible en nuestro [repositorio de GitHub](https://github.com/CodeandoGuadalajara/dof-rag).
 
