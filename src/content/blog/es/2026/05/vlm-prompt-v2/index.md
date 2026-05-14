@@ -949,6 +949,5 @@ Esta imagen muestra un diagrama esquemático de un aparato de medición de flujo
 ## ¿Qué sigue?
 
 - Probar el prompt v2 con un lote más grande de imágenes (50-100) para validar consistencia
-- Evaluar las descripciones con métricas de retrieval (no solo calidad percibida)
-- Experimentar con modelos locales (LLaVA, etc.) para comparar costos
-- Considerar un ensemble: modelo rápido para la mayoría + modelo potente para imágenes complejas
+- Evaluar las descripciones con métricas de retrieval (no solo calidad percibida). Pero para esto nos falta tener ejemplos...
+- Así que vale la pena empezar a crear la DB de búsquedas
