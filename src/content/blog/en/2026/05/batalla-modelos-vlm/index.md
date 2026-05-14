@@ -25,16 +25,16 @@ This is the first experiment in a series. We started with **6 models**, **15 ima
 
 ## The Contenders
 
-| Modelo | Proveedor | Costo estimado (98k imágenes) |
-|--------|-----------|-------------------------------|
-| gemini-3.1-flash-lite | Google | ~$1.87 |
-| gemini-2.5-flash-lite | Google | ~$1.87 |
-| gpt-5.4-nano | OpenAI | ~$2.34 |
-| qwen3.6-flash | Qwen | ~$2.00 |
-| qwen3.5-flash-02-23 | Qwen | ~$2.00 |
-| claude-3-haiku | Anthropic | ~$9.44 |
+| Modelo | Proveedor | Avg | Min | Max | Total | Input $/M tok | Output $/M tok | Cost 15 imgs | Cost 98k imgs |
+|--------|-----------|-----|-----|-----|-------|---------------|----------------|--------------|---------------|
+| gemini-2.5-flash-lite | Google | 1.6s | 1.0s | 3.1s | 23.6s | $0.10 | $0.40 | $0.0029 | ~$19 |
+| gpt-5.4-nano | OpenAI | 2.7s | 1.6s | 4.7s | 40.4s | $0.20 | $1.25 | $0.0075 | ~$49 |
+| gemini-3.1-flash-lite | Google | 2.8s | 2.0s | 6.5s | 42.2s | $0.25 | $1.50 | $0.0092 | ~$60 |
+| claude-3-haiku | Anthropic | 3.1s | 1.8s | 5.2s | 46.0s | $0.25 | $1.25 | $0.0083 | ~$54 |
+| qwen3.5-flash-02-23 | Qwen | 13.5s | 7.6s | 29.1s | 202.7s | $0.07 | $0.26 | $0.0020 | ~$13 |
+| qwen3.6-flash | Qwen | 29.0s | 5.4s | 274.3s | 406.4s | $0.25 | $1.50 | $0.0086 | ~$60 |
 
-All were tested with the same prompt optimized for RAG indexing in Spanish, requesting: image type, legal identifiers, literal content, and search vocabulary. No visual descriptions.
+Pricing from [OpenRouter](https://openrouter.ai/models?input_modalities=image&output_modalities=text&max_price=0.25&order=most-popular) at the time of the experiment. Estimated costs assuming ~950 input tokens per call (prompt + context + image) and ~250 output tokens per response. Qwen 3.6 Flash had 1 error (rate limit 429) out of 15 images, all others completed 15 without errors.
 
 ## The Prompt Used
 
