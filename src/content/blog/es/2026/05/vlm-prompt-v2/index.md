@@ -860,15 +860,15 @@ Auditor Superior de la Federación, que tiene bajo su mando a un Asesor y la Sec
 
 > **Figura A.5 - Aparato de medición de flujo de aire**
 > 
-> ![](media/image157.png)
+> `![](media/image157.png)`
 > 
 > **Figura A.6 - Tobera para la medición del flujo de aire**
 > 
-> ![](media/image158.png)
+> `![](media/image158.png)`
 > 
 > **Figura A.7 - Medición de la presión estática externa**
 > 
-> ![](media/image159.png)
+> `![](media/image159.png)`
 > 
 > **Figura A.8 - Medición de caída de presión estática del aire para una sección de serpentín sin ventiladores**
 
