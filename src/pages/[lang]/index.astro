@@ -76,30 +76,32 @@ export function getStaticPaths() {
   </section>
 
   <div class="grid grid-cols-12 gap-8">
-    <!-- Sidebar con tags y RSS -->
+    <!-- Sidebar con RSS y tags -->
     <div class="col-span-12 md:col-span-3">
       <div class="sticky top-24">
-        <h2 class="text-xl font-bold mb-6 pb-2 border-b border-[var(--color-border)]">{t('home.tags')}</h2>
-        <div class="flex flex-wrap gap-2">
-          {sortedTags.map(([tag, count]) => (
-            <a
-              href={`${import.meta.env.BASE_URL}/${lang}/tags/${tag}`}
-              class="px-3 py-1 rounded-full text-sm bg-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
-            >
-              #{tag}
-            </a>
-          ))}
-        </div>
-
-        <div class="mt-12">
+        <div>
           <h2 class="text-xl font-bold mb-4 pb-2 border-b border-[var(--color-border)]">{t('home.subscribe')}</h2>
-          <p class="text-[var(--color-muted)] mb-4">{t('home.stay_updated')}</p>
+          <p class="text-[var(--color-muted)] text-sm mb-4">{t('home.stay_updated')}</p>
           <a href={`${import.meta.env.BASE_URL}/rss.xml`} class="inline-block gradient-border px-4 py-2 text-sm font-medium rounded-md hover:opacity-90 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
               <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"/>
             </svg>
             <span class="gradient-text">RSS</span>
           </a>
+        </div>
+
+        <div class="mt-8">
+          <h2 class="text-xl font-bold mb-4 pb-2 border-b border-[var(--color-border)]">{t('home.tags')}</h2>
+          <div class="flex flex-wrap gap-1.5">
+            {sortedTags.map(([tag, count]) => (
+              <a
+                href={`${import.meta.env.BASE_URL}/${lang}/tags/${tag}`}
+                class="px-2 py-0.5 rounded-full text-xs bg-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+              >
+                #{tag}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>
