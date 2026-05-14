@@ -67,18 +67,20 @@ Los cambios clave vs v1:
 - **Sin identificadores si no hay**: no forzar mencionar artículos si no aparecen
 - **4-6 oraciones** (antes 4-8): más conciso
 
-## Tiempos de respuesta
+## Tiempos de respuesta y costos
 
-| Modelo | Tiempo promedio | Imágenes procesadas |
-|--------|----------------|---------------------|
-| gemini-2.5-flash-lite | 2.1s | 14/14 |
-| gemini-3.1-flash-lite | 2.8s | 14/14 |
-| gpt-5.4-nano | 3.7s | 14/14 |
-| claude-3-haiku | 3.7s | 14/14 |
-| gemma-4-31b-it | 11.4s | 14/14 |
-| grok-4.1-fast | 15.7s | 14/14 |
+| Modelo | Promedio | Mín | Máx | Total | Input $/M tok | Output $/M tok | Costo 14 imgs | Costo 98k imgs |
+|--------|----------|-----|-----|-------|---------------|----------------|---------------|----------------|
+| gemini-2.5-flash-lite | 2.1s | 1.3s | 3.4s | 28.9s | $0.10 | $0.40 | $0.0023 | ~$16 |
+| gemini-3.1-flash-lite | 2.8s | 1.7s | 6.3s | 39.7s | $0.25 | $1.50 | $0.0084 | ~$59 |
+| gpt-5.4-nano | 3.7s | 1.9s | 5.9s | 52.1s | $0.20 | $1.25 | $0.0073 | ~$51 |
+| claude-3-haiku | 3.7s | 2.4s | 5.4s | 52.1s | $0.25 | $1.25 | $0.0065 | ~$45 |
+| gemma-4-31b-it | 11.4s | 6.0s | 20.6s | 160.1s | $0.12 | $0.37 | $0.0026 | ~$18 |
+| grok-4.1-fast | 15.7s | 7.4s | 24.3s | 219.4s | $0.20 | $0.50 | $0.0043 | ~$30 |
 
-0 errores en 84 llamadas (14 imágenes × 6 modelos). Gemini 2.5 Flash Lite sigue siendo el más rápido, Grok el más lento por bastante margen.
+Precios de [OpenRouter](https://openrouter.ai/models?input_modalities=image&output_modalities=text&max_price=0.25&order=most-popular) al momento del experimento. Costos estimados asumiendo ~950 tokens de input por llamada (prompt + contexto + imagen) y tokens de output estimados desde las respuestas. 0 errores en 84 llamadas.
+
+Gemini 2.5 Flash Lite es el más rápido y barato. Gemma 4 es la segunda opción más económica pero 5x más lenta. Grok es el más lento por bastante margen.
 
 ## Los resultados — imagen por imagen
 
