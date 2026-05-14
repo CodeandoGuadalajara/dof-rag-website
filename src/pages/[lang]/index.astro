@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { getLangFromUrl } from '../../i18n/utils.ts';
-import { supportedLanguages, dateFormatOptions, type SupportedLanguage } from '../../i18n/config';
+import { supportedLanguages, type SupportedLanguage } from '../../i18n/config';
 import BlogPostsGrid from '../../components/BlogPostsGrid.astro';
 
 // Obtener el idioma actual de la URL
@@ -31,21 +31,15 @@ const allBlogPosts = await getCollection('blog', ({ data, slug }) => {
   return false;
 });
 
-// Posts populares para el sidebar (podrías tener una lógica diferente para determinar popularidad)
-const popularPosts = allBlogPosts.slice(0, 5);
-
-// Función para preparar el slug (remover prefijo de idioma si existe)
-function prepareSlug(slug: string): string {
-  if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3); // Eliminar el prefijo de idioma
+// Extraer tags con conteo de posts
+const tagCounts = new Map<string, number>();
+for (const post of allBlogPosts) {
+  for (const tag of (post.data.tags || [])) {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
   }
-  return slug;
 }
-
-// Obtener posts destacados si existen
-const featuredPosts = allBlogPosts.filter(post => post.data.featured);
-// Si no hay posts destacados, usar los más recientes
-const popularPostsForSidebar = featuredPosts.length > 0 ? featuredPosts : allBlogPosts.slice(0, 3);
+// Ordenar por frecuencia (más usados primero)
+const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
 
 // Add title letters for blur effect
 const titleText = "DOF-RAG";
@@ -82,17 +76,20 @@ export function getStaticPaths() {
   </section>
 
   <div class="grid grid-cols-12 gap-8">
-    <!-- Sidebar con posts populares -->
+    <!-- Sidebar con tags y RSS -->
     <div class="col-span-12 md:col-span-3">
       <div class="sticky top-24">
-        <h2 class="text-xl font-bold mb-6 pb-2 border-b border-[var(--color-border)]">{t('home.popular_posts')}</h2>
-        <ul class="space-y-4">
-          {popularPostsForSidebar.map(post => (
-            <li>
-              <a href={`${import.meta.env.BASE_URL}/${lang}/blog/${prepareSlug(post.slug)}`} class="hover:text-[var(--color-accent)]">{post.data.title}</a>
-            </li>
+        <h2 class="text-xl font-bold mb-6 pb-2 border-b border-[var(--color-border)]">{t('home.tags')}</h2>
+        <div class="flex flex-wrap gap-2">
+          {sortedTags.map(([tag, count]) => (
+            <a
+              href={`${import.meta.env.BASE_URL}/${lang}/tags/${tag}`}
+              class="px-3 py-1 rounded-full text-sm bg-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+            >
+              #{tag}
+            </a>
           ))}
-        </ul>
+        </div>
 
         <div class="mt-12">
           <h2 class="text-xl font-bold mb-4 pb-2 border-b border-[var(--color-border)]">{t('home.subscribe')}</h2>
@@ -113,7 +110,6 @@ export function getStaticPaths() {
         <span class="gradient-text">{t('home.recent_posts')}</span>
       </h2>
       
-      <!-- Componente de grilla de posts con paginación -->
       <BlogPostsGrid 
         posts={allBlogPosts} 
         lang={lang} 
