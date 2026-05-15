@@ -82,12 +82,15 @@ function formatDate(dateObj: Date): string {
   }
 }
 
-// Función para preparar el slug (remover prefijo de idioma si existe)
+// Función para preparar el slug (remover prefijo de idioma y /index final)
 function prepareSlug(slug: string): string {
-  if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3); // Eliminar el prefijo de idioma
+  let result = slug;
+  if (result.startsWith('en/') || result.startsWith('es/')) {
+    result = result.substring(3);
   }
-  return slug;
+  // Remove trailing /index for folder-based entries (glob loader)
+  result = result.replace(/\/index$/, '');
+  return result;
 }
 ---
 
