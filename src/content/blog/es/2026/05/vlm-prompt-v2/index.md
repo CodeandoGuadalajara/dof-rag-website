@@ -920,17 +920,17 @@ Esta imagen muestra un diagrama esquemático de un aparato de medición de flujo
 ---
 ## Observaciones por modelo
 
-**gemini-3.1-flash-lite** (avg 2.8s): Sigue siendo el más rápido junto con gemini-2.5-flash-lite. Genera párrafos bien estructurados. Tiende a incluir más inferencias del contexto cuando la imagen es ambigua.
+**gemini-3.1-flash-lite** (avg 2.8s): Sigue siendo el más rápido junto con gemini-2.5-flash-lite. Genera párrafos bien estructurados. Tiende a incluir más inferencias del contexto cuando la imagen es ambigua. En img05 (la gráfica de barras de mercado interno) escribe "relacionado con la regulación de calefactores de ambiente bajo la normativa técnica" — eso es el contexto de otra imagen de la misma NOM, no de esta gráfica. Está mezclando contextos. Eso es preocupante: sugiere que cuando el contexto no corresponde a la imagen, el modelo inventa una conexión plausible en lugar de reconocer la discrepancia.
 
-**gemini-2.5-flash-lite** (avg 2.1s): El más rápido de todos. Respuestas consistentes pero a veces más cortas. Buen balance velocidad/calidad.
+**gemini-2.5-flash-lite** (avg 2.1s): El más rápido de todos. Respuestas consistentes pero a veces más cortas. Buen balance velocidad/calidad. En img05 describe exactamente lo que ve sin inventar una conexión normativa falsa. En img06 extrae los campos del formulario con precisión.
 
 **gpt-5.4-nano** (avg 3.7s): Buen rendimiento general. Tiende a ser más literal con el contenido de la imagen. Párrafos bien formados.
 
 **grok-4.1-fast** (avg 15.7s): El más lento por un margen amplio. Respuestas más largas y detalladas. A veces incluye información que no está en la imagen ni el contexto.
 
-**gemma-4-31b-it** (avg 11.4s): Respuestas de calidad variable. A veces excelente, a veces repite patrones. Segundo más lento.
+**gemma-4-31b-it** (avg 11.4s): Sorprendentemente bueno, subestimado. A veces excelente, a veces repite patrones. Segundo más lento.
 
-**claude-3-haiku** (avg 3.7s): Consistente como siempre. Respuestas más concisas. Buen manejo de identificadores legales. Bien equilibrado.
+**claude-3-haiku** (avg 3.7s): Mejoró con el prompt v2, pero sigue siendo el más débil. En v1 daba "dos formas geométricas: un círculo y una figura rectangular". En v2 da una descripción coherente del flexómetro. El prompt mejor lo ayudó más que a los otros porque v1 lo confundía con la estructura de etiquetas. Pero sigue siendo el más caro por lejos (~$45 para 98k) con calidad inferior a Gemini 2.5 Flash Lite. No tiene justificación económica en este lineup.
 
 ## Hallazgos principales
 
@@ -945,6 +945,8 @@ Esta imagen muestra un diagrama esquemático de un aparato de medición de flujo
 5. **Gemma tiene calidad variable**. A veces produce descripciones excelentes, a veces se pierde en detalles irrelevantes.
 
 6. **El grupo rápido (Gemini Flash, GPT Nano, Claude Haiku)** se mantiene como el mejor balance costo/beneficio. Los tres en promedio entre 2-4 segundos.
+
+Si tuviera que elegir hoy para el run de producción: Gemini 2.5 Flash Lite, con Gemma 4 31B como validación cruzada en un subconjunto de imágenes de alta importancia (tablas normativas, mapas, organigramas). Grok queda fuera por latencia. Claude 3 Haiku queda fuera por costo-calidad. Gemini 3.1 es tentador pero el riesgo de conectar contextos incorrectos es un problema real a escala de 98k imágenes.
 
 ## ¿Qué sigue?
 
