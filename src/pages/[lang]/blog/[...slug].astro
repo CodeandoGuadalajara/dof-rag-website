@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { dateFormatOptions, type SupportedLanguage } from '../../../i18n/config.ts';
@@ -20,17 +20,21 @@ export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
   
   return blogEntries.map(entry => {
-    // Detectar el idioma del post basado en la ruta si está en una carpeta específica de idioma
+    // En Astro 6 con glob loader, el id es la ruta relativa al base (sin extensión)
+    // ej: "es/2026/05/batalla-modelos-vlm/index" o "en/2026/05/batalla-modelos-vlm/index"
+    const entryId = entry.id;
+    
+    // Detectar el idioma del post basado en la ruta
     let postLang: SupportedLanguage = 'es'; // Idioma por defecto
     
-    if (entry.slug.startsWith('en/')) {
+    if (entryId.startsWith('en/')) {
       postLang = 'en';
-    } else if (entry.slug.startsWith('es/')) {
+    } else if (entryId.startsWith('es/')) {
       postLang = 'es';
     }
     
     // Obtener el slug sin el prefijo de idioma
-    let slug = entry.slug;
+    let slug = entryId;
     if (slug.startsWith('en/') || slug.startsWith('es/')) {
       slug = slug.substring(3); // Eliminar el prefijo 'xx/'
     }
@@ -50,7 +54,7 @@ export async function getStaticPaths() {
 
 const { entry, lang } = Astro.props;
 const entryLang = lang as SupportedLanguage;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 // Formatear la fecha según el idioma
 function formatDate(dateObj: Date): string {

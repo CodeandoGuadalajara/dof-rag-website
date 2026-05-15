@@ -18,15 +18,15 @@ function t(key: string): string {
 }
 
 // Filtrar posts para el idioma actual
-const allBlogPosts = await getCollection('blog', ({ data, slug }) => {
+const allBlogPosts = await getCollection('blog', ({ data, id }) => {
   // No mostrar borradores
   if (data.draft) return false;
   
-  // Si el slug comienza con el idioma actual
-  if (slug.startsWith(`${lang}/`)) return true;
+  // Si el id comienza con el idioma actual
+  if (id.startsWith(`${lang}/`)) return true;
   
   // Para español (default), incluir posts que no tienen prefijo de idioma
-  if (!slug.startsWith('en/') && !slug.startsWith('es/') && lang === 'es') return true;
+  if (!id.startsWith('en/') && !id.startsWith('es/') && lang === 'es') return true;
   
   return false;
 });

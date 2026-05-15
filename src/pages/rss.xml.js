@@ -14,7 +14,7 @@ export async function GET(context) {
       pubDate: post.data.date,
       description: post.data.description || '',
       author: post.data.author,
-      link: `${import.meta.env.BASE_URL}/blog/${post.slug}/`,
+      link: `${import.meta.env.BASE_URL}/blog/${post.id}/`,
     })),
     customData: `<language>es-es</language>`,
   });

@@ -1,19 +1,15 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Ejecutar en cambios a la rama principal
   push:
     branches: [main]
-  # Permite ejecutar manualmente desde la pestaña Actions
   workflow_dispatch:
 
-# Permitir el despliegue en GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Evitar deploys simultáneos — cancela el anterior si hay uno nuevo
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -24,20 +20,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: 'npm'
+          node-version: 22
+          cache: pnpm
+
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
+
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
       - name: Build with Astro
-        run: npm run build
-      # Crear archivo .nojekyll para indicar a GitHub Pages que no use Jekyll
+        run: pnpm build
+
       - name: Create .nojekyll file
         run: touch ./dist/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

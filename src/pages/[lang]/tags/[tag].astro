@@ -27,8 +27,8 @@ export async function getStaticPaths() {
   for (const lang of supportedLanguages) {
     // Filtrar posts para este idioma
     const langPosts = allPosts.filter(post => {
-      if (post.slug.startsWith(`${lang}/`)) return true;
-      if (!post.slug.startsWith('en/') && !post.slug.startsWith('es/') && lang === 'es') return true;
+      if (post.id.startsWith(`${lang}/`)) return true;
+      if (!post.id.startsWith('en/') && !post.id.startsWith('es/') && lang === 'es') return true;
       return false;
     });
     
@@ -109,7 +109,7 @@ function prepareSlug(slug: string): string {
     <div class="grid grid-cols-1 gap-10">
       {posts.map(post => {
         // Usar la función para preparar el slug sin tener el código duplicado
-        const postSlug = prepareSlug(post.slug);
+        const postSlug = prepareSlug(post.id);
         
         return (
           <article class="blog-card bg-[var(--color-card)] rounded-xl overflow-hidden transition-transform hover:scale-[1.01] hover:shadow-md border border-[var(--color-border)]">

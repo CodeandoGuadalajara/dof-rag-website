@@ -25,14 +25,14 @@ function t(key: string): string {
 }
 
 // Obtener todos los posts del blog del idioma actual
-const allPosts = await getCollection('blog', ({ data, slug }) => {
+const allPosts = await getCollection('blog', ({ data, id }) => {
   // No incluir posts en borrador
   if (data.draft) return false;
   
   // Filtrar por idioma
-  if (slug.startsWith('en/') && lang === 'en') return true;
-  if (slug.startsWith('es/') && lang === 'es') return true;
-  if (!slug.startsWith('en/') && !slug.startsWith('es/')) {
+  if (id.startsWith('en/') && lang === 'en') return true;
+  if (id.startsWith('es/') && lang === 'es') return true;
+  if (!id.startsWith('en/') && !id.startsWith('es/')) {
     // Si no tiene prefijo, se muestra con el idioma actual
     return true;
   }
