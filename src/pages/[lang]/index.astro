@@ -18,10 +18,11 @@ function t(key: string): string {
 }
 
 // Filtrar posts para el idioma actual
-const allBlogPosts = await getCollection('blog', ({ data, slug }) => {
+const allBlogPosts = await getCollection('blog', ({ data, id }) => {
   // No mostrar borradores
   if (data.draft) return false;
   
+  const slug = id.replace(/\.md$/, '').replace(/\/index$/, '');
   // Si el slug comienza con el idioma actual
   if (slug.startsWith(`${lang}/`)) return true;
   

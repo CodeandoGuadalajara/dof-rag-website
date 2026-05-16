@@ -1,5 +1,6 @@
 ---
 import Layout from './Layout.astro';
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { getLangFromUrl } from '../i18n/utils.ts';
 import type { SupportedLanguage } from '../i18n/config.ts';
@@ -133,14 +134,14 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
         )}
         
         {image && (
-          <img
+          <Image
             src={`${import.meta.env.BASE_URL}/${image.startsWith('/') ? image.substring(1) : image}`}
             alt={`${lang === 'es' ? 'Imagen para' : 'Image for'} ${title}`}
             class="w-full rounded-lg object-cover mb-8"
             style="max-height: 400px;"
             loading="lazy"
-            width="1200"
-            height="600"
+            width={1200}
+            height={600}
             decoding="async"
           />
         )}

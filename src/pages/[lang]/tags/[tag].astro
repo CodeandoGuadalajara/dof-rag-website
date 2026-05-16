@@ -27,8 +27,9 @@ export async function getStaticPaths() {
   for (const lang of supportedLanguages) {
     // Filtrar posts para este idioma
     const langPosts = allPosts.filter(post => {
-      if (post.slug.startsWith(`${lang}/`)) return true;
-      if (!post.slug.startsWith('en/') && !post.slug.startsWith('es/') && lang === 'es') return true;
+      const postSlug = post.id.replace(/\.md$/, '').replace(/\/index$/, '');
+      if (postSlug.startsWith(`${lang}/`)) return true;
+      if (!postSlug.startsWith('en/') && !postSlug.startsWith('es/') && lang === 'es') return true;
       return false;
     });
     
@@ -83,10 +84,16 @@ function formatDate(dateObj: Date): string {
   }
 }
 
+// Convert a collection entry id to a URL slug (strips .md extension and /index suffix)
+function idToSlug(id: string): string {
+  return id.replace(/\.md$/, '').replace(/\/index$/, '');
+}
+
 // Función para preparar el slug (remover prefijo de idioma si existe)
-function prepareSlug(slug: string): string {
+function prepareSlug(id: string): string {
+  const slug = idToSlug(id);
   if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3); // Eliminar el prefijo de idioma
+    return slug.substring(3);
   }
   return slug;
 }
@@ -109,7 +116,7 @@ function prepareSlug(slug: string): string {
     <div class="grid grid-cols-1 gap-10">
       {posts.map(post => {
         // Usar la función para preparar el slug sin tener el código duplicado
-        const postSlug = prepareSlug(post.slug);
+        const postSlug = prepareSlug(post.id);
         
         return (
           <article class="blog-card bg-[var(--color-card)] rounded-xl overflow-hidden transition-transform hover:scale-[1.01] hover:shadow-md border border-[var(--color-border)]">
