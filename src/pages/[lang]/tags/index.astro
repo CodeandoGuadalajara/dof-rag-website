@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { idToSlug } from '../../../lib/content-utils.ts';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config.ts';
 
@@ -29,7 +30,7 @@ const allPosts = await getCollection('blog', ({ data, id }) => {
   // No incluir posts en borrador
   if (data.draft) return false;
   
-  const slug = id.replace(/\.md$/, '').replace(/\/index$/, '');
+  const slug = idToSlug(id);
   // Filtrar por idioma
   if (slug.startsWith('en/') && lang === 'en') return true;
   if (slug.startsWith('es/') && lang === 'es') return true;

@@ -28,7 +28,7 @@ export async function getStaticPaths() {
   for (const lang of supportedLanguages) {
     // Filtrar posts para este idioma
     const langPosts = allPosts.filter(post => {
-      const postSlug = post.id.replace(/\.md$/, '').replace(/\/index$/, '');
+      const postSlug = idToSlug(post.id);
       if (postSlug.startsWith(`${lang}/`)) return true;
       if (!postSlug.startsWith('en/') && !postSlug.startsWith('es/') && lang === 'es') return true;
       return false;
