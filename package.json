@@ -6,7 +6,7 @@
     "node": ">=22",
     "pnpm": ">=10"
   },
-  "packageManager": "pnpm@10.28.2",
+  "packageManager": "pnpm@11.1.2",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -17,19 +17,10 @@
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
-    "@astrojs/tailwind": "^6.0.2",
+    "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.0",
     "unist-util-visit": "^5.0.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"],
-    "peerDependencyRules": {
-      "ignoreMissing": [],
-      "allowedVersions": {
-        "@astrojs/tailwind>astro": "*"
-      }
-    }
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

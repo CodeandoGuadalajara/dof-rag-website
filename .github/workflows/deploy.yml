@@ -37,6 +37,8 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Approve esbuild build scripts
+        run: pnpm approve-builds esbuild '!sharp'
       - name: Build with Astro
         run: pnpm run build
       # Crear archivo .nojekyll para indicar a GitHub Pages que no use Jekyll

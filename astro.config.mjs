@@ -1,12 +1,12 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import remarkAddBasepathToImages from './src/lib/remark-plugins/remark-add-basepath-to-images.js';
 
 export default defineConfig({
   site: 'https://codeandoguadalajara.github.io',
   base: '/dof-rag-website',
-  integrations: [tailwind()],
+  integrations: [],
   image: {
     service: passthroughImageService(),
   },
@@ -16,6 +16,9 @@ export default defineConfig({
   // Configuración para manejar páginas dinámicas en GitHub Pages
   build: {
     format: 'directory'
+  },
+  vite: {
+    plugins: [tailwindcss()],
   },
   markdown: {
     remarkPlugins: [remarkAddBasepathToImages],
