@@ -37,7 +37,7 @@ html.light-theme,
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not(.dark-theme) {
     --color-bg: #ffffff;
     --color-bg-rgb: 255, 255, 255;
     --color-text: #1e293b;
