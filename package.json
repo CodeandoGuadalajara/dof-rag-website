@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22",
+    "node": ">=22.12.0",
     "pnpm": ">=10"
   },
   "packageManager": "pnpm@11.1.2",
@@ -21,6 +21,9 @@
     "astro": "^6.3.3",
     "tailwindcss": "^4.3.0",
     "unist-util-visit": "^5.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

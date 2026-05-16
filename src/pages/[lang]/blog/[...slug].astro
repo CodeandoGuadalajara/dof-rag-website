@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { idToSlug, prepareSlug } from '../../../lib/content-utils.ts';
 import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { dateFormatOptions, type SupportedLanguage } from '../../../i18n/config.ts';
@@ -16,16 +17,7 @@ function t(key: string): string {
   return (translations.default as Record<string, string>)[key] || key;
 }
 
-/** Convert a collection entry id to a URL slug (strips .md extension and /index suffix) */
-function idToSlug(id: string): string {
-  return id.replace(/\.md$/, '').replace(/\/index$/, '');
-}
-
 export async function getStaticPaths() {
-  /** Convert a collection entry id to a URL slug (strips .md extension and /index suffix) */
-  function idToSlug(id: string): string {
-    return id.replace(/\.md$/, '').replace(/\/index$/, '');
-  }
   const blogEntries = await getCollection('blog');
   
   return blogEntries.map(entry => {

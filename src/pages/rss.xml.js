@@ -1,9 +1,6 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
-
-function idToSlug(id) {
-  return id.replace(/\.md$/, '').replace(/\/index$/, '');
-}
+import { idToSlug } from '../lib/content-utils.ts';
 
 export async function GET(context) {
   const posts = await getCollection('blog');

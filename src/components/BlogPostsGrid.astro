@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { prepareSlug } from '../lib/content-utils.ts';
 import { getLangFromUrl } from '../i18n/utils.ts';
 import type { CollectionEntry } from 'astro:content';
 import type { SupportedLanguage } from '../i18n/config.ts';
@@ -21,20 +22,6 @@ const { posts, lang, baseUrl, translations } = Astro.props;
 
 // Ordenar posts por fecha (más recientes primero)
 const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-// Convert a collection entry id to a URL slug (strips .md extension and /index suffix)
-function idToSlug(id: string): string {
-  return id.replace(/\.md$/, '').replace(/\/index$/, '');
-}
-
-// Función para preparar el slug (remover prefijo de idioma si existe)
-function prepareSlug(id: string): string {
-  const slug = idToSlug(id);
-  if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3); // Eliminar el prefijo de idioma
-  }
-  return slug;
-}
 
 // Función para formatear la fecha de manera segura
 function formatDate(dateObj: Date): string {

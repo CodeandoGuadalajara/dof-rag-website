@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
+import { idToSlug, prepareSlug } from '../../../lib/content-utils.ts';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config.ts';
 
@@ -84,19 +85,6 @@ function formatDate(dateObj: Date): string {
   }
 }
 
-// Convert a collection entry id to a URL slug (strips .md extension and /index suffix)
-function idToSlug(id: string): string {
-  return id.replace(/\.md$/, '').replace(/\/index$/, '');
-}
-
-// Función para preparar el slug (remover prefijo de idioma si existe)
-function prepareSlug(id: string): string {
-  const slug = idToSlug(id);
-  if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3);
-  }
-  return slug;
-}
 ---
 
 <Layout title={`${lang === 'es' ? 'Posts etiquetados con' : 'Posts tagged with'} #${tag} | DOF-RAG Blog`}>
