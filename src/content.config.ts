@@ -1,10 +1,11 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 /**
  * Colección de posts del blog
  */
 const blogCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: ['**/*.md', '!**/.*.md'], base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     date: z.union([
@@ -22,4 +23,4 @@ const blogCollection = defineCollection({
 
 export const collections = {
   'blog': blogCollection,
-}; 
+};

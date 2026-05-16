@@ -14,14 +14,6 @@ function t(key: string): string {
   return (translations.default as Record<string, string>)[key] || key;
 }
 
-// Función para preparar el slug (remover prefijo de idioma si existe)
-function prepareSlug(slug: string): string {
-  if (slug.startsWith('en/') || slug.startsWith('es/')) {
-    return slug.substring(3); // Eliminar el prefijo de idioma
-  }
-  return slug;
-}
-
 // URL del post de introducción
 const introductionSlug = "2025/04/introduccion-dof-rag";
 ---

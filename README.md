@@ -57,24 +57,24 @@ El Proyecto DOF-RAG busca transformar la manera en que ciudadanos, investigadore
 
 | Comando         | Acción                                                          |
 | :-------------- | :-------------------------------------------------------------- |
-| `npm install`   | Instala las dependencias del proyecto.                          |
-| `npm run dev`   | Inicia el servidor de desarrollo Astro con TinaCMS (`localhost:4321`). |
-| `npm run build` | Compila el sitio estático para producción en `./dist/`.           |
-| `npm run preview`| Previsualiza la compilación de producción localmente.          |
-| `npm run lint`  | Ejecuta ESLint para revisar la calidad del código.              |
-| `npm run format`| Formatea el código con Prettier.                               |
+| `pnpm install`   | Instala las dependencias del proyecto.                          |
+| `pnpm dev`   | Inicia el servidor de desarrollo Astro con TinaCMS (`localhost:4321`). |
+| `pnpm build` | Compila el sitio estático para producción en `./dist/`.           |
+| `pnpm preview`| Previsualiza la compilación de producción localmente.          |
+| `pnpm lint`  | Ejecuta ESLint para revisar la calidad del código.              |
+| `pnpm format`| Formatea el código con Prettier.                               |
 
 ## Desarrollo
 
 ```bash
 # Instalar dependencias
-npm install
+pnpm install
 
 # Iniciar servidor de desarrollo con TinaCMS
-npm run dev
+pnpm dev
 
 # Compilar para producción
-npm run build
+pnpm build
 ```
 
 ## Configuración de TinaCMS
@@ -133,7 +133,7 @@ Para que el panel de administración de TinaCMS funcione correctamente en GitHub
 
 Si encuentras un error 404 al intentar acceder al panel de administración, verifica:
 
-1.  Que has iniciado el servidor con el comando correcto: `npm run dev`.
+1.  Que has iniciado el servidor con el comando correcto: `pnpm dev`.
 2.  Que has completado la configuración en `tina/config.js` y `astro.config.mjs`.
 3.  Que los secretos de GitHub están configurados correctamente (para producción).
 
@@ -151,7 +151,7 @@ Si las imágenes no se cargan (error 404 en la consola del navegador):
 Si la URL raíz (`https://[usuario].github.io/dof-rag-website/`) devuelve un 404, asegúrate de que:
 
 1.  La configuración `base` en `astro.config.mjs` coincida exactamente con el nombre de tu repositorio (`/dof-rag-website`).
-2.  El archivo `.nojekyll` se esté creando correctamente en el directorio `dist` durante el `npm run build` (esto suele ser automático con Astro estático).
+2.  El archivo `.nojekyll` se esté creando correctamente en el directorio `dist` durante el `pnpm build` (esto suele ser automático con Astro estático).
 
 ## Configuración del Sistema de Comentarios (Giscus)
 

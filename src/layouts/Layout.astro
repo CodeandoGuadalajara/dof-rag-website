@@ -67,18 +67,15 @@ function t(key: string): string {
 			// Check localStorage first
 			const savedTheme = localStorage.getItem('theme');
 			
-			// If there's a saved preference, use it
+			// If there's a saved preference, apply it; otherwise let the CSS media query handle it
 			if (savedTheme === 'light') {
 				document.documentElement.classList.add('light-theme');
+				document.documentElement.classList.remove('dark-theme');
 			} else if (savedTheme === 'dark') {
+				document.documentElement.classList.add('dark-theme');
 				document.documentElement.classList.remove('light-theme');
-			} else {
-				// If no saved preference, check system preference
-				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-				if (!prefersDark) {
-					document.documentElement.classList.add('light-theme');
-				}
 			}
+			// else: no saved preference — CSS @media (prefers-color-scheme: light) handles it
 		</script>
 	</head>
 	<body>
@@ -161,15 +158,24 @@ function t(key: string): string {
 	const moonIcon = document.getElementById('moon-icon');
 	
 	// Set initial state of the toggle based on current theme
-	if (document.documentElement.classList.contains('light-theme')) {
+	const isLight = document.documentElement.classList.contains('light-theme') ||
+		(!document.documentElement.classList.contains('dark-theme') &&
+		 window.matchMedia('(prefers-color-scheme: light)').matches);
+	if (isLight) {
 		document.body.classList.add('light-theme');
 		moonIcon?.classList.add('hidden');
 		sunIcon?.classList.remove('hidden');
 	}
 	
 	themeToggle?.addEventListener('click', () => {
+		const goingDark = document.body.classList.contains('light-theme');
 		document.body.classList.toggle('light-theme');
-		document.documentElement.classList.toggle('light-theme'); // Sincronizar con HTML
+		document.documentElement.classList.toggle('light-theme');
+		if (goingDark) {
+			document.documentElement.classList.add('dark-theme');
+		} else {
+			document.documentElement.classList.remove('dark-theme');
+		}
 		sunIcon?.classList.toggle('hidden');
 		moonIcon?.classList.toggle('hidden');
 		

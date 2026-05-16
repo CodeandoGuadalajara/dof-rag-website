@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { idToSlug } from '../../lib/content-utils.ts';
 import { getLangFromUrl } from '../../i18n/utils.ts';
 import { supportedLanguages, type SupportedLanguage } from '../../i18n/config';
 import BlogPostsGrid from '../../components/BlogPostsGrid.astro';
@@ -18,10 +19,11 @@ function t(key: string): string {
 }
 
 // Filtrar posts para el idioma actual
-const allBlogPosts = await getCollection('blog', ({ data, slug }) => {
+const allBlogPosts = await getCollection('blog', ({ data, id }) => {
   // No mostrar borradores
   if (data.draft) return false;
   
+  const slug = idToSlug(id);
   // Si el slug comienza con el idioma actual
   if (slug.startsWith(`${lang}/`)) return true;
   
