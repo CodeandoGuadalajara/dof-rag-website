@@ -87,10 +87,20 @@ Tiempo mínimo | 1.1s |
 Tiempo máximo | 6.7s |
 Tokens input (total) | 214,411 |
 Tokens output (total) | 17,122 |
+Tokens input (promedio) | 2,144 por imagen |
 Tokens output (promedio) | 171 por imagen |
 Tamaño promedio imagen | 81 KB |
 
 La corrida completa tomó **3.8 minutos** con un delay de 0.3s entre llamadas.
+
+### ¿Por qué 2,144 tokens de entrada?
+
+El costo de entrada es significativamente mayor a nuestra estimación inicial de 800 tokens. Desglosando una llamada promedio:
+- **Imagen:** ~1,500 - 1,800 tokens. Gemini utiliza un sistema de "tiles" (mosaicos) para procesar imágenes; aunque el archivo sea pequeño (81KB), la resolución puede disparar el conteo de tokens.
+- **Prompt:** ~300 tokens.
+- **Contexto:** ~250 tokens (1,000 caracteres de texto circundante).
+
+Esto significa que el 70-80% del costo de procesamiento es la imagen misma. Optimizar el prompt ahorraría poco; la clave de la escalabilidad está en el precio por millón de tokens de visión del modelo.
 
 ## Distribución del corpus
 
@@ -126,7 +136,11 @@ Año | Imágenes | Año | Imágenes |
 2014 | 23 | 2024 | 10 |
 2015 | 5 | 2025 | 1 |
 
-La concentración en 2014 (23 imágenes) refleja que ese año tuvo documentos particularmente ilustrados (NOMs, normativas técnicas).
+La concentración en 2014 (23 imágenes) refleja que ese año tuvo documentos particularmente ilustrados (NOMs, normativas técnicas). Aunque es una muestra aleatoria, para la corrida completa deberemos vigilar si la distribución de tipos de imagen varía drásticamente entre décadas, ya que el formato de publicación del DOF ha evolucionado.
+
+### El reto de las fórmulas (13%)
+
+Detectamos que un 13% del corpus son fórmulas matemáticas. Si bien el modelo genera una descripción narrativa útil para búsquedas generales (ej. "fórmula de cálculo de pensión"), un usuario que busque la fórmula específica por sus variables no lo encontrará. Para ese 13% del corpus podría valer la pena un prompt especializado que instruya transcribir la notación matemática exacta en LaTeX o texto plano.
 
 ## Tiempos por tamaño de imagen
 
@@ -281,19 +295,23 @@ Con 20 workers concurrentes (que ya probamos en `enrich_markdown_images.py`), el
 
 **Calidad consistente.** Los captions son informativos y en español en los 100 casos. Los más cortos (87 tokens) describen logos o formatos simples; los más largos (379 tokens) detallan formatos administrativos complejos con campos específicos. El modelo adapta la longitud al contenido.
 
-**Tendencia a sobre-describir.** Algunos captions listan los 32 estados mexicanos o los 30 campos de un formulario. Para búsqueda/RAG esto no necesariamente es malo (más términos indexables), pero genera tokens extra.
+**Tendencia a sobre-describir.** Algunos captions listan los 32 estados mexicanos o los 30 campos de un formulario. Para búsqueda/RAG esto añade términos indexables, pero si esa información ya existe en el texto circundante (que ya está en el chunk), estamos duplicando datos y aumentando el costo de tokens sin añadir valor real. Una futura mejora del prompt (v4) podría instruir: *"No listes elementos que ya aparecen en el texto circundante del documento"*.
 
-**Cero alucinaciones detectadas.** Revisamos una muestra y no encontramos información fabricada. Los nombres de dependencias, números de convenio y tipos de documento coinciden con lo que se ve en las imágenes.
+**Ausencia de alucinaciones evidentes.** En los casos que pudimos verificar manualmente contra el contenido visible de la imagen, no encontramos información fabricada. Los nombres de dependencias, números de convenio y tipos de documento coinciden con lo que se ve en las imágenes. Sin embargo, para una validación científica requeriríamos un dataset de *ground truth* más extenso.
 
 **Contexto genérico no es problema.** 6 imágenes tenían contexto que era solo enlaces a otras imágenes (`![](media/...)`) o delimitadores de tabla. Aún así el modelo produjo captions correctos basándose solo en la imagen.
 
 ## ¿Qué sigue?
 
-1. **Corrida completa.** Ejecutar `enrich_markdown_images.py` con el prompt v3 sobre las ~97,000 imágenes del corpus usando 20 workers. Costo estimado: ~$62 USD, tiempo: ~3 horas.
+Antes de proceder con el procesamiento masivo de las ~97,000 imágenes, el experimento de las 100 imágenes nos obliga a hacer una pausa estratégica para asegurar la calidad del retrieval:
 
-2. **Validación humana.** Muestrear ~50 captions del corpus completo para verificar calidad a escala.
+1. **Validación específica de tipos críticos:** No basta con una validación humana genérica. Vamos a realizar una prueba de búsqueda (retrieval) sobre los dos tipos más frecuentes y problemáticos:
+   - **Formatos administrativos (26%):** Verificar si un usuario buscando un campo específico (ej. "Convenio CC-E001") encuentra el documento a través del caption.
+   - **Fórmulas matemáticas (13%):** Determinar si la descripción narrativa es suficiente o si debemos implementar el prompt especializado en LaTeX para este subconjunto.
 
-3. **Integración con RAG.** Los captions se inyectan como comentarios HTML en los markdown (`<!-- IMAGE_DESCRIPTION: ... -->`), listos para que el chunker los incluya en los vectores de embeddings.
+2. **Refinamiento del Prompt (v4):** Incorporar la instrucción para evitar duplicidad de información ("No listes elementos que ya aparecen en el texto circundante") para optimizar el costo y la relevancia semántica de los vectores.
+
+3. **Corrida completa:** Una vez validados los tipos críticos y refinado el prompt, ejecutaremos `enrich_markdown_images.py` sobre el corpus completo. Con los ajustes de eficiencia del prompt v4, esperamos mantener el costo por debajo de los $60 USD.
 
 ---
 
