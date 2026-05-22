@@ -1,6 +1,6 @@
 ---
 title: "Estructura del markdown DOF: qué tan viable es el chunking por headings"
-description: "Análisis de la estructura de 131,830 documentos markdown del DOF (2020-2026) para determinar si el chunking por headings es viable, o si necesitamos estrategias alternativas."
+description: "Análisis de la estructura de 26,607 documentos medianos y grandes del DOF (2020-2026) para determinar la estrategia de chunking del RAG."
 pubDate: "2026-05-22"
 heroImage: ""
 category: "desarrollo"
@@ -10,70 +10,79 @@ author: "Joaquín Bravo Contreras"
 
 ## Contexto
 
-Antes de construir el chunker para el RAG, queríamos saber: ¿los documentos del DOF tienen suficiente estructura (headings) para un chunking por secciones? La respuesta corta: **sí, pero no con headings estándar**.
+Antes de construir el chunker para el RAG, queríamos saber: ¿los documentos del DOF tienen suficiente estructura (headings) para un chunking por secciones?
 
-Analizamos los 131,830 documentos markdown del DOF correspondientes a 2020-2026.
+Ya sabíamos la distribución general del corpus: ~71% son avisos y edictos pequeños (< 10 KB) que no necesitan chunking. Así que enfocamos el análisis en los documentos medianos y grandes — los que realmente se beneficiarían de partirse en secciones.
 
-## Estadísticas generales
+## El corpus: 26,607 documentos "grandes" (≥ 10 KB)
 
-| Métrica | Valor |
-|---------|-------|
-| Documentos totales | 131,830 |
-| Tamaño mediano | 3,719 bytes |
-| Tamaño medio | 75,700 bytes |
-| P75 | 7,579 bytes |
-| P90 | 44,684 bytes |
-| P95 | 220,401 bytes |
+De los 131,830 documentos de 2020-2026, solo 26,607 pesan 10 KB o más:
 
-El 75% de los documentos pesa menos de 8 KB — son avisos, edictos, convocatorias cortas. El top 25% (33K docs, los más grandes) son los que realmente necesitan chunking inteligente. Un aviso de 2 KB se puede indexar completo sin partirlo.
+| Categoría | Rango | Cantidad | % del total |
+|-----------|-------|----------|-------------|
+| Medianos | 10-100 KB | 16,849 | 12.8% |
+| Grandes | 100 KB-1 MB | 8,166 | 6.2% |
+| Muy grandes | > 1 MB | 1,592 | 1.2% |
 
-## Análisis del top 25% (33K documentos)
+## Resultado: estructura por tamaño
 
-Clasificamos cada documento según su estructura dominante:
+| Patrón | ≥ 10 KB | Medianos | Grandes | Muy grandes |
+|--------|---------|----------|---------|-------------|
+| H2/H3 estándar | 47.4% | 38.1% | **62.5%** | **69.3%** |
+| Líneas en **negritas** | 49.9% | **57.9%** | 37.3% | 30.4% |
+| Texto plano | 2.4% | 3.8% | 0.0% | 0.0% |
+| Artículos / romanos / tablas | 0.3% | 0.3% | 0.2% | 0.3% |
 
-| Patrón | Cantidad | % | Descripción |
-|--------|----------|---|-------------|
-| Líneas en **negritas** | 18,550 | 56.3% | Usan `**TEXTO**` como pseudo-headings |
-| H2/H3 estándar | 13,676 | 41.5% | Tienen `##` o `###` |
-| Texto plano | 660 | 2.0% | Sin estructura detectable |
-| Artículos legales | 32 | 0.1% | "Artículo N..." como estructura |
-| Numerales romanos | 24 | 0.1% | "PRIMERO", "SEGUNDO"... |
-| Solo tablas | 16 | 0.0% | Tablas sin otro contenido |
+La tendencia es clara: **mientras más grande el documento, más probable que tenga H2/H3**. Los documentos grandes (62.5%) y muy grandes (69.3%) casi siempre tienen headings.
 
-### Patrón 1: H2/H3 estándar (41.5%)
+Los medianos (10-100 KB) están más divididos: 38% con headings, 58% con negritas. Pero muchos de estos son avisos de licitaciones y convocatorias — documentos que tienden a usar negritas como formato visual.
 
-El caso ideal. Pandoc generó headings correctamente y el chunking es directo.
+## Patrón 1: H2/H3 estándar (47% del corpus ≥ 10 KB)
 
-**Ejemplo:** `2020/08/14082020/MAT/006_DOF_20200814_MAT_5598397.md` (7.6 KB)
+El caso ideal. Pandoc generó headings correctamente. El patrón típico es un documento compuesto (varios documentos oficiales en un solo archivo DOF):
+
+**Ejemplo:** `2022/11/14112022/MAT/006_DOF_20221114_MAT_5671254.md` (63 KB, 28 headings)
 
 ```markdown
-# SECRETARIA DEL TRABAJO Y PREVISION SOCIAL
+# CONSEJO DE LA JUDICATURA FEDERAL
 
-## CONVOCATORIA para la Convención Obrero Patronal de la revisión integral
-del Contrato Ley de las Industrias Azucarera, Alcoholera y Similares...
+## ACUERDO General 33/2022 del Pleno del Consejo de la Judicatura
+Federal, relativo a la conclusión de funciones del Segundo...
 
 ### Al margen un sello con el Escudo Nacional, que dice: ...
 
-> **ASUNTO** CONVOCATORIA PARA LA CONVENCIÓN OBRERO PATRONAL...
-```
+(Contenido del acuerdo 33/2022)
 
-**Ejemplo 2:** `2022/10/18102022/MAT/004_DOF_20221018_MAT_5668611.md` (7.6 KB)
-
-```markdown
-# SECRETARIA DE LA FUNCION PUBLICA
-
-## CIRCULAR por la que se comunica a las dependencias y entidades...
+## ACUERDO General 34/2022 del Pleno del Consejo de la Judicatura
+Federal, relativo a la conclusión de funciones de los...
 
 ### Al margen un sello con el Escudo Nacional, que dice: ...
+
+(Contenido del acuerdo 34/2022)
 ```
 
-Los headings suelen ser: el H1 es la secretaría/dependencia, el H2 es el título del documento, y el H3 es la nota del escudo nacional. El contenido real empieza después.
+Cada H2 es un documento distinto. Los H3 son casi siempre "Al margen un sello con el Escudo Nacional..." — metadato que se puede ignorar para chunking.
 
-### Patrón 2: Líneas en negritas (56.3%) — el más común
+**Ejemplo 2:** `2023/11/08112023/VES/001_DOF_20231108_VES_5708044.md` (70 KB, 26 headings)
 
-La mayoría de los documentos del DOF no tienen headings markdown. En su lugar, usan **texto en negritas** como separadores visuales de sección. Pandoc los convirtió a `**TEXTO**` en lugar de `## TEXTO`.
+```markdown
+## CONVENIO de Coordinación que celebran la Secretaría de Medio Ambiente...
 
-**Ejemplo:** `2023/08/08082023/MAT/099_AVISO_20230808_MAT_5697940.md` (7.6 KB)
+## AVISO por el que se informa al público en general que está a su
+disposición el estudio realizado por la Comisión Nacional...
+
+## AVISO por el que se informa al público en general...
+```
+
+Cada heading marca un documento independiente dentro del archivo DOF del día.
+
+## Patrón 2: Líneas en negritas (50% del corpus ≥ 10 KB)
+
+Documentos que usan `**TEXTO**` como separadores visuales. Pandoc los conservó como negritas en lugar de convertirlos a headings.
+
+La mayoría son avisos de licitaciones, convocatorias y formatos administrativos. El patrón típico:
+
+**Ejemplo:** `2023/08/08082023/MAT/099_AVISO_20230808_MAT_5697940.md` (10 KB)
 
 ```markdown
 **FISCALIA GENERAL DE LA REPUBLICA**
@@ -86,82 +95,51 @@ DIRECCION GENERAL DE RECURSOS MATERIALES Y SERVICIOS GENERALES
 
 **(R.- 540204)**
 
-La Fiscalía General de la República, en cumplimiento a lo que establece
-el artículo 134 de la Constitución Política de los Estados Unidos Mexicanos...
+La Fiscalía General de la República, en cumplimiento a lo que
+establece el artículo 134 de la Constitución Política...
 ```
 
-**Ejemplo 2:** `2020/02/25022020/MAT/063_AVISO_20200225_MAT_5587447.md` (7.6 KB)
+Las líneas en negritas son: dependencia, nombre del responsable, número de registro. No son verdaderas secciones de contenido — son metadato del encabezado del documento.
+
+En el extremo grande, los "bold docs" son los anexos de la Resolución Miscelánea Fiscal (30-40 MB de tablas):
+
+**Ejemplo:** `2024/01/15012024/MAT/001_DOF_20240115_MAT_5714324.md` (39 MB)
 
 ```markdown
-**INSTITUTO ELECTORAL DE LA CIUDAD DE MEXICO**
+> PODER EJECUTIVO
 
-SECRETARIA ADMINISTRATIVA
+SECRETARIA DE HACIENDA Y CREDITO PUBLICO
 
-DIRECCION DE ADQUISICIONES, CONTROL PATRIMONIAL Y SERVICIOS
+ANEXO 1-A de la Resolución Miscelánea Fiscal para 2024...
 
-**CONVOCATORIA DE LA LICITACION PUBLICA NACIONAL IECM-LPN-03/20**
+**Trámites Fiscales**
 
-**MTRO. ALEJANDRO FIDENCIO GONZALEZ HERNANDEZ**
+**II. Trámites**
 
-**(R.- 492678)**
+**Ley de Ingresos de la Federación.**
 ```
 
-El patrón es consistente: la primera línea en negritas es la dependencia/entidad, seguida de la estructura organizacional en texto plano, y luego más negritas para el título del documento y los datos del responsable.
+Solo 4 bold lines en 39 MB — el resto son miles de tablas. El chunking por negritas no aplica aquí; necesitarían chunking por tablas o tamaño.
 
-### Patrón 3: Texto plano (2.0%)
+## Patrón 3: Texto plano (2.4%)
 
-Sin headings, sin negritas, sin estructura clara. Son edictos, notificaciones y documentos judiciales cortos.
-
-**Ejemplo:** `2025/07/28072025/MAT/018_AVISO_20250728_MAT_5763981.md` (7.6 KB)
-
-```markdown
-Estados Unidos Mexicanos
-
-Fiscalía General de la República
-
-Fiscalía Federal en Nuevo León
-
-NOTIFICACIÓN POR EDICTO
-
-En cumplimiento a los acuerdos dictados dentro de los autos de las
-diversas carpetas de investigación, de las cuales se decretó el
-aseguramiento ministerial de diversos bienes...
-```
-
-**Ejemplo 2:** `2024/04/29042024/MAT/027_AVISO_20240429_MAT_5724989.md` (8.1 KB)
-
-```markdown
-Estados Unidos Mexicanos
-
-Poder Judicial del Estado de Baja California
-
-Juzgado Noveno de lo Civil, Mexicali, B.C.
-
-EDICTO
-
-BLOQUERA MODERNA S.A. DE C.V.
-
-En los autos del juicio ESPECIAL MERCANTIL...
-```
-
-La estructura es: institución en texto plano, seguida del cuerpo del documento. Al ser cortos (< 8 KB), un chunking por tamaño fijo funciona bien.
-
-### Patrones menores: Artículos y numerales romanos (< 0.2%)
-
-Los documentos con "Artículo N" o "PRIMERO, SEGUNDO..." son raros en el top 25%. Suelen ser documentos que referencian artículos legales como parte de su texto, no como estructura.
+Sin headings ni negritas. Son edictos y notificaciones judiciales. Al ser medianos (10-30 KB), un chunking por tamaño fijo funciona bien.
 
 ## Implicaciones para el chunker
 
-Un chunker híbrido que siga este orden cubre ~98% de los documentos grandes:
+La estrategia depende del tamaño del documento:
 
-1. **Headings H2/H3** → chunk por sección (41.5%)
-2. **Líneas en negritas** (`**TEXTO**`) → tratar como pseudo-headings (56.3%)
-3. **Fallback por tamaño** → párrafos de ~1000 tokens con overlap (2.0% + edge cases)
+| Tamaño | Estrategia | Justificación |
+|--------|-----------|---------------|
+| < 10 KB (74%) | Sin chunking | Un solo chunk basta |
+| 10-100 KB (13%) | Headings → negritas → tamaño fijo | Mixto: 38% headings, 58% negritas |
+| 100 KB-1 MB (6%) | Headings (62% tienen) | La mayoría ya está estructurado |
+| > 1 MB (1%) | Headings + fallback por tablas | 69% con headings, el resto son tablas gigantes |
 
-El 75% de los documentos pesa < 8 KB y probablemente no necesita chunking — un solo chunk basta. El chunking inteligente solo aplica al top 25%.
+Para los documentos compuestos (varios documentos en un solo archivo), cada H2 es típicamente un documento independiente — el chunking natural por H2 funciona bien.
 
 ## Siguientes pasos
 
 - Implementar el chunker híbrido
 - Definir tamaño máximo de chunk (~1000 tokens con overlap de ~100)
-- Decidir si los documentos < 8 KB se indexan completos
+- Decidir estrategia para tablas muy grandes (¿chunk por fila? ¿resumir con LLM?)
