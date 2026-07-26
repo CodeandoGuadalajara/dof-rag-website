@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # Dependencias de npm/pnpm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Agrupar actualizaciones menores y de parche en un solo PR
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Acciones de GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"

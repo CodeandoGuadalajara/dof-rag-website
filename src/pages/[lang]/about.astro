@@ -21,7 +21,7 @@ const translations = lang === 'es'
   : await import('../../i18n/translations/en.json');
 
 function t(key: string): string {
-  return (translations as any).default[key] || key;
+  return (translations as { default: Record<string, string> }).default[key] || key;
 }
 
 // Añadir para efecto de animación

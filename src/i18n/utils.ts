@@ -1,4 +1,6 @@
 import { defaultLang, supportedLanguages, type SupportedLanguage } from './config';
+import esTranslations from './translations/es.json';
+import enTranslations from './translations/en.json';
 
 // Función para obtener idioma de la URL
 export function getLangFromUrl(url: URL): SupportedLanguage {
@@ -76,18 +78,11 @@ export function getLocalizedPathname(pathname: string, lang: SupportedLanguage):
 
 // Función para cargar traducciones
 export function useTranslations(lang: SupportedLanguage) {
-  const translations: Record<string, any> = {};
-  
-  try {
-    if (lang === 'es') {
-      translations.es = require('./translations/es.json');
-    } else if (lang === 'en') {
-      translations.en = require('./translations/en.json');
-    }
-  } catch (e) {
-    console.error(`Error loading translations for ${lang}:`, e);
-  }
-  
+  const translations: Record<string, Record<string, string>> = {
+    es: esTranslations,
+    en: enTranslations,
+  };
+
   return function t(key: string): string {
     const langTranslations = translations[lang] || {};
     return langTranslations[key] || key;
