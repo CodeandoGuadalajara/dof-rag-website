@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
-import { idToSlug } from '../../../lib/content-utils.ts';
+import { getEntryLang, getPostUrlPath } from '../../../lib/content-utils.ts';
 import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { dateFormatOptions, type SupportedLanguage } from '../../../i18n/config.ts';
@@ -21,29 +21,17 @@ export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
   
   return blogEntries.map(entry => {
-    const entrySlug = idToSlug(entry.id);
-
     // Detectar el idioma del post basado en la ruta si está en una carpeta específica de idioma
-    let postLang: SupportedLanguage = 'es'; // Idioma por defecto
-    
-    if (entrySlug.startsWith('en/')) {
-      postLang = 'en';
-    } else if (entrySlug.startsWith('es/')) {
-      postLang = 'es';
-    }
-    
-    // Obtener el slug sin el prefijo de idioma
-    let slug = entrySlug;
-    if (slug.startsWith('en/') || slug.startsWith('es/')) {
-      slug = slug.substring(3); // Eliminar el prefijo 'xx/'
-    }
-    
+    const postLang: SupportedLanguage = getEntryLang(entry.id);
+
+    // El slug se deriva de la fecha del frontmatter (YYYY/MM/slug),
+    // no de la estructura de carpetas (los archivos están planos por idioma)
     return {
-      params: { 
+      params: {
         lang: postLang,
-        slug: slug 
+        slug: getPostUrlPath(entry)
       },
-      props: { 
+      props: {
         entry,
         lang: postLang
       },

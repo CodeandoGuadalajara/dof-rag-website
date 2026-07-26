@@ -2,7 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
-import { idToSlug, prepareSlug } from '../../../lib/content-utils.ts';
+import { idToSlug, getPostUrlPath } from '../../../lib/content-utils.ts';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { supportedLanguages, type SupportedLanguage } from '../../../i18n/config.ts';
 
@@ -104,7 +104,7 @@ function formatDate(dateObj: Date): string {
     <div class="grid grid-cols-1 gap-10">
       {posts.map(post => {
         // Usar la función para preparar el slug sin tener el código duplicado
-        const postSlug = prepareSlug(post.id);
+        const postSlug = getPostUrlPath(post);
         
         return (
           <article class="blog-card bg-[var(--color-card)] rounded-xl overflow-hidden transition-transform hover:scale-[1.01] hover:shadow-md border border-[var(--color-border)]">

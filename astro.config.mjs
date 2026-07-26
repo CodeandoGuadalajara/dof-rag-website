@@ -11,6 +11,13 @@ export default defineConfig({
     service: passthroughImageService(),
   },
   output: 'static',
+  // Redirecciones para URLs antiguas que cambiaron al aplanar la estructura del blog
+  redirects: {
+    '/es/blog/2025/08/comparacion-embeddings/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental':
+      '/dof-rag-website/es/blog/2025/08/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental',
+    '/en/blog/2025/08/comparacion-embeddings/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental':
+      '/dof-rag-website/en/blog/2025/08/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental',
+  },
   // Cambiar a 'never' para evitar problemas con las rutas en GitHub Pages
   trailingSlash: 'never',
   // Configuración para manejar páginas dinámicas en GitHub Pages
