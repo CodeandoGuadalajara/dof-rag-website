@@ -1,7 +1,7 @@
 ---
 title: "Chunker por patrón: clasificando 131,000 documentos del DOF antes de dividirlos"
 description: "Presentamos el chunker del RAG: un clasificador que detecta 5 patrones estructurales en los markdown del DOF antes de aplicar la estrategia de split correcta."
-pubDate: "2026-05-23"
+date: "2026-05-23"
 heroImage: ""
 category: "desarrollo"
 tags: ["dof-rag", "chunking", "rag", "pplx-embed", "sqlite-vec"]

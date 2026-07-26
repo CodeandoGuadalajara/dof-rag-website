@@ -1,7 +1,7 @@
 ---
 title: "Estructura del markdown DOF: qué tan viable es el chunking por headings"
 description: "Análisis de la estructura de 26,607 documentos medianos y grandes del DOF (2020-2026) para determinar la estrategia de chunking del RAG."
-pubDate: "2026-05-22"
+date: "2026-05-22"
 heroImage: ""
 category: "desarrollo"
 tags: ["dof-rag", "chunking", "markdown", "análisis"]
