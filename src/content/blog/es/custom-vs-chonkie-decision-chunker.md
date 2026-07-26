@@ -24,7 +24,7 @@ Decidimos construir un benchmark comparando nuestro chunker custom contra las op
 ## El benchmark
 
 Muestra: **1,000 archivos** aleatorios de `./dof_md` (2020-2026), seed fija 42.
-Límite: **800 tokens** por chunk, contados con el tokenizer real de `pplx-embed-context-v1-0.6b`.
+Límite: **800 tokens** por chunk, contados con el tokenizer real de [`pplx-embed-context-v1-0.6b`](https://huggingface.co/perplexity-ai/pplx-embed-context-v1-0.6b).
 Métricas: número de chunks, mediana/máximo de tokens, % de archivos con chunks oversized (> 880 tokens), velocidad.
 
 ## Opción 1: Chonkie RecursiveChunker (markdown)
@@ -210,7 +210,7 @@ Pero llegar aquí no fue directo. Tuvimos que hacer varios fixes.
 
 ### Fix 1: El bug de los separadores `+`
 
-El mayor bug que encontramos. Las tablas generadas por `marker-pdf` usan separadores que empiezan con `+`, no con `|`:
+El mayor bug que encontramos. Las tablas generadas por [`marker-pdf`](https://github.com/datalab-to/marker) usan separadores que empiezan con `+`, no con `|`:
 
 ```markdown
 |:------------------:|:-------:|
@@ -289,7 +289,7 @@ Resultado: un documento de 760 KB con 88% de líneas de tabla produce **41 chunk
 
 1. **Las librerías estándar no conocen tu dominio**. Chonkie es excelente para markdown genérico, pero el DOF tiene patrones específicos (documentos compuestos, tablas gigantes, negritas como metadato) que requieren lógica especializada.
 
-2. **El tokenizer real importa**. Usar el tokenizer de `pplx-embed-context-v1` en lugar de una heurística cambió completamente los resultados. Los "tokens" de caracteres no son los mismos que los tokens del modelo.
+2. **El tokenizer real importa**. Usar el tokenizer de [`pplx-embed-context-v1`](https://huggingface.co/perplexity-ai/pplx-embed-context-v1-0.6b) en lugar de una heurística cambió completamente los resultados. Los "tokens" de caracteres no son los mismos que los tokens del modelo.
 
 3. **Los bugs de formato son sutiles pero críticos**. El separador `+` vs `|` en tablas parecía un detalle menor, pero causó una diferencia de 3.4x en el número de chunks.
 
@@ -297,13 +297,13 @@ Resultado: un documento de 760 KB con 88% de líneas de tabla produce **41 chunk
 
 ## Código y benchmarks
 
-- Chunker custom: `rag_poc/chunker.py` (PR #55)
-- Benchmark comparativo: `scripts/compare_chunkers.py` (PR #56)
-- Reporte completo: `reports/chunker_comparison.md`
-- Sweep de tamaños: `scripts/sweep_chunk_size.py`
+- Chunker custom: [`rag_poc/chunker.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/chunker-dof-patterns/rag_poc/chunker.py) (PR [#55](https://github.com/CodeandoGuadalajara/dof-rag/pull/55))
+- Benchmark comparativo: [`scripts/compare_chunkers.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/chonkie-chunker-comparison/scripts/compare_chunkers.py) (PR [#56](https://github.com/CodeandoGuadalajara/dof-rag/pull/56))
+- Reporte completo: [`reports/chunker_comparison.md`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/chonkie-chunker-comparison/reports/chunker_comparison.md)
+- Sweep de tamaños: [`scripts/sweep_chunk_size.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/chonkie-chunker-comparison/scripts/sweep_chunk_size.py)
 
 ## Siguientes pasos
 
-- PR #57: Local ONNX embedding (`pplx-embed-context-v1-0.6b`) con late chunking
-- PR #58: SQLite + sqlite-vec + FTS5 database layer
-- PR #59: Hybrid search (vector + FTS5 con RRF) y CLI
+- PR [#57](https://github.com/CodeandoGuadalajara/dof-rag/pull/57): Local ONNX embedding ([`pplx-embed-context-v1-0.6b`](https://huggingface.co/perplexity-ai/pplx-embed-context-v1-0.6b)) con late chunking
+- PR [#58](https://github.com/CodeandoGuadalajara/dof-rag/pull/58): SQLite + sqlite-vec + FTS5 database layer
+- PR [#59](https://github.com/CodeandoGuadalajara/dof-rag/pull/59): Hybrid search (vector + FTS5 con RRF) y CLI
