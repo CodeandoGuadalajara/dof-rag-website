@@ -18,7 +18,7 @@ La elección importa por tres razones:
 - **Costo**: embedder el corpus completo se hace una vez, pero re-indexar con otro modelo cuesta días de cómputo. Hay que elegir bien a la primera.
 - **Almacenamiento**: 1M chunks × 1,024 dimensiones × 4 bytes = 4 GB de vectores. La cuantización puede bajar eso a 1 GB... si no destruye la calidad (ya habíamos explorado esto en las [proyecciones de almacenamiento](/es/blog/2025/09/Proyecciones-de-Almacenamiento-para-DOF-RAG/)).
 
-Evaluamos 10 modelos en dos ejes —velocidad y calidad de recuperación— más un tercer experimento de cuantización y dimensiones. Este post cuenta los resultados.
+Evaluamos 10 modelos en dos ejes —velocidad y calidad de recuperación— más un tercer experimento de cuantización y dimensiones. Todo el código y los reportes están en el PR [#57](https://github.com/CodeandoGuadalajara/dof-rag/pull/57). Este post cuenta los resultados.
 
 ## El setup
 
@@ -108,6 +108,10 @@ El tercer experimento: sobre los mismos embeddings fp32, aplicamos transformacio
 | Qwen3-0.6B | +0.0 | -2.9 | -0.9 |
 | Nemotron-1B | +0.3 | -2.0 | -0.8 |
 
+![Impacto de cuantización int8, binary y truncado Matryoshka a 768 dimensiones sobre el MRR de cada modelo. int8 no pierde calidad en ninguno; binary solo mejora a jina-v5-text-small](/images/posts/benchmark-embeddings/quantization.svg)
+
+*Las barras verdes (int8) están todas pegadas al cero: la compresión 4x es gratis. La única barra roja positiva es jina-v5-text-small, el único modelo entrenado con binary quantization.*
+
 **int8 no cuesta nada.** Entre +0.0 y +0.3 puntos de MRR en los 10 modelos: la reducción 4x de almacenamiento viene sin pérdida medible de calidad. Esto valida la arquitectura planeada: [sqlite-vec](https://github.com/asg017/sqlite-vec) guardando vectores int8, con distancia L2 equivalente a coseno. No hay razón para guardar fp32 en producción.
 
 **Binary solo funciona donde está entrenado.** [jina-v5-text-small](https://huggingface.co/jinaai/jina-embeddings-v5-text-small) es el único modelo que *mejora* con binarización (+0.5 pts) — Jina entrena sus modelos con soporte de binary quantization, y se nota. 128 bytes por vector: todo el corpus cabría en ~128 MB de vectores (ver [proyecciones de almacenamiento](/es/blog/2025/09/Proyecciones-de-Almacenamiento-para-DOF-RAG/)). [harrier](https://huggingface.co/microsoft/harrier-oss-v1-0.6b) (-1.2) y [Octen](https://huggingface.co/Octen/Octen-Embedding-0.6B) (-1.8) degradan poco; el resto pierde 2-4 puntos. Para los F2LLM, prohibido binarizar (-4.2).
@@ -116,16 +120,9 @@ El tercer experimento: sobre los mismos embeddings fp32, aplicamos transformacio
 
 ## La frontera de Pareto
 
-```
-MRR
-0.55 ┤ F2LLM-1.7B●
-0.50 ┤      pplx-v1● pplx-ctx● F2LLM-0.6B●
-0.45 ┤                  jina-sm harrier Octen Qwen3 jina-nano●
-0.40 ┤
-0.35 ┤                                     Nemotron-1B●
-     └─────────────────────────────────────────────────
-      1.7      3.0       3.7            11.3   chunks/s
-```
+![Frontera de Pareto: velocidad de embedding vs MRR para los 10 modelos. F2LLM-v2-1.7B lidera en calidad, jina-nano en velocidad, pplx-v1 y F2LLM-v2-0.6B en el balance](/images/posts/benchmark-embeddings/pareto.svg)
+
+*Gráfica generada con [`scripts/plot_embedding_benchmark.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/embedding-model-comparison/scripts/plot_embedding_benchmark.py) a partir de los reportes del benchmark (PR [#57](https://github.com/CodeandoGuadalajara/dof-rag/pull/57)). El tamaño del punto es proporcional a los parámetros; el color indica las dimensiones del vector.*
 
 No hay un solo ganador; hay cuatro, según la prioridad:
 
