@@ -74,7 +74,26 @@ Implementación: splitter con tracking de offsets (posiciones de carácter), un 
 
 6 documentos gigantes (tablas de hasta 188k tokens) excedieron el límite de 32k y se truncaron, perdiendo 384 chunks (26% del pool). Esos chunks no se pudieron embeddear con contexto. En producción se necesitaría encoding ventaneado para esos casos, pero la ausencia de ganancia en los chunks que sí se procesaron no motiva a invertir en eso.
 
-Dato adicional: el mismo modelo pplx con el chunker de producción (overlap + prefijos de encabezado) alcanza MRR 0.451 vs 0.406 con el splitter sin overlap ni prefijos. El chunker aporta ~4.5 puntos por sí solo, más que cualquier diferencia entre modelos de embedding.
+### El chunker importa más que el late chunking
+
+La evaluación de late chunking usa un splitter sencillo que divide el texto por párrafos respetando el límite de tokens, sin overlap y sin prefijos de encabezado. El braazo `standard` de esa evaluación (MRR 0.406) sirve como punto de comparación para aislar el efecto del chunker de producción.
+
+El chunker de producción (descrito en el [post del chunker por patrón](/es/blog/2026/05/chunker-patron-dof/)) hace dos cosas que el splitter desnudo no hace:
+
+1. **Overlap de 50 tokens entre chunks consecutivos**: cuando un chunk termina a mitad de una idea, el siguiente empieza con los últimos 50 tokens del anterior. Si una query coincide con texto que cae en la frontera entre dos chunks, ambos chunks contienen ese texto y ambos pueden recuperarlo. Sin overlap, ese texto solo está en uno de los dos chunks y puede quedar sin suficiente contexto para coincidir.
+
+2. **Prefijos de encabezado**: cada chunk se precede con la jerarquía de encabezados a la que pertenece. Por ejemplo, un chunk dentro de la sección `## MANUAL de percepciones` bajo `### Artículo 5` se guarda como `## MANUAL de percepciones\n### Artículo 5\n\n<contenido del chunk>`. Esto da contexto estructural tanto al embedder como a BM25: el chunk lleva metadata sobre de qué decreto y sección forma parte, sin que el contenido del chunk cambie.
+
+Comparación directa: el mismo modelo (pplx-embed-context), mismos 200 documentos, mismas queries, mismo seed. Solo cambia el chunking.
+
+| Chunking | MRR | Diferencia |
+|---|---|---|
+| Splitter desnudo (sin overlap, sin prefijos) | 0.406 | — |
+| Chunker de producción (overlap + prefijos) | 0.451 | +4.5 pts |
+
++4.5 puntos de MRR por cambiar el chunking, sin cambiar el modelo. Para ponerlo en perspectiva: la diferencia entre el mejor modelo de embedding (F2LLM-v2-1.7B, MRR 0.554) y el peor (jina-v5-small, MRR 0.415) en la ronda 2 es de 13.9 puntos. La diferencia entre el chunker de producción y el splitter desnudo es 4.5 puntos — un tercio de toda la variabilidad entre modelos.
+
+La conclusión práctica: antes de invertir tiempo en late chunking o en probar modelos más grandes, conviene asegurarse de que el chunking es bueno. El overlap y los prefijos de encabezado aportan más que cualquier técnica contextual sobre los embeddings.
 
 ## Ronda 3: queries LLM-generadas
 
