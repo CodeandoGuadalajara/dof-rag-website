@@ -186,6 +186,8 @@ Tres rondas, mismo resultado: int8 no pierde calidad en ningún modelo, binary s
 
 5. **int8 sigue siendo gratis.** Tres rondas confirman que la cuantización int8 no pierde calidad en ningún modelo. Para producción: sqlite-vec con vectores int8.
 
+6. **La metadata estructural es necesaria, no opcional.** `verbatim_title` tiene Recall@1 de 0.22 para todos los sistemas. El corpus de 28 años tiene miles de decretos con títulos casi idénticos que se repiten anualmente ("AVISO de licitación pública nacional...", "ACUERDO por el que se emiten..."). Ni BM25 ni embeddings pueden distinguir un documento de sus decenas de hermanos anuales usando solo el texto. La diferencia entre esos documentos no está en el contenido — está en la fecha, el emisor, el tipo, y el número de referencia. Esa metadata ya existe en las rutas de archivo del DOF, pero ningún sistema de búsqueda basado solo en texto la explota.
+
 ## Código y datos
 
 - Scripts: [`evaluate_retrieval.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/benchmark-round2/scripts/evaluate_retrieval.py), [`generate_queries.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/benchmark-round2/scripts/generate_queries.py), [`evaluate_late_chunking.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/benchmark-round2/scripts/evaluate_late_chunking.py) (PR [#58](https://github.com/CodeandoGuadalajara/dof-rag/pull/58))
@@ -195,6 +197,67 @@ Tres rondas, mismo resultado: int8 no pierde calidad en ningún modelo, binary s
 
 ## Siguientes pasos
 
-- **Hybrid retrieval**: fusionar rankings de BM25 y vectores (RRF o weighted fusion). El desglose por tipo sugiere que la combinación debería ganar en todos los tipos: BM25 cubre factual/first_words, embeddings cubren paraphrase/thematic.
-- **Escalar el eval**: más documentos y queries cuando el modelo de producción esté elegido. 499 docs es suficiente para comparar modelos, pero no para medir degradación a escala.
-- **Decisión de producción**: con estos resultados, el candidato es F2LLM-v2-0.6B (calidad/costo) + FTS5 como componente fijo + int8 para los vectores.
+### Hybrid retrieval
+
+Fusionar rankings de BM25 y vectores (RRF o weighted fusion). El desglose por tipo sugiere que la combinación debería ganar en todos los tipos: BM25 cubre factual/first_words, embeddings cubren paraphrase/thematic.
+
+### RAG agéntico con herramientas de búsqueda y metadata
+
+Los resultados de este benchmark sugieren que un sistema de búsqueda basado solo en texto (ya sea BM25 o embeddings) tiene un techo. La conclusión 6 indica que `verbatim_title` falla porque la diferencia entre documentos duplicados está en la metadata, no en el contenido. Y el desglose por tipo muestra que BM25 y embeddings son complementarios según el tipo de query.
+
+Un RAG agéntico —un LLM con herramientas de búsqueda que puede decidir qué usar y en qué orden— addressa ambos problemas:
+
+**Metadata del DOF**: cada documento ya tiene información estructural en su ruta de archivo:
+
+```
+2023/03/22032023/MAT/093_AVISO_20230322_MAT_5646395.md
+      │  │        │   │   │      │
+      │  │        │   │   │      └── referencia numérica
+      │  │        │   │   └── tipo (AVISO/ACUERDO/DECRETO/NORMA/...)
+      │  │        │   └── número
+      │  │        └── sección (MAT/VESPER/EXT)
+      │  └── fecha de publicación
+      └── año
+```
+
+Un agente puede filtrar por estos atributos **antes** de hacer la búsqueda textual o vectorial. Para una query como "¿qué dijo el DOF sobre apoyos para pescadores en 2023?", el agente filtra por año y luego busca semánticamente — el pool de candidatos pasa de 660k a los docs de 2023, y los embeddings ya no tienen que competir con decretos de 2005 que dicen lo mismo.
+
+**Herramientas candidatas**:
+
+| Herramienta | Qué hace | Resuelve |
+|---|---|---|
+| `search_by_date(fecha_o_rango)` | Filtra documentos por fecha de publicación | Títulos duplicados a través de años |
+| `search_by_type(tipo)` | Filtra por AVISO/ACUERDO/DECRETO/NORMA | Reducir el pool de candidatos |
+| `search_by_institution(emisora)` | Filtra por organismo emisor | Queries sobre una institución específica |
+| `vector_search(query, filtros, top_k)` | Búsqueda semántica con filtros de metadata | Paraphrase/thematic |
+| `fts_search(query, filtros, top_k)` | BM25 con filtros de metadata | Factual/exact-term |
+| `get_document(doc_id)` | Recupera el texto completo | Navegación dentro del doc |
+| `get_chunk(doc_id, chunk_index)` | Recupera un chunk específico | Precision a nivel chunk |
+
+SQLite ya soporta esto: FTS5 con columnas `UNINDEXED` para metadata en `WHERE`, y sqlite-vec se puede combinar con metadatos en la misma query SQL. No requiere infraestructura adicional — es el mismo SQLite que ya planeamos usar.
+
+**Flujo ejemplo**:
+
+```
+Usuario: "¿qué dijo el DOF sobre apoyos para pescadores en 2023?"
+
+Agente:
+  1. search_by_date(2023)          → filtra pool a docs de 2023
+  2. vector_search("apoyos pescadores", filtros={año:2023})
+     → embeddings encuentran docs aunque no digan literalmente "pesca"
+  3. fts_search("pesca huracán apoyo", filtros={año:2023})
+     → BM25 encuentra docs con términos exactos
+  4. si hay muchos resultados → search_by_type("ACUERDO")
+  5. get_chunk(doc_id, chunk_3)    → lee el chunk específico
+  6. sintetiza respuesta con contexto
+```
+
+Esto es un paso más allá del hybrid retrieval. Hybrid fusiona dos rankings; un agente con herramientas puede **pre-filtrar por metadata antes de buscar**, lo cual ataca directamente el problema de `verbatim_title` que ningún modelo de embedding o BM25 puede resolver solo.
+
+### Escalar el eval
+
+Más documentos y queries cuando el modelo de producción esté elegido. 499 docs es suficiente para comparar modelos, pero no para medir degradación a escala.
+
+### Decisión de producción
+
+Con estos resultados, el candidato es F2LLM-v2-0.6B (calidad/costo) + FTS5 como componente fijo + int8 para los vectores.
