@@ -172,7 +172,36 @@ Mismas variantes post-hoc que la ronda 1, sobre los mismos embeddings fp32. Δ M
 | F2LLM-v2-0.6B | +0.0 pts | -4.4 pts | -0.8 pts |
 | jina-v5-text-small | +0.1 pts | -2.0 pts | -0.7 pts |
 
-Tres rondas, mismo resultado: int8 no pierde calidad en ningún modelo, binary solo es viable con jina (único modelo entrenado para ello), truncar a 768 dims cuesta ~1 punto uniforme.
+Tres rondas, mismo resultado en int8: no pierde calidad en ningún modelo. Pero en binary hay un cambio importante respecto a la ronda 1:
+
+**La ventaja binaria de jina se revirtió con queries más difíciles.** En la ronda 1 (50 docs, queries verbatim) jina era el único modelo que *mejoraba* al binarizar (+0.5 pts). En la ronda 2 perdió 0.7 pts y en esta ronda pierde 2.0 pts. Sigue siendo el modelo de 0.6B que menos degrada con binary (vs −4.4 de F2LLM-0.6B y −4.5 de pplx), pero la binarización ya no es gratis ni siquiera para jina. Curiosamente, el que menos degrada en esta ronda es F2LLM-v2-1.7B (−1.7 pts), aunque al tener 2,048 dims cuesta el doble de bytes por vector binario (256 B vs 128 B).
+
+Truncar a 768 dims cuesta ~1 punto uniforme en todos.
+
+## Estimados para el corpus completo
+
+El corpus `dof_md-local` tiene 657,867 documentos. Para estimar el total de chunks muestreamos 300 documentos al azar (seed 123) y los procesamos con el chunker de producción: promedio de **9.9 chunks por documento** (mediana 2; la cola larga son tablas gigantes y decretos compuestos de cientos de páginas). Estimado total: **~6.5 millones de chunks** (intervalo de confianza al 95%: 4.5M–8.5M). Esto es mucho más que el ~1M del post anterior, que correspondía al subconjunto 2020–2024.
+
+### Tiempo de embedding (MacBook Pro M3, MPS, chunks/s de la ronda 1)
+
+| Modelo | chunks/s | Tiempo estimado (6.5M chunks) |
+|---|---|---|
+| F2LLM-v2-0.6B | 3.7 | ~490 h ≈ **20 días** |
+| pplx-embed-context | 3.2 | ~565 h ≈ 24 días |
+| jina-v5-text-small | 2.8 | ~645 h ≈ 27 días |
+| F2LLM-v2-1.7B | 1.7 | ~1,060 h ≈ **44 días** |
+
+La indexación del corpus completo se hace una sola vez, pero re-indexar con otro modelo cuesta lo mismo. La diferencia entre F2LLM-0.6B y F2LLM-1.7B son 24 días de cómputo adicional por 3.4 puntos de MRR.
+
+### Almacenamiento de vectores (6.5M chunks)
+
+| Formato | Modelos 0.6B (1,024 dims) | F2LLM-1.7B (2,048 dims) |
+|---|---|---|
+| fp32 | 27 GB | 53 GB |
+| **int8** | **6.7 GB** | **13.3 GB** |
+| binary | **0.83 GB** | 1.67 GB |
+
+No incluye el texto de los chunks ni el índice FTS5 (el corpus fuente son 61 GB de markdown). Con int8, los vectores del modelo 0.6B elegido agregan ~7 GB — manejable en el servidor de producción. Con binary serían <1 GB, pero al costo de 2–4.5 puntos de MRR según el modelo.
 
 ## Velocidad vs calidad
 
@@ -182,7 +211,7 @@ Tres rondas, mismo resultado: int8 no pierde calidad en ningún modelo, binary s
 
 **F2LLM-v2-1.7B y F2LLM-v2-0.6B están en la frontera de Pareto.** Los otros dos (pplx-context y jina-v5-small) están dominados: son más lentos que F2LLM-v2-0.6B pero no mejoran en calidad. La elección real es entre los dos F2LLM.
 
-La diferencia de calidad entre ambos es de 3.4 puntos de MRR (0.595 vs 0.561). La diferencia de velocidad es 2.2× (1.7 vs 3.7 chunks/s). La diferencia de almacenamiento es 2× (2,048 vs 1,024 dims → 2 GB vs 1 GB de vectores int8 para 1M chunks). La pregunta es si 3.4 puntos de MRR justifican duplicar el tiempo de indexación y el almacenamiento.
+La diferencia de calidad entre ambos es de 3.4 puntos de MRR (0.595 vs 0.561). La diferencia de velocidad es 2.2× (1.7 vs 3.7 chunks/s), que al escalar al corpus completo son ~44 días de embedding vs ~20 días en la Mac M3. La diferencia de almacenamiento es 2× (2,048 vs 1,024 dims → 13.3 GB vs 6.7 GB de vectores int8 para ~6.5M chunks). La pregunta es si 3.4 puntos de MRR justifican 24 días de cómputo y 6.6 GB adicionales.
 
 Considerando que BM25 ya gana en MRR general (0.616) y que el plan es hybrid retrieval (donde los embeddings cubren el caso semántico, no el general), la ventaja marginal del 1.7B sobre el 0.6B es menos crítica. F2LLM-v2-0.6B es el candidato pragmático: mismo costo de almacenimiento que pplx y jina, pero más rápido y marginalmente mejor en calidad. Pero la diferencia entre los tres modelos de 0.6B (0.558–0.561) está dentro del ruido estadístico con 3,023 queries — la decisión final puede depender de factores fuera de este benchmark (facilidad de deployment, soporte de ONNX, ecosistema).
 
