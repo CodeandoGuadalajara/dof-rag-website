@@ -174,6 +174,18 @@ Mismas variantes post-hoc que la ronda 1, sobre los mismos embeddings fp32. Δ M
 
 Tres rondas, mismo resultado: int8 no pierde calidad en ningún modelo, binary solo es viable con jina (único modelo entrenado para ello), truncar a 768 dims cuesta ~1 punto uniforme.
 
+## Velocidad vs calidad
+
+![Velocidad de embedding vs MRR para los 4 modelos finalistas y línea de referencia de BM25](/images/posts/benchmark-embeddings/pareto_round2.svg)
+
+*Los datos de velocidad son de la ronda 1 (mismo hardware, mismos modelos). La calidad (MRR) es de la ronda 3: 499 documentos, 3,023 queries. La línea punteada roja es BM25 (MRR 0.616), que no tiene velocidad de embedding porque no genera vectores — es búsqueda de texto instantánea. La línea gris es la frontera de Pareto: los dos modelos que no son dominados por otro en ambos ejes.*
+
+**F2LLM-v2-1.7B y F2LLM-v2-0.6B están en la frontera de Pareto.** Los otros dos (pplx-context y jina-v5-small) están dominados: son más lentos que F2LLM-v2-0.6B pero no mejoran en calidad. La elección real es entre los dos F2LLM.
+
+La diferencia de calidad entre ambos es de 3.4 puntos de MRR (0.595 vs 0.561). La diferencia de velocidad es 2.2× (1.7 vs 3.7 chunks/s). La diferencia de almacenamiento es 2× (2,048 vs 1,024 dims → 2 GB vs 1 GB de vectores int8 para 1M chunks). La pregunta es si 3.4 puntos de MRR justifican duplicar el tiempo de indexación y el almacenamiento.
+
+Considerando que BM25 ya gana en MRR general (0.616) y que el plan es hybrid retrieval (donde los embeddings cubren el caso semántico, no el general), la ventaja marginal del 1.7B sobre el 0.6B es menos crítica. F2LLM-v2-0.6B es el candidato pragmático: mismo costo de almacenimiento que pplx y jina, pero más rápido y marginalmente mejor en calidad. Pero la diferencia entre los tres modelos de 0.6B (0.558–0.561) está dentro del ruido estadístico con 3,023 queries — la decisión final puede depender de factores fuera de este benchmark (facilidad de deployment, soporte de ONNX, ecosistema).
+
 ## Conclusiones
 
 1. **BM25 es competitivo y complementario.** En MRR general ganó las tres rondas. Pero el desglose por tipo muestra que gana cuando hay overlap lexical y pierde cuando la query reformula el tema. Un sistema RAG sobre DOF necesita ambos: BM25 para búsquedas con términos exactos, embeddings para búsquedas semánticas.
