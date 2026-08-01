@@ -203,6 +203,14 @@ La indexación del corpus completo se hace una sola vez, pero re-indexar con otr
 
 No incluye el texto de los chunks ni el índice FTS5 (el corpus fuente son 61 GB de markdown). Con int8, los vectores del modelo 0.6B elegido agregan ~7 GB — manejable en el servidor de producción. Con binary serían <1 GB, pero al costo de 2–4.5 puntos de MRR según el modelo.
 
+### Margen de mejora en throughput
+
+Las velocidades reportadas (1.7–3.7 chunks/s) son con el setup default de sentence-transformers: batch 32, fp32, MPS, sin afinar para el M3. Antes de correr la indexación completa (~6.5M chunks, 20–44 días a estas velocidades) vale la pena un sprint de optimización. Vías conocidas, de menor a mayor esfuerzo:
+
+1. **Batch size y dtype**: el benchmark usó batch 32 en fp32 por default, no porque fuera óptimo. Un sweep de batch (64/128/256) y fp16 en MPS típicamente da 1.5–3× en chips Apple. Script listo para medirlo: [`scripts/bench_throughput.py`](https://github.com/CodeandoGuadalajara/dof-rag/blob/feat/benchmark-round2/scripts/bench_throughput.py).
+2. **Puertos nativos Apple Silicon**: [MLX](https://github.com/ml-explore/mlx) o GGUF con [llama.cpp](https://github.com/ggml-org/llama.cpp) (backend Metal, con cuantización de pesos int8/q4) suelen ser más rápidos que PyTorch MPS para inferencia en Mac. Qwen3-Embedding ya tiene GGUFs oficiales; habría que convertir F2LLM.
+3. **GPU cloud para la indexación única**: la indexación completa es un trabajo one-shot. Una A100/H100 rentada por horas (vast.ai, RunPod) con batch 512 procesaría ~6.5M chunks en horas en lugar de semanas, por decenas de dólares. Los vectores resultantes se copian al servidor de producción.
+
 ## Velocidad vs calidad
 
 ![Velocidad de embedding vs MRR para los 4 modelos finalistas y línea de referencia de BM25](/images/posts/benchmark-embeddings/pareto_round2.svg)
