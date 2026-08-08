@@ -55,7 +55,9 @@ Esto va más allá de FTS5. Las tablas virtuales de SQLite implementan sus propi
 
 ### Trampa 2: 32 documentos que el `rebuild` indexa como vacíos
 
-El corpus tiene 32 documentos gigantes (>32 MiB) que no caben en un renglón comprimido y viven segmentados en una tabla aparte; su columna `markdown` en `documents` es una cadena vacía. El `rebuild` estándar los habría indexado como documentos sin texto: presentes en el conteo, invisibles para cualquier búsqueda. Entre ellos está el manual de 671 MiB que ya dio problemas en el chunking, así que no son documentos marginales. El constructor ahora los detecta explícitamente, reensambla su texto desde los segmentos y los inserta como documentos completos.
+Como explicamos en la [prueba de concepto de almacenamiento](/es/blog/2026/08/poc-almacenamiento-corpus/), los documentos mayores a 32 MiB se guardan en segmentos ordenados para evitar descomprimir una fila gigantesca completa en memoria. En `documents`, esos documentos conservan sus metadatos pero tienen `markdown = ''`; el texto real vive en `document_segments`.
+
+El problema es que el `rebuild` estándar de FTS5 solo lee `documents.markdown`: ve una cadena vacía y crea un registro sin términos indexables. Por eso el constructor debe reensamblar los segmentos e insertarlos explícitamente en el índice. En total son 32 documentos; entre ellos está el manual de 671 MiB que ya dio problemas en el chunking, así que no son documentos marginales.
 
 ### El desajuste: tokenizador distinto al de la evaluación de referencia
 
