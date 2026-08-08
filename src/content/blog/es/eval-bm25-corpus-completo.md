@@ -1,6 +1,6 @@
 ---
-title: "La primera evaluación a escala real: BM25 contra los 657,867 documentos, y el ajuste que convirtió 21 horas de consultas en 34 minutos"
-description: "Mientras la corrida de embeddings avanza sobre 6.7 millones de chunks, construimos el índice FTS5 del corpus completo (2.7 GiB), pre-embedamos las 3,023 consultas de evaluación con el mismo GGUF, y corrimos la primera evaluación BM25 a escala real: el MRR bajó de 0.589 a 0.170 al pasar de 499 a 657,867 documentos — la caída esperada. En el camino: un COUNT(*) que miente, 32 documentos casi invisibles para el índice, y una poda de tokens por frecuencia que hace las consultas 25 veces más rápidas sin cambiar los resultados."
+title: "La primera evaluación a escala real: BM25 contra 657,867 documentos, de 0.170 a 0.366 al corregir el set"
+description: "Mientras la corrida de embeddings avanza sobre 6.7 millones de chunks, construimos el índice FTS5 del corpus completo (2.7 GiB) y corrimos la primera evaluación BM25 a escala real. La v2 del set produjo un MRR de 0.170; al corregir títulos falsos y consultas ambiguas, la v3 llegó a 0.366 y el smoke test híbrido parcial a 0.402. En el camino: un COUNT(*) que miente, 32 documentos casi invisibles para el índice, y una poda de tokens que convirtió 21 horas de consultas en 34 minutos sin alterar las métricas."
 date: "2026-08-06"
 heroImage: ""
 category: "desarrollo"
@@ -28,12 +28,12 @@ Resultados primero; cada renglón se desarrolla en una sección:
 | Componente | Resultado |
 |---|---:|
 | Índice FTS5 (BM25) del corpus completo | **~2.7 GiB**, construido en ~8 minutos |
-| Consultas de evaluación pre-embedadas | 3,023 (float + binario sign-packed) |
-| **BM25 sobre 657,867 documentos: MRR** | **0.170** (subconjunto de 499 docs: 0.589) |
+| Consultas de evaluación | v2: 3,023; v3: 3,013 (float + binario sign-packed) |
+| **BM25 sobre 657,867 documentos: MRR** | v2: 0.170 → **v3: 0.366** |
 | Costo por consulta BM25 | 17–45 s → **0.7 s** tras podar tokens |
-| Smoke test híbrido (vectores parciales) | W0.5 **0.269** > vectores 0.200 > BM25 0.189 |
+| Smoke test híbrido v3 (1.39 M de vectores) | **W0.5: 0.402** > BM25: 0.362 > vectores: 0.252 |
 
-Sobre el 0.170, la lectura corta es: la caída respecto a 0.589 no es una regresión, es la medición honesta — es lo que cuesta encontrar un documento cuando el corpus completo hace de distractor. La lectura larga, con el desglose por tipo de consulta y lo que implica para la fusión híbrida, está más abajo.
+La primera corrida dio 0.170. Parte de la caída respecto a 0.589 sí era el efecto de buscar entre 657,867 documentos en vez de 499, pero no era toda la historia: al revisar los resultados encontramos títulos falsos y consultas cuyo documento esperado no era único. La v3 corrige esos defectos y sube BM25 a 0.366. El desglose, la corrección del set y lo que implica para la fusión híbrida están más abajo.
 
 ## El índice FTS5: dos trampas y un desajuste de tokenizador
 
@@ -101,9 +101,9 @@ La evaluación casi no sucede como estaba planeada. La construcción de consulta
 
 La causa está en la forma en que FTS5 calcula el ranking. Para puntuar una consulta con BM25 hay que recorrer la *doclist* (la lista de documentos que contienen cada término) de todos los términos de la consulta. Las palabras funcionales del español tienen doclists monstruosas: `de` aparece en 657,642 de 657,867 documentos (99.97%), `la` en 649,547. Una consulta de 20 palabras con 8 stopwords obliga a FTS5 a leer y puntuar varios millones de entradas por consulta.
 
-Sin embargo, esos términos **cuestan muchísimo y aportan nada al ranking**. BM25 pondera cada término por su IDF (frecuencia inversa de documento), que tiende a cero cuando el término está en la mayoría de los documentos — y en la implementación de FTS5 se vuelve cero o negativo exactamente cuando el término aparece en más de la mitad del corpus. Es decir, `de` no mueve el ranking; solo lo encarece.
+Sin embargo, esos términos **cuestan muchísimo y aportan casi nada al ranking**. BM25 pondera cada término por su IDF (frecuencia inversa de documento), que tiende a cero cuando el término está en la mayoría de los documentos. La fórmula cruda de IDF se vuelve no positiva cuando el término aparece en más de la mitad del corpus, y FTS5 la limita a un valor positivo diminuto. En la práctica, `de` apenas mueve el ranking, pero sí obliga a recorrer una doclist gigantesca.
 
-Con esa observación en la mano, la salida fue podar las consultas. Construimos una tabla `fts5vocab` con la frecuencia documental de los 2.35 millones de términos del índice, y eliminamos de cada consulta los tokens con frecuencia mayor a N/2. Antes de adoptarla verificamos la equivalencia: en las consultas de prueba, el top-50 es idéntico documento por documento en un caso, y en los demás difiere solo en el orden de la cola, con la posición del documento correcto intacta. Con eso, el costo bajó a **0.7 segundos por consulta, 34 minutos para las 3,023**, con las mismas listas rankeadas.
+Con esa observación en la mano, la salida fue podar las consultas. Construimos una tabla `fts5vocab` con la frecuencia documental de los 2.35 millones de términos del índice, y eliminamos de cada consulta los tokens con frecuencia mayor a N/2. Antes de adoptarla verificamos la equivalencia: en las consultas de prueba, el conjunto de documentos del top-50 fue idéntico y la posición del documento correcto no cambió; solo se permutó el orden de algunos resultados en la cola. Con eso, el costo bajó a **0.7 segundos por consulta, 34 minutos para las 3,023**, sin alterar las métricas ni los candidatos recuperados.
 
 ## Smoke test del pipeline híbrido completo
 
@@ -151,7 +151,7 @@ Los resultados de BM25 sobre el corpus completo, v2 contra v3:
 | first_words | 0.227 | 0.227 |
 | artículo específico | 0.118 | 0.118 |
 
-El sistema nunca fue tan malo como v2 sugería: más de la mitad de la caída por distractores era ruido del set de evaluación. Y la dificultad se redistribuye de forma interesante — las consultas con anclas le juegan a favor de BM25, porque los tokens raros (fechas, montos, códigos de licitación como `LO-013J2W002-E21-2023`) son exactamente lo que el IDF premia. La temática pasó de peor tipo a mejor. La dificultad genuina que queda está en las consultas cuyo oro es un *chunk* dentro de un documento (first_words, artículo específico): ahí el problema es de granularidad, no de vocabulario.
+El sistema nunca fue tan malo como v2 sugería: casi la mitad de la caída atribuida a los distractores era en realidad ruido del set de evaluación. Y la dificultad se redistribuye de forma interesante — las consultas con anclas le juegan a favor de BM25, porque los tokens raros (fechas, montos, códigos de licitación como `LO-013J2W002-E21-2023`) son exactamente lo que el IDF premia. La temática pasó de peor tipo a mejor. La dificultad genuina que queda está en las consultas cuyo oro es un *chunk* dentro de un documento (first_words, artículo específico): ahí el problema es de granularidad, no de vocabulario.
 
 El smoke test híbrido también se re-corrió con v3 (665 consultas elegibles, 1.39 millones de vectores ya embedados):
 
