@@ -63,11 +63,11 @@ El problema es que el `rebuild` estándar de FTS5 solo lee `documents.markdown`:
 
 La evaluación previa (subconjunto de 499 documentos) construía su FTS5 con `unicode61 remove_diacritics 1`: al indexar y al buscar, se quitan acentos y se normaliza a minúsculas. Nuestro primer índice usó el tokenizador por defecto, que conserva acentos. ¿Importa? Sí: con folding, `declaracion` y `declaración` son el mismo término (75,414 documentos en ambos casos); sin folding son dos términos distintos, y cualquier comparación de MRR contra la referencia mezclaría dos efectos: el tamaño del corpus y el tokenizador. Como el objetivo es medir el efecto del corpus, reconstruimos el índice con el mismo tokenizador de la referencia (~8 minutos, nada doloroso) y dejamos ese DDL como el canónico en `corpus_store/acceptance.py`.
 
-## Las consultas, embedadas con el mismo modelo que el corpus
+## Las consultas, embebidas con el mismo modelo que el corpus
 
-El set de evaluación tiene 3,023 consultas sobre 499 documentos: el título literal de cada documento, las primeras ~20 palabras, y 2,025 consultas generadas (factuales, temáticas, paráfrasis, y de artículos específicos). Para la búsqueda vectorial hay que embedarlas, y aquí hay una restricción fácil de violar: la búsqueda por distancia de Hamming compara bits, así que **consulta y documento deben vivir en el mismo espacio de embeddings**. Los vectores del corpus salen del GGUF local de jina-v5-small corriendo en llama.cpp con el prefijo `Query: ` / `Document: `; las consultas tienen que salir del mismo servidor con el mismo prefijo. Reusar los embeddings cacheados de la API de Jina (que existen de experimentos previos) habría introducido un espacio distinto — medimos el coseno entre ambos por curiosidad: 0.936 en promedio, lo bastante distinto para arruinar una comparación bit a bit.
+El set de evaluación tiene 3,023 consultas sobre 499 documentos: el título literal de cada documento, las primeras ~20 palabras, y 2,025 consultas generadas (factuales, temáticas, paráfrasis, y de artículos específicos). Para la búsqueda vectorial hay que obtener sus embeddings, y aquí hay una restricción fácil de violar: la búsqueda por distancia de Hamming compara bits, así que **consulta y documento deben vivir en el mismo espacio de embeddings**. Los vectores del corpus salen del GGUF local de jina-v5-small corriendo en llama.cpp con el prefijo `Query: ` / `Document: `; las consultas tienen que salir del mismo servidor con el mismo prefijo. Reusar los embeddings cacheados de la API de Jina (que existen de experimentos previos) habría introducido un espacio distinto — medimos el coseno entre ambos por curiosidad: 0.936 en promedio, lo bastante distinto para arruinar una comparación bit a bit.
 
-Las 3,023 consultas se embedaron contra el servidor en producción (compartido con la corrida principal; costó 582 segundos de GPU compartida, imperceptible en el ritmo de 5.66 chunks/s) y quedaron cacheadas en float32 y en binario sign-packed.
+Las 3,023 consultas se embebieron con el servidor en producción (compartido con la corrida principal; costó 582 segundos de GPU compartida, imperceptible en el ritmo de 5.66 chunks/s) y quedaron cacheadas en float32 y en binario sign-packed.
 
 ## BM25 contra 657,867 documentos
 
@@ -109,7 +109,7 @@ Con esa observación en la mano, la salida fue podar las consultas. Construimos 
 
 ## Smoke test del pipeline híbrido completo
 
-El componente vectorial de la evaluación necesita los 6.73 millones de vectores, que aún no existen. Pero el índice de búsqueda (sqlite-vec, `bit[1024]`) es reanudable por `rowid`, así que lo construimos sobre los vectores ya escritos (768 mil en ese momento, 2 segundos de construcción) y corrimos el arnés híbrido completo como prueba de mecánica, restringiendo las métricas a las 335 consultas cuyo documento esperado ya está embedado:
+El componente vectorial de la evaluación necesita los 6.73 millones de vectores, que aún no existen. Pero el índice de búsqueda (sqlite-vec, `bit[1024]`) es reanudable por `rowid`, así que lo construimos sobre los vectores ya escritos (768 mil en ese momento, 2 segundos de construcción) y corrimos el arnés híbrido completo como prueba de mecánica, restringiendo las métricas a las 335 consultas cuyo documento esperado ya está embebido:
 
 | Sistema | MRR | R@1 | R@10 |
 |---|---:|---:|---:|
@@ -118,7 +118,7 @@ El componente vectorial de la evaluación necesita los 6.73 millones de vectores
 | solo vectores (colapsados a documento) | 0.200 | 0.134 | 0.328 |
 | solo BM25 | 0.189 | 0.125 | 0.299 |
 
-Dos cosas se querían ver y se vieron. Primero, la mecánica funciona de punta a punta: consulta binaria → Hamming k=50 sobre el índice → colapso de chunks a documentos (cada documento hereda la distancia de su mejor chunk) → fusión ponderada con normalización min-max contra las listas de BM25. Segundo, **la fusión híbrida ya supera a cada componente por separado**, reproduciendo el patrón del subconjunto de 499 documentos, donde la híbrida era la clara ganadora. Conviene repetir la salvedad: en este modo la búsqueda vectorial opera solo sobre los documentos ya embedados mientras BM25 busca en todo el corpus, así que son números de validación de mecánica, no de calidad final.
+Dos cosas se querían ver y se vieron. Primero, la mecánica funciona de punta a punta: consulta binaria → Hamming k=50 sobre el índice → colapso de chunks a documentos (cada documento hereda la distancia de su mejor chunk) → fusión ponderada con normalización min-max contra las listas de BM25. Segundo, **la fusión híbrida ya supera a cada componente por separado**, reproduciendo el patrón del subconjunto de 499 documentos, donde la híbrida era la clara ganadora. Conviene repetir la salvedad: en este modo la búsqueda vectorial opera solo sobre los documentos ya embebidos mientras BM25 busca en todo el corpus, así que son números de validación de mecánica, no de calidad final.
 
 El desglose por tipo de consulta confirma la división de trabajo esperada entre los dos componentes:
 
@@ -155,7 +155,7 @@ Los resultados de BM25 sobre el corpus completo, v2 contra v3:
 
 El sistema nunca fue tan malo como v2 sugería: casi la mitad de la caída atribuida a los distractores era en realidad ruido del set de evaluación. Y la dificultad se redistribuye de forma interesante — las consultas con anclas le juegan a favor de BM25, porque los tokens raros (fechas, montos, códigos de licitación como `LO-013J2W002-E21-2023`) son exactamente lo que el IDF premia. La temática pasó de peor tipo a mejor. La dificultad genuina que queda está en las consultas cuyo oro es un *chunk* dentro de un documento (first_words, artículo específico): ahí el problema es de granularidad, no de vocabulario.
 
-El smoke test híbrido también se re-corrió con v3 (665 consultas elegibles, 1.39 millones de vectores ya embedados):
+El smoke test híbrido también se re-corrió con v3 (665 consultas elegibles, 1.39 millones de vectores ya calculados):
 
 | Sistema | MRR | R@1 | R@10 |
 |---|---:|---:|---:|
