@@ -20,8 +20,9 @@ export default defineConfig({
     '/en/blog/2025/08/comparacion-embeddings/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental':
       '/dof-rag-website/en/blog/2025/08/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental',
   },
-  // Cambiar a 'never' para evitar problemas con las rutas en GitHub Pages
-  trailingSlash: 'never',
+  // GitHub Pages serves directory URLs with a trailing slash; accept both
+  // forms locally and in production while canonical links choose one URL.
+  trailingSlash: 'ignore',
   // Configuración para manejar páginas dinámicas en GitHub Pages
   build: {
     format: 'directory',
