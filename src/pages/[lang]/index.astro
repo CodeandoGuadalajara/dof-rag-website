@@ -134,14 +134,14 @@ export function getStaticPaths() {
 
 <style>
   .editorial-hero {
-    padding: 1.35rem 0 4rem;
+    padding: 0.6rem 0 2.5rem;
   }
 
   .editorial-kicker {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    margin: 0 0 1.55rem;
+    margin: 0 0 1rem;
     color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
@@ -160,16 +160,16 @@ export function getStaticPaths() {
   .editorial-hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 0.55fr);
-    gap: clamp(3rem, 7vw, 6rem);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
   }
 
   .editorial-hero-copy h1 {
     max-width: 54rem;
     margin: 0;
-    font-size: clamp(3.6rem, 7.25vw, 6.85rem);
+    font-size: clamp(3rem, 5vw, 4.9rem);
     font-weight: 650;
-    letter-spacing: -0.062em;
-    line-height: 0.91;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
   }
 
   .editorial-hero-copy h1 em {
@@ -179,11 +179,11 @@ export function getStaticPaths() {
 
   .editorial-intro {
     max-width: 43rem;
-    margin: 2rem 0 1.8rem;
+    margin: 1.35rem 0 1.25rem;
     color: var(--color-muted);
     font-family: var(--font-editorial);
-    font-size: clamp(1.12rem, 1.8vw, 1.42rem);
-    line-height: 1.52;
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    line-height: 1.45;
   }
 
   .editorial-actions {
@@ -250,7 +250,7 @@ export function getStaticPaths() {
   }
 
   .ledger-description {
-    margin: 0.5rem 0 1.55rem;
+    margin: 0.5rem 0 1rem;
     color: var(--color-muted);
     font-size: 0.76rem;
     line-height: 1.55;
@@ -265,7 +265,7 @@ export function getStaticPaths() {
     justify-content: space-between;
     gap: 1rem;
     border-top: 1px solid var(--color-border);
-    padding: 0.75rem 0;
+    padding: 0.6rem 0;
     font-family: var(--font-mono);
     font-size: 0.64rem;
   }
@@ -390,32 +390,32 @@ export function getStaticPaths() {
 
   @media (max-width: 760px) {
     .editorial-hero {
-      padding: 0.5rem 0 3rem;
+      padding: 0.25rem 0 2.25rem;
     }
 
     .editorial-hero-grid {
       grid-template-columns: 1fr;
-      gap: 2.35rem;
+      gap: 1.75rem;
     }
 
     .editorial-hero-copy h1 {
-      font-size: clamp(3.1rem, 15vw, 4.65rem);
-      line-height: 0.94;
+      font-size: clamp(2.65rem, 11.5vw, 3.6rem);
+      line-height: 0.96;
     }
 
     .editorial-intro {
-      margin-top: 1.5rem;
-      font-size: 1.08rem;
+      margin-top: 1.15rem;
+      font-size: 1rem;
     }
 
     .corpus-ledger {
       border-top: 1px solid var(--color-border);
       border-left: 0;
-      padding: 1.4rem 0 0;
+      padding: 1rem 0 0;
     }
 
     .ledger-count {
-      font-size: 3.8rem;
+      font-size: 3.15rem;
     }
 
     .research-header {
