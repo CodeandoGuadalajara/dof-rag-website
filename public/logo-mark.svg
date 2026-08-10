@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">DOF-RAG</title>
-  <desc id="desc">Una página con la letra D y un nodo conectado</desc>
-  <rect width="64" height="64" rx="2" fill="#f4efe6"/>
-  <path d="M13 7h25l13 13v37H13z" fill="none" stroke="#173638" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M38 7v13h13" fill="none" stroke="#173638" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M33 23v25" stroke="#a64033" stroke-width="2"/>
-  <path d="M20 24v24h5.5c7 0 11-4.4 11-12s-4-12-11-12z" fill="none" stroke="#173638" stroke-width="2.5"/>
-  <circle cx="42" cy="31" r="3.5" fill="#173638"/>
-  <circle cx="47.5" cy="42.5" r="2.5" fill="#f4efe6" stroke="#173638" stroke-width="2"/>
-  <path d="m43.5 34 3.2 6" stroke="#173638" stroke-width="2"/>
+  <desc id="desc">Una página con la letra D y dos nodos conectados</desc>
+  <rect width="64" height="64" fill="#f4efe6"/>
+  <path d="M11 5h27l15 15v39H11z" fill="none" stroke="#173638" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M38 5v15h15" fill="none" stroke="#173638" stroke-width="1.8" stroke-linejoin="round"/>
+  <text x="17" y="44" fill="#173638" font-family="Georgia, 'Times New Roman', serif" font-size="29">D</text>
+  <path d="M35 18v31" stroke="#173638" stroke-width="1.4"/>
+  <circle cx="43" cy="30" r="3.2" fill="#173638"/>
+  <path d="m45 32.5 4.2 7" stroke="#173638" stroke-width="1.5"/>
+  <circle cx="50" cy="42" r="2.5" fill="#f4efe6" stroke="#173638" stroke-width="1.5"/>
 </svg>
