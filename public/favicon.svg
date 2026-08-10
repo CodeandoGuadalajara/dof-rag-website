@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="6" fill="#f4efe6"/>
+  <path d="M11 5h29l13 14v40H11z" fill="none" stroke="#173638" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M40 5v14h13" fill="none" stroke="#173638" stroke-width="1.2" stroke-linejoin="round"/>
+  <text x="16" y="44" fill="#173638" font-family="'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif" font-size="20" font-weight="400">D</text>
+  <path d="M33 16v38" stroke="#173638" stroke-width="1.1"/>
+  <circle cx="42" cy="35" r="2.5" fill="#173638"/>
+  <path d="m43.5 37 3 6.5" stroke="#173638" stroke-width="1.2"/>
+  <circle cx="47" cy="45.5" r="1.8" fill="#f4efe6" stroke="#173638" stroke-width="1.2"/>
+</svg>

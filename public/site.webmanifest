@@ -1,28 +1,18 @@
 {
-    "name": "DOF-RAG Blog",
-    "short_name": "DOF-RAG",
-    "description": "Blog sobre Diario Oficial de la Federación con tecnología RAG",
-    "start_url": "./",
-    "display": "standalone",
-    "background_color": "#1a1a1a",
-    "theme_color": "#1a1a1a",
-    "orientation": "portrait-primary",
-    "icons": [
-        {
-            "src": "./favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "./android-chrome-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "./android-chrome-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "DOF-RAG — Archivo computacional abierto",
+  "short_name": "DOF-RAG",
+  "description": "Investigación abierta sobre sistemas de recuperación para el Diario Oficial de la Federación.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#173638",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

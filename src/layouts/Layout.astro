@@ -1,20 +1,27 @@
 ---
 import '../styles/global.css';
-import { getLangFromUrl, getLocalizedPathname, translatePath } from '../i18n/utils.ts';
-import { supportedLanguages, ui, type SupportedLanguage } from '../i18n/config.ts';
+import { getLangFromUrl, getLocalizedPathname } from '../i18n/utils.ts';
+import {
+  supportedLanguages,
+  ui,
+  type SupportedLanguage,
+} from '../i18n/config.ts';
 
 interface Props {
-	title?: string;
+  title?: string;
+  description?: string;
 }
 
-const { title = 'DOF-RAG Blog' } = Astro.props;
+const {
+  title = 'DOF-RAG',
+  description = 'Investigación abierta sobre sistemas de recuperación para el Diario Oficial de la Federación.',
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
-
-// Importar traducciones
-const translations = lang === 'es' 
-  ? await import('../i18n/translations/es.json')
-  : await import('../i18n/translations/en.json');
+const translations =
+  lang === 'es'
+    ? await import('../i18n/translations/es.json')
+    : await import('../i18n/translations/en.json');
 
 function t(key: string): string {
   return (translations.default as Record<string, string>)[key] || key;
@@ -23,210 +30,239 @@ function t(key: string): string {
 
 <!doctype html>
 <html lang={lang}>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		
-		<!-- Favicons para diferentes navegadores y dispositivos -->
-		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
-		<link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}/favicon.ico`} />
-		<link rel="icon" type="image/png" sizes="16x16" href={`${import.meta.env.BASE_URL}/favicon-16x16.png`} />
-		<link rel="icon" type="image/png" sizes="32x32" href={`${import.meta.env.BASE_URL}/favicon-32x32.png`} />
-		
-		<!-- Apple Touch Icon -->
-		<link rel="apple-touch-icon" sizes="180x180" href={`${import.meta.env.BASE_URL}/apple-touch-icon.png`} />
-		
-		<!-- Android Chrome Icons -->
-		<link rel="icon" type="image/png" sizes="192x192" href={`${import.meta.env.BASE_URL}/android-chrome-192x192.png`} />
-		<link rel="icon" type="image/png" sizes="512x512" href={`${import.meta.env.BASE_URL}/android-chrome-512x512.png`} />
-		
-		<!-- Web App Manifest -->
-		<link rel="manifest" href={`${import.meta.env.BASE_URL}site.webmanifest`} />
-		
-		<!-- Meta tags adicionales para móviles -->
-		<meta name="theme-color" content="#1a1a1a" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-		<meta name="apple-mobile-web-app-title" content="DOF-RAG" />
-		
-		<meta name="generator" content={Astro.generator} />
-		<link rel="alternate" type="application/rss+xml" title="DOF-RAG Blog RSS Feed" href={`${import.meta.env.BASE_URL}rss.xml`} />
-		
-		<!-- SEO para contenido multilingüe -->
-		{supportedLanguages.map(supportedLang => (
-			<link 
-				rel="alternate" 
-				hreflang={supportedLang} 
-				href={getLocalizedPathname(currentPath, supportedLang as SupportedLanguage)} 
-			/>
-		))}
-		
-		<title>{title}</title>
-		<!-- Prevenir el flash de tema incorrecto -->
-		<script is:inline>
-			// Check localStorage first
-			const savedTheme = localStorage.getItem('theme');
-			
-			// If there's a saved preference, apply it; otherwise let the CSS media query handle it
-			if (savedTheme === 'light') {
-				document.documentElement.classList.add('light-theme');
-				document.documentElement.classList.remove('dark-theme');
-			} else if (savedTheme === 'dark') {
-				document.documentElement.classList.add('dark-theme');
-				document.documentElement.classList.remove('light-theme');
-			}
-			// else: no saved preference — CSS @media (prefers-color-scheme: light) handles it
-		</script>
-	</head>
-	<body>
-		<header class="border-b border-[var(--color-border)] py-4 sticky top-0 backdrop-blur-md z-10" style="background-color: rgba(var(--color-bg-rgb), 0.8);">
-			<div class="container flex justify-between items-center">
-				<a href={`${import.meta.env.BASE_URL}/${lang}`} class="text-2xl font-bold flex items-center">
-					<span class="gradient-text">DOF-RAG</span>
-				</a>
-				<nav class="flex items-center gap-6">
-					<a href={`${import.meta.env.BASE_URL}/${lang}`} class="hover:text-[var(--color-accent)]">{t('nav.home')}</a>
-					<a href={`${import.meta.env.BASE_URL}/${lang}/about`} class="hover:text-[var(--color-accent)]">{t('nav.about')}</a>
-          <a href="https://github.com/CodeandoGuadalajara/dof-rag" class="hover:text-[var(--color-accent)]">GitHub</a>
-					
-					<!-- Selector de idioma con clic en lugar de hover -->
-					<div class="relative" id="language-menu">
-						<button id="language-toggle" class="flex items-center hover:text-[var(--color-accent)]">
-							{t('nav.language')}
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</button>
-						<div id="language-dropdown" class="absolute right-0 mt-2 py-2 w-40 bg-[var(--color-card)] rounded-md shadow-xl border border-[var(--color-border)] hidden">
-							{Object.entries(ui).map(([langCode, langName]) => (
-								<a 
-									href={getLocalizedPathname(currentPath, langCode as SupportedLanguage)} 
-									class={`block px-4 py-2 hover:bg-[var(--color-border)] ${lang === langCode ? 'text-[var(--color-accent)]' : ''}`}
-								>
-									{langName}
-								</a>
-							))}
-						</div>
-					</div>
-					
-					<button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--color-border)] ml-2">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="moon-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-						</svg>
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" id="sun-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-						</svg>
-					</button>
-				</nav>
-			</div>
-		</header>
-		<main class="container py-12">
-			<slot />
-		</main>
-		<footer class="py-8 border-t border-[var(--color-border)] mt-20">
-			<div class="container">
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-					<div>
-						<h3 class="text-xl font-bold mb-4 gradient-text">{t('footer.title')}</h3>
-						<p class="text-[var(--color-muted)]">
-							{t('footer.description')}
-						</p>
-					</div>
-					<div>
-						<h3 class="text-lg font-bold mb-4">{t('footer.resources')}</h3>
-						<ul class="space-y-2">
-							<li><a href={`${import.meta.env.BASE_URL}/${lang}`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">{t('nav.home')}</a></li>
-							<li><a href={`${import.meta.env.BASE_URL}/${lang}/about`} class="text-[var(--color-muted)] hover:text-[var(--color-accent)]">{t('nav.about')}</a></li>
-						</ul>
-					</div>
-					<div>
-						<h3 class="text-lg font-bold mb-4">{t('footer.contact')}</h3>
-						<p class="text-[var(--color-muted)]">
-							{t('footer.email')}: <a href="mailto:contacto@dofrag.mx" class="text-[var(--color-accent)] hover:underline">contacto@dofrag.mx</a>
-						</p>
-					</div>
-				</div>
-			</div>
-		</footer>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f4efe6" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={`${import.meta.env.BASE_URL}/favicon.svg`}
+    />
+    <link
+      rel="manifest"
+      href={`${import.meta.env.BASE_URL}/site.webmanifest`}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="DOF-RAG RSS"
+      href={`${import.meta.env.BASE_URL}/rss.xml`}
+    />
+
+    {
+      supportedLanguages.map((supportedLang) => (
+        <link
+          rel="alternate"
+          hreflang={supportedLang}
+          href={getLocalizedPathname(
+            currentPath,
+            supportedLang as SupportedLanguage
+          )}
+        />
+      ))
+    }
+
+    <title>{title}</title>
+    <script is:inline>
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.classList.add(`${savedTheme}-theme`);
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner container">
+        <a
+          href={`${import.meta.env.BASE_URL}/${lang}`}
+          class="site-brand"
+          aria-label="DOF-RAG"
+        >
+          <img
+            src={`${import.meta.env.BASE_URL}/logo-mark.svg`}
+            alt=""
+            width="46"
+            height="46"
+          />
+          <span class="site-wordmark">
+            DOF—RAG
+            <small
+              >{
+                lang === 'es'
+                  ? 'Archivo computacional abierto'
+                  : 'Open computational archive'
+              }</small
+            >
+          </span>
+        </a>
+
+        <nav
+          class="desktop-navigation"
+          aria-label={lang === 'es'
+            ? 'Navegación principal'
+            : 'Main navigation'}
+        >
+          <a href={`${import.meta.env.BASE_URL}/${lang}`}>{t('nav.home')}</a>
+          <a href={`${import.meta.env.BASE_URL}/${lang}/about`}
+            >{t('nav.about')}</a
+          >
+
+          <details class="language-menu">
+            <summary>{lang.toUpperCase()}</summary>
+            <div class="language-dropdown">
+              {
+                Object.entries(ui).map(([langCode, langName]) => (
+                  <a
+                    href={getLocalizedPathname(
+                      currentPath,
+                      langCode as SupportedLanguage
+                    )}
+                    aria-current={lang === langCode ? 'page' : undefined}
+                  >
+                    {langName}
+                  </a>
+                ))
+              }
+            </div>
+          </details>
+
+          <button
+            class="theme-toggle"
+            type="button"
+            aria-label={t('common.change_theme')}
+            aria-pressed="false"
+          >
+            <span class="theme-light-icon" aria-hidden="true">☀</span>
+            <span class="theme-dark-icon" aria-hidden="true">◐</span>
+          </button>
+
+          <a
+            class="header-github"
+            href="https://github.com/CodeandoGuadalajara/dof-rag"
+          >
+            GitHub <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+
+        <details class="mobile-navigation">
+          <summary>{t('common.menu')}</summary>
+          <nav
+            aria-label={lang === 'es'
+              ? 'Navegación móvil'
+              : 'Mobile navigation'}
+          >
+            <a href={`${import.meta.env.BASE_URL}/${lang}`}>{t('nav.home')}</a>
+            <a href={`${import.meta.env.BASE_URL}/${lang}/about`}
+              >{t('nav.about')}</a
+            >
+            <a href="https://github.com/CodeandoGuadalajara/dof-rag">GitHub ↗</a
+            >
+            <div class="mobile-navigation-footer">
+              {
+                Object.entries(ui).map(([langCode, langName]) => (
+                  <a
+                    href={getLocalizedPathname(
+                      currentPath,
+                      langCode as SupportedLanguage
+                    )}
+                    aria-current={lang === langCode ? 'page' : undefined}
+                  >
+                    {langName}
+                  </a>
+                ))
+              }
+              <button
+                class="theme-toggle"
+                type="button"
+                aria-label={t('common.change_theme')}
+                aria-pressed="false"
+              >
+                <span class="theme-light-icon" aria-hidden="true">☀</span>
+                <span class="theme-dark-icon" aria-hidden="true">◐</span>
+              </button>
+            </div>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main class="site-main container">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner container">
+        <div class="footer-brand">
+          <img
+            src={`${import.meta.env.BASE_URL}/logo-mark.svg`}
+            alt=""
+            width="38"
+            height="38"
+          />
+          <div>
+            <strong>DOF—RAG</strong>
+            <p>{t('footer.description')}</p>
+          </div>
+        </div>
+        <nav class="footer-navigation" aria-label={t('footer.resources')}>
+          <a href={`${import.meta.env.BASE_URL}/${lang}`}>{t('nav.home')}</a>
+          <a href={`${import.meta.env.BASE_URL}/${lang}/about`}
+            >{t('nav.about')}</a
+          >
+          <a href={`${import.meta.env.BASE_URL}/rss.xml`}>RSS</a>
+          <a href="mailto:contacto@dofrag.mx">contacto@dofrag.mx</a>
+        </nav>
+      </div>
+      <div class="footer-colophon container">
+        <span
+          >{
+            lang === 'es'
+              ? 'Investigación abierta desde México.'
+              : 'Open research from Mexico.'
+          }</span
+        >
+        <span>Codeando Guadalajara</span>
+      </div>
+    </footer>
+  </body>
 </html>
 
 <script>
-	// Tema oscuro/claro
-	const themeToggle = document.getElementById('theme-toggle');
-	const sunIcon = document.getElementById('sun-icon');
-	const moonIcon = document.getElementById('moon-icon');
-	
-	// Set initial state of the toggle based on current theme
-	const isLight = document.documentElement.classList.contains('light-theme') ||
-		(!document.documentElement.classList.contains('dark-theme') &&
-		 window.matchMedia('(prefers-color-scheme: light)').matches);
-	if (isLight) {
-		document.body.classList.add('light-theme');
-		moonIcon?.classList.add('hidden');
-		sunIcon?.classList.remove('hidden');
-	}
-	
-	themeToggle?.addEventListener('click', () => {
-		const goingDark = document.body.classList.contains('light-theme');
-		document.body.classList.toggle('light-theme');
-		document.documentElement.classList.toggle('light-theme');
-		if (goingDark) {
-			document.documentElement.classList.add('dark-theme');
-		} else {
-			document.documentElement.classList.remove('dark-theme');
-		}
-		sunIcon?.classList.toggle('hidden');
-		moonIcon?.classList.toggle('hidden');
-		
-		// Guardar preferencia
-		if (document.body.classList.contains('light-theme')) {
-			localStorage.setItem('theme', 'light');
-		} else {
-			localStorage.setItem('theme', 'dark');
-		}
-	});
-	
-	// Almacenar preferencia de idioma
-	document.addEventListener('DOMContentLoaded', () => {
-		// Obtener idioma actual de la URL
-		const currentPath = window.location.pathname;
-		const segments = currentPath.split('/').filter(Boolean);
-		const currentLang = segments[segments.indexOf('dof-rag-website') + 1] || 'es';
-		
-		if (['es', 'en'].includes(currentLang)) {
-			localStorage.setItem('preferredLanguage', currentLang);
-		}
-		
-		// Menú desplegable de idiomas
-		const languageToggle = document.getElementById('language-toggle');
-		const languageDropdown = document.getElementById('language-dropdown');
-		
-		if (languageToggle && languageDropdown) {
-			// Mostrar/ocultar menú al hacer clic en el botón
-			languageToggle.addEventListener('click', (e) => {
-				e.stopPropagation();
-				languageDropdown.classList.toggle('hidden');
-			});
-			
-			// Cerrar el menú al hacer clic en cualquier lugar fuera de él
-			document.addEventListener('click', (e) => {
-				if (!languageDropdown.contains(e.target as Node) && 
-					!languageToggle.contains(e.target as Node)) {
-					languageDropdown.classList.add('hidden');
-				}
-			});
-			
-			// Evitar que el menú se cierre al hacer clic en él (para poder seleccionar un idioma)
-			languageDropdown.addEventListener('click', (e) => {
-				e.stopPropagation();
-			});
-		}
-	});
-</script>
+  const themeButtons =
+    document.querySelectorAll<HTMLButtonElement>('.theme-toggle');
 
-<style>
-	html {
-		scroll-behavior: smooth;
-	}
-</style>
+  function isLightTheme(): boolean {
+    if (document.documentElement.classList.contains('light-theme')) return true;
+    if (document.documentElement.classList.contains('dark-theme')) return false;
+    return window.matchMedia('(prefers-color-scheme: light)').matches;
+  }
+
+  function syncThemeButtons(): void {
+    const light = isLightTheme();
+    themeButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', String(!light));
+      button
+        .querySelector('.theme-light-icon')
+        ?.classList.toggle('is-hidden', light);
+      button
+        .querySelector('.theme-dark-icon')
+        ?.classList.toggle('is-hidden', !light);
+    });
+  }
+
+  themeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTheme = isLightTheme() ? 'dark' : 'light';
+      document.documentElement.classList.remove('light-theme', 'dark-theme');
+      document.documentElement.classList.add(`${nextTheme}-theme`);
+      localStorage.setItem('theme', nextTheme);
+      syncThemeButtons();
+    });
+  });
+
+  syncThemeButtons();
+</script>
