@@ -1,0 +1,517 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { idToSlug } from '../lib/content-utils.ts';
+import { getLangFromUrl } from '../i18n/utils.ts';
+import type { SupportedLanguage } from '../i18n/config';
+import BlogPostsGrid from './BlogPostsGrid.astro';
+
+const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
+const translations =
+  lang === 'es'
+    ? await import('../i18n/translations/es.json')
+    : await import('../i18n/translations/en.json');
+
+function t(key: string): string {
+  return (translations.default as Record<string, string>)[key] || key;
+}
+
+const allBlogPosts = await getCollection('blog', ({ data, id }) => {
+  if (data.draft) return false;
+
+  const slug = idToSlug(id);
+  if (slug.startsWith(`${lang}/`)) return true;
+  if (!slug.startsWith('en/') && !slug.startsWith('es/') && lang === 'es')
+    return true;
+  return false;
+});
+
+const tagCounts = new Map<string, number>();
+for (const post of allBlogPosts) {
+  for (const tag of post.data.tags || []) {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  }
+}
+const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<Layout title={t('home.title')} description={t('home.hero_description')}>
+  <section class="editorial-hero" aria-labelledby="home-title">
+    <p class="editorial-kicker">{t('home.kicker')}</p>
+    <div class="editorial-hero-grid">
+      <div class="editorial-hero-copy">
+        <h1 id="home-title">
+          {t('home.hero_lead')}{' '}
+          <em>{t('home.hero_emphasis')}</em>{' '}
+          {t('home.hero_tail')}
+        </h1>
+        <p class="editorial-intro">{t('home.hero_description')}</p>
+        <div class="editorial-actions">
+          <a class="primary-action" href="#research">{t('home.primary_cta')}</a>
+          <a
+            class="secondary-action"
+            href={`${import.meta.env.BASE_URL}/${lang}/about`}
+          >
+            {t('home.secondary_cta')}
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="corpus-ledger" aria-label={t('home.corpus_label')}>
+        <p class="ledger-label">{t('home.corpus_label')}</p>
+        <p class="ledger-count">{t('home.corpus_count')}</p>
+        <p class="ledger-description">{t('home.corpus_description')}</p>
+        <dl>
+          <div>
+            <dt>{t('home.format_label')}</dt><dd>{t('home.format_value')}</dd>
+          </div>
+          <div>
+            <dt>{t('home.method_label')}</dt><dd>{t('home.method_value')}</dd>
+          </div>
+          <div>
+            <dt>{t('home.access_label')}</dt><dd>{t('home.access_value')}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  {
+    lang === 'es' && (
+      <aside class="evaluation-callout" aria-labelledby="eval-v4-callout-title">
+        <div class="evaluation-callout-heading">
+          <p>Revisión abierta</p>
+          <h2 id="eval-v4-callout-title">Ayúdanos a revisar Eval v4</h2>
+        </div>
+        <p class="evaluation-callout-copy">
+          Publicamos 42 preguntas con sus respuestas, fechas de corte y citas de
+          referencia. Puedes revisar una sola pregunta y señalar ambigüedades,
+          problemas de vigencia o fuentes alternativas.
+        </p>
+        <div class="evaluation-callout-actions">
+          <a
+            class="primary-action"
+            href={`${import.meta.env.BASE_URL}/es/evals/v4`}
+          >
+            Revisar las preguntas
+          </a>
+          <a
+            class="secondary-action"
+            href={`${import.meta.env.BASE_URL}/es/blog/2026/08/eval-v4-evidencia-retrieval`}
+          >
+            Leer el reporte <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </aside>
+    )
+  }
+
+  <section
+    id="research"
+    class="research-section"
+    aria-labelledby="research-title"
+  >
+    <header class="research-header">
+      <h2 id="research-title">{t('home.notebook')}</h2>
+      <p>{t('home.notebook_description')}</p>
+    </header>
+
+    <BlogPostsGrid
+      posts={allBlogPosts}
+      lang={lang}
+      baseUrl={import.meta.env.BASE_URL}
+      translations={{
+        readMore: t('home.read_more'),
+        loadMore: t('home.load_more'),
+        noMorePosts: t('home.no_more_posts'),
+        unknownAuthor: t('common.unknown_author'),
+        noDescription: t('common.no_description'),
+      }}
+    />
+  </section>
+
+  <section class="discovery-strip" aria-label={t('home.explore_topics')}>
+    <div class="topics-block">
+      <h2>{t('home.explore_topics')}</h2>
+      <div class="topic-links">
+        {
+          sortedTags.slice(0, 12).map(([tag, count]) => (
+            <a href={`${import.meta.env.BASE_URL}/${lang}/tags/${tag}`}>
+              <>
+                <span>#{tag}</span>
+                <small>{count}</small>
+              </>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+    <div class="rss-block">
+      <span class="rss-mark" aria-hidden="true">◉</span>
+      <div>
+        <h2>RSS</h2>
+        <p>{t('home.rss_note')}</p>
+      </div>
+      <a href={`${import.meta.env.BASE_URL}/rss.xml`} aria-label="RSS">↗</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .editorial-hero {
+    padding: 0.6rem 0 2.5rem;
+  }
+
+  .editorial-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0 0 1rem;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .editorial-kicker::before {
+    width: 2.25rem;
+    height: 1px;
+    background: var(--color-accent);
+    content: '';
+  }
+
+  .editorial-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(16rem, 0.55fr);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  .editorial-hero-copy h1 {
+    max-width: 54rem;
+    margin: 0;
+    font-size: clamp(3rem, 5vw, 4.9rem);
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+  }
+
+  .editorial-hero-copy h1 em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+
+  .editorial-intro {
+    max-width: 43rem;
+    margin: 1.35rem 0 1.25rem;
+    color: var(--color-muted);
+    font-family: var(--font-editorial);
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    line-height: 1.45;
+  }
+
+  .editorial-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .primary-action,
+  .secondary-action {
+    font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .primary-action {
+    border: 1px solid var(--color-text);
+    background: var(--color-text);
+    color: var(--color-bg);
+    padding: 0.85rem 1.05rem;
+  }
+
+  .primary-action:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fffaf1;
+  }
+
+  .secondary-action {
+    border-bottom: 1px solid var(--color-text);
+    padding-block: 0.4rem;
+  }
+
+  .secondary-action:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .corpus-ledger {
+    align-self: stretch;
+    border-left: 1px solid var(--color-border);
+    padding: 0.35rem 0 0 1.75rem;
+  }
+
+  .ledger-label {
+    margin: 0;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .ledger-count {
+    margin: 0.65rem 0 0;
+    font-family: var(--font-editorial);
+    font-size: clamp(2.7rem, 4.2vw, 4.25rem);
+    font-weight: 650;
+    letter-spacing: -0.055em;
+    line-height: 1;
+  }
+
+  .ledger-description {
+    margin: 0.5rem 0 1rem;
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  .corpus-ledger dl {
+    margin: 0;
+  }
+
+  .corpus-ledger dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--color-border);
+    padding: 0.6rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+  }
+
+  .corpus-ledger dt {
+    color: var(--color-muted);
+  }
+
+  .corpus-ledger dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  .evaluation-callout {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(18rem, 1.35fr) auto;
+    gap: 2rem;
+    align-items: center;
+    margin: 0 0 3rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+  }
+
+  .evaluation-callout-heading p {
+    margin: 0 0 0.35rem;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .evaluation-callout-heading h2 {
+    margin: 0;
+    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
+    line-height: 1.05;
+  }
+
+  .evaluation-callout-copy {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .evaluation-callout-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .research-section {
+    scroll-margin-top: 7rem;
+    border-top: 2px solid var(--color-text);
+    padding-top: 1rem;
+  }
+
+  .research-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .research-header h2,
+  .topics-block h2,
+  .rss-block h2 {
+    margin: 0;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+  }
+
+  .research-header p {
+    margin: 0;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .discovery-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(16rem, 0.75fr);
+    gap: 3rem;
+    margin-top: 4rem;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding-block: 1.5rem;
+  }
+
+  .topics-block h2,
+  .rss-block h2 {
+    font-size: 1.35rem;
+  }
+
+  .topic-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.85rem;
+  }
+
+  .topic-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--color-border);
+    padding: 0.4rem 0.55rem;
+    font-size: 0.68rem;
+    text-decoration: none;
+  }
+
+  .topic-links a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .topic-links small {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+  }
+
+  .rss-block {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    border-left: 1px solid var(--color-border);
+    padding-left: 1.5rem;
+  }
+
+  .rss-mark {
+    color: var(--color-accent);
+    font-size: 1.2rem;
+  }
+
+  .rss-block p {
+    margin: 0.3rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .rss-block > a {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid var(--color-text);
+    text-decoration: none;
+  }
+
+  .rss-block > a:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fffaf1;
+  }
+
+  @media (max-width: 760px) {
+    .editorial-hero {
+      padding: 0.25rem 0 2.25rem;
+    }
+
+    .editorial-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    .editorial-hero-copy h1 {
+      font-size: clamp(2.65rem, 11.5vw, 3.6rem);
+      line-height: 0.96;
+    }
+
+    .editorial-intro {
+      margin-top: 1.15rem;
+      font-size: 1rem;
+    }
+
+    .corpus-ledger {
+      border-top: 1px solid var(--color-border);
+      border-left: 0;
+      padding: 1rem 0 0;
+    }
+
+    .evaluation-callout {
+      grid-template-columns: 1fr;
+      gap: 1.15rem;
+      padding: 1.25rem;
+    }
+
+    .evaluation-callout-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .ledger-count {
+      font-size: 3.15rem;
+    }
+
+    .research-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .discovery-strip {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .rss-block {
+      border-top: 1px solid var(--color-border);
+      border-left: 0;
+      padding: 1.5rem 0 0;
+    }
+  }
+</style>

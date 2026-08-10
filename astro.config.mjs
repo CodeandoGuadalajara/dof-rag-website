@@ -12,6 +12,7 @@ export default defineConfig({
     service: passthroughImageService(),
   },
   output: 'static',
+  prefetch: true,
   // Redirecciones para URLs antiguas que cambiaron al aplanar la estructura del blog
   redirects: {
     '/es/blog/2025/08/comparacion-embeddings/la-batalla-de-los-embeddings-cuando-tres-modelos-de-ia-compiten-por-entender-el-espaol-gubernamental':
@@ -23,7 +24,7 @@ export default defineConfig({
   trailingSlash: 'never',
   // Configuración para manejar páginas dinámicas en GitHub Pages
   build: {
-    format: 'directory'
+    format: 'directory',
   },
   vite: {
     plugins: [tailwindcss()],
@@ -35,6 +36,6 @@ export default defineConfig({
   },
   server: {
     port: 4321,
-    host: true
-  }
+    host: true,
+  },
 });

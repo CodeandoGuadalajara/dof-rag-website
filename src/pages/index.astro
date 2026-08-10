@@ -1,39 +1,9 @@
 ---
-import { defaultLang } from '../i18n/config.ts';
-
-// Determinar el idioma preferido si existe
-let preferredLang = defaultLang;
-
-// En el lado del cliente, verificaremos el localStorage
-// Este script se ejecutará solo en el cliente
+import HomePage from '../components/HomePage.astro';
 ---
 
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width" />
-  <meta http-equiv="refresh" content={`0;url=${import.meta.env.BASE_URL}/${defaultLang}`} />
-  <script define:vars={{ defaultLang }}>
-    // Verificar si hay un idioma preferido guardado
-    const savedLang = localStorage.getItem('preferredLanguage');
-    if (savedLang && ['es', 'en'].includes(savedLang)) {
-      // Redirigir al idioma guardado
-      window.location.href = `${import.meta.env.BASE_URL}/${savedLang}`;
-    } else {
-      // Si no hay preferencia, intentar detectar el idioma del navegador
-      const browserLang = navigator.language.split('-')[0];
-      if (['es', 'en'].includes(browserLang)) {
-        localStorage.setItem('preferredLanguage', browserLang);
-        window.location.href = `${import.meta.env.BASE_URL}/${browserLang}`;
-        } else {
-        // Si el idioma del navegador no es soportado, usar el predeterminado
-        window.location.href = `${import.meta.env.BASE_URL}/${defaultLang}`;
-      }
-    }
-  </script>
-</head>
-<body>
-  <p>Redirigiendo...</p>
-</body>
-</html>
+<!--
+  Render the complete Spanish homepage at the unprefixed URL. The localized
+  page derives Spanish from the default language when no locale is in the URL.
+-->
+<HomePage />

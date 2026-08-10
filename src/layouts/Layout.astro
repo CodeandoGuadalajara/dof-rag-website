@@ -18,6 +18,17 @@ const {
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const lang = getLangFromUrl(Astro.url) as SupportedLanguage;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const normalizedPath = currentPath.replace(/\/$/, '');
+const isRootRequest = normalizedPath === basePath;
+const localizedPaths = Object.fromEntries(
+  supportedLanguages.map((supportedLang) => [
+    supportedLang,
+    getLocalizedPathname(currentPath, supportedLang as SupportedLanguage),
+  ])
+) as Record<SupportedLanguage, string>;
+const canonicalUrl = new URL(localizedPaths[lang], Astro.site);
+const englishHomePath = `${basePath}/en`;
 const translations =
   lang === 'es'
     ? await import('../i18n/translations/es.json')
@@ -36,6 +47,7 @@ function t(key: string): string {
     <meta name="description" content={description} />
     <meta name="theme-color" content="#f4efe6" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalUrl} />
 
     <link
       rel="icon"
@@ -58,12 +70,23 @@ function t(key: string): string {
         <link
           rel="alternate"
           hreflang={supportedLang}
-          href={getLocalizedPathname(
-            currentPath,
-            supportedLang as SupportedLanguage
-          )}
+          href={
+            new URL(
+              localizedPaths[supportedLang as SupportedLanguage],
+              Astro.site
+            )
+          }
         />
       ))
+    }
+    {
+      localizedPaths.es === `${basePath}/es` && (
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(`${basePath}/`, Astro.site)}
+        />
+      )
     }
 
     <title>{title}</title>
@@ -71,6 +94,17 @@ function t(key: string): string {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'light' || savedTheme === 'dark') {
         document.documentElement.classList.add(`${savedTheme}-theme`);
+      }
+    </script>
+    <script is:inline define:vars={{ isRootRequest, englishHomePath }}>
+      if (isRootRequest) {
+        try {
+          if (localStorage.getItem('preferredLanguage') === 'en') {
+            window.location.replace(englishHomePath);
+          }
+        } catch {
+          // The Spanish page remains usable when storage is unavailable.
+        }
       }
     </script>
   </head>
@@ -122,6 +156,8 @@ function t(key: string): string {
                       langCode as SupportedLanguage
                     )}
                     aria-current={lang === langCode ? 'page' : undefined}
+                    data-language-choice={langCode}
+                    data-astro-prefetch="tap"
                   >
                     {langName}
                   </a>
@@ -170,6 +206,8 @@ function t(key: string): string {
                       langCode as SupportedLanguage
                     )}
                     aria-current={lang === langCode ? 'page' : undefined}
+                    data-language-choice={langCode}
+                    data-astro-prefetch="tap"
                   >
                     {langName}
                   </a>
@@ -189,6 +227,28 @@ function t(key: string): string {
         </details>
       </div>
     </header>
+
+    {
+      isRootRequest && (
+        <aside class="language-suggestion" hidden data-language-suggestion>
+          <div class="language-suggestion-inner container">
+            <p>Your browser is set to English.</p>
+            <div>
+              <a
+                href={englishHomePath}
+                data-language-choice="en"
+                data-astro-prefetch="tap"
+              >
+                View this site in English <span aria-hidden="true">→</span>
+              </a>
+              <button type="button" data-language-choice="es">
+                Continuar en español
+              </button>
+            </div>
+          </div>
+        </aside>
+      )
+    }
 
     <main class="site-main container">
       <slot />
@@ -265,4 +325,40 @@ function t(key: string): string {
   });
 
   syncThemeButtons();
+
+  const languageSuggestion = document.querySelector<HTMLElement>(
+    '[data-language-suggestion]'
+  );
+
+  let savedLanguage: string | null = null;
+  try {
+    savedLanguage = localStorage.getItem('preferredLanguage');
+  } catch {
+    // Language links still work when storage is unavailable.
+  }
+
+  if (
+    languageSuggestion &&
+    !savedLanguage &&
+    navigator.language.toLowerCase().startsWith('en')
+  ) {
+    languageSuggestion.hidden = false;
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('[data-language-choice]')
+    .forEach((control) => {
+      control.addEventListener('click', () => {
+        const language = control.dataset.languageChoice;
+        if (language !== 'es' && language !== 'en') return;
+
+        try {
+          localStorage.setItem('preferredLanguage', language);
+        } catch {
+          // The chosen link remains navigable when storage is unavailable.
+        }
+
+        if (language === 'es') languageSuggestion?.setAttribute('hidden', '');
+      });
+    });
 </script>
