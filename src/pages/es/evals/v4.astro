@@ -52,6 +52,18 @@ const difficultyLabels = {
   hard: 'difícil',
 };
 
+const premiseReasonLabels = {
+  nonexistent_article: 'La publicación no contiene el artículo mencionado.',
+  incorrect_abrogation_claim:
+    'El decreto no abroga por completo la ley en la forma planteada.',
+  wrong_legal_instrument:
+    'La pregunta atribuye el cambio a un instrumento jurídico distinto.',
+  wrong_effective_date:
+    'La fecha de entrada en vigor propuesta en la pregunta es incorrecta.',
+  wrong_quantities:
+    'Las cantidades de la pregunta no coinciden con la publicación.',
+};
+
 const discussionUrl =
   'https://github.com/CodeandoGuadalajara/dof-rag/discussions';
 const datasetUrl =
@@ -78,6 +90,13 @@ function formatPersona(value: string): string {
 
 function formatDifficulty(value: string): string {
   return difficultyLabels[value as keyof typeof difficultyLabels] ?? value;
+}
+
+function formatPremiseReason(value: string): string {
+  return (
+    premiseReasonLabels[value as keyof typeof premiseReasonLabels] ??
+    value.replaceAll('_', ' ')
+  );
 }
 
 function feedbackUrl(questionId: string): string {
@@ -226,7 +245,9 @@ function feedbackUrl(questionId: string): string {
                         <p class="content-label">
                           Por qué se rechaza la premisa
                         </p>
-                        <p>{question.unanswerable_reason}</p>
+                        <p>
+                          {formatPremiseReason(question.unanswerable_reason)}
+                        </p>
                       </section>
                     )}
 

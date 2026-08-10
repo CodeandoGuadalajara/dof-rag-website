@@ -193,6 +193,6 @@ El cambio importante de v4 no es el tamaño —42 preguntas son pocas— sino el
 
 ## Ayúdanos a revisar el conjunto
 
-Publicamos una [edición de revisión de las 42 preguntas](/es/evals/v4) con sus respuestas, fechas de corte y citas de referencia. Buscamos observaciones sobre preguntas ambiguas, respuestas incompletas, problemas de vigencia y fuentes alternativas que también deberían aceptarse.
+Publicamos una [edición de revisión de las 42 preguntas](/dof-rag-website/es/evals/v4) con sus respuestas, fechas de corte y citas de referencia. Buscamos observaciones sobre preguntas ambiguas, respuestas incompletas, problemas de vigencia y fuentes alternativas que también deberían aceptarse.
 
 No hace falta revisar el conjunto completo. Una corrección bien sustentada sobre una sola pregunta es útil y quedará registrada antes de que v4 se convierta en una puerta de calidad.
