@@ -122,7 +122,13 @@ function feedbackUrl(questionId: string): string {
         encuentra la evidencia necesaria para responder, no solo un documento
         relacionado. Publicamos las respuestas y citas de referencia para que
         puedan ser revisadas antes de convertir el conjunto en una puerta de
-        calidad.
+        calidad. El
+        <a
+          href={`${import.meta.env.BASE_URL}/es/blog/2026/08/eval-v4-evidencia-retrieval`}
+          >reporte de Eval v4</a
+        >
+        explica cómo construimos el conjunto y qué ocurrió al probar búsqueda BM25,
+        vectorial e híbrida.
       </p>
 
       <dl class="review-summary" aria-label="Resumen del conjunto">
@@ -341,6 +347,12 @@ function feedbackUrl(questionId: string): string {
     font-family: var(--font-editorial);
     font-size: clamp(1.2rem, 2.4vw, 1.65rem);
     line-height: 1.45;
+  }
+
+  .lede a {
+    color: var(--color-accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
   }
 
   .review-summary {
