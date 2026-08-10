@@ -291,6 +291,53 @@ html.dark-theme {
     padding-block: 2.75rem 5rem;
   }
 
+  .language-suggestion {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-card);
+  }
+
+  .language-suggestion[hidden] {
+    display: none;
+  }
+
+  .language-suggestion-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .language-suggestion p {
+    margin: 0;
+  }
+
+  .language-suggestion-inner > div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .language-suggestion a,
+  .language-suggestion button {
+    font: inherit;
+    font-weight: 700;
+  }
+
+  .language-suggestion a {
+    color: var(--color-accent);
+  }
+
+  .language-suggestion button {
+    border: 0;
+    border-bottom: 1px solid currentColor;
+    padding: 0;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
   .site-footer {
     border-top: 1px solid var(--color-border);
     background: rgba(var(--color-bg-rgb), 0.84);
@@ -445,6 +492,17 @@ html.dark-theme {
 
   .site-main {
     padding-block: 1.8rem 3.5rem;
+  }
+
+  .language-suggestion-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .language-suggestion-inner > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.55rem;
   }
 
   .site-footer-inner {
