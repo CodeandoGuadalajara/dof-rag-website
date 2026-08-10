@@ -25,14 +25,14 @@ Este es el primer experimento de una serie. Empezamos con **6 modelos**, **15 im
 
 ## Los contendientes
 
-|| Modelo | Proveedor | Avg | Mín | Máx | Total | Input $/M tok | Output $/M tok | Costo 15 imgs | Costo 98k imgs ||
-||--------|-----------|-----|-----|-----|-------|---------------|----------------|---------------|----------------|
-|| gemini-2.5-flash-lite | Google | 1.6s | 1.0s | 3.1s | 23.6s | $0.10 | $0.40 | $0.0029 | ~$19 ||
-|| gpt-5.4-nano | OpenAI | 2.7s | 1.6s | 4.7s | 40.4s | $0.20 | $1.25 | $0.0075 | ~$49 ||
-|| gemini-3.1-flash-lite | Google | 2.8s | 2.0s | 6.5s | 42.2s | $0.25 | $1.50 | $0.0092 | ~$60 ||
-|| claude-3-haiku | Anthropic | 3.1s | 1.8s | 5.2s | 46.0s | $0.25 | $1.25 | $0.0083 | ~$54 ||
-|| qwen3.5-flash-02-23 | Qwen | 13.5s | 7.6s | 29.1s | 202.7s | $0.07 | $0.26 | $0.0020 | ~$13 ||
-|| qwen3.6-flash | Qwen | 29.0s | 5.4s | 274.3s | 406.4s | $0.25 | $1.50 | $0.0086 | ~$60 ||
+| Modelo | Proveedor | Avg | Mín | Máx | Total | Input $/M tok | Output $/M tok | Costo 15 imgs | Costo 98k imgs |
+|--------|-----------|-----|-----|-----|-------|---------------|----------------|---------------|----------------|
+| gemini-2.5-flash-lite | Google | 1.6s | 1.0s | 3.1s | 23.6s | $0.10 | $0.40 | $0.0029 | ~$19 |
+| gpt-5.4-nano | OpenAI | 2.7s | 1.6s | 4.7s | 40.4s | $0.20 | $1.25 | $0.0075 | ~$49 |
+| gemini-3.1-flash-lite | Google | 2.8s | 2.0s | 6.5s | 42.2s | $0.25 | $1.50 | $0.0092 | ~$60 |
+| claude-3-haiku | Anthropic | 3.1s | 1.8s | 5.2s | 46.0s | $0.25 | $1.25 | $0.0083 | ~$54 |
+| qwen3.5-flash-02-23 | Qwen | 13.5s | 7.6s | 29.1s | 202.7s | $0.07 | $0.26 | $0.0020 | ~$13 |
+| qwen3.6-flash | Qwen | 29.0s | 5.4s | 274.3s | 406.4s | $0.25 | $1.50 | $0.0086 | ~$60 |
 
 Precios de [OpenRouter](https://openrouter.ai/models?input_modalities=image&output_modalities=text&max_price=0.25&order=most-popular) al momento del experimento. Costos estimados asumiendo ~950 tokens de input por llamada (prompt + contexto + imagen) y ~250 tokens de output por respuesta. Qwen 3.6 Flash tuvo 1 error (rate limit 429) en 15 imágenes, los demás completaron las 15 sin errores.
 
