@@ -81,6 +81,36 @@ export function getStaticPaths() {
     </div>
   </section>
 
+  {
+    lang === 'es' && (
+      <aside class="evaluation-callout" aria-labelledby="eval-v4-callout-title">
+        <div class="evaluation-callout-heading">
+          <p>Revisión abierta</p>
+          <h2 id="eval-v4-callout-title">Ayúdanos a revisar Eval v4</h2>
+        </div>
+        <p class="evaluation-callout-copy">
+          Publicamos 42 preguntas con sus respuestas, fechas de corte y citas de
+          referencia. Puedes revisar una sola pregunta y señalar ambigüedades,
+          problemas de vigencia o fuentes alternativas.
+        </p>
+        <div class="evaluation-callout-actions">
+          <a
+            class="primary-action"
+            href={`${import.meta.env.BASE_URL}/es/evals/v4`}
+          >
+            Revisar las preguntas
+          </a>
+          <a
+            class="secondary-action"
+            href={`${import.meta.env.BASE_URL}/es/blog/2026/08/eval-v4-evidencia-retrieval`}
+          >
+            Leer el reporte <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </aside>
+    )
+  }
+
   <section
     id="research"
     class="research-section"
@@ -279,6 +309,47 @@ export function getStaticPaths() {
     text-align: right;
   }
 
+  .evaluation-callout {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(18rem, 1.35fr) auto;
+    gap: 2rem;
+    align-items: center;
+    margin: 0 0 3rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+  }
+
+  .evaluation-callout-heading p {
+    margin: 0 0 0.35rem;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .evaluation-callout-heading h2 {
+    margin: 0;
+    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
+    line-height: 1.05;
+  }
+
+  .evaluation-callout-copy {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .evaluation-callout-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
   .research-section {
     scroll-margin-top: 7rem;
     border-top: 2px solid var(--color-text);
@@ -412,6 +483,18 @@ export function getStaticPaths() {
       border-top: 1px solid var(--color-border);
       border-left: 0;
       padding: 1rem 0 0;
+    }
+
+    .evaluation-callout {
+      grid-template-columns: 1fr;
+      gap: 1.15rem;
+      padding: 1.25rem;
+    }
+
+    .evaluation-callout-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .ledger-count {
