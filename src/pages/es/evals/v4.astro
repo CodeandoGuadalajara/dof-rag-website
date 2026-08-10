@@ -1,0 +1,692 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import questions from '../../../data/eval-v4-review.json';
+
+const categoryOrder = [
+  'single_passage',
+  'list_enumeration',
+  'temporal_transitorio',
+  'cross_reference',
+  'multi_document',
+  'monitoring',
+  'negative_false_premise',
+] as const;
+
+const categories = {
+  single_passage: {
+    label: 'Pasaje único',
+    description: 'Una respuesta concreta respaldada por un fragmento.',
+  },
+  list_enumeration: {
+    label: 'Listas completas',
+    description:
+      'Preguntas donde omitir un elemento vuelve incompleta la respuesta.',
+  },
+  temporal_transitorio: {
+    label: 'Vigencia y transitorios',
+    description: 'Fechas de entrada en vigor, plazos y obligaciones diferidas.',
+  },
+  cross_reference: {
+    label: 'Referencias cruzadas',
+    description:
+      'Artículos y numerales cuyo sentido depende de otra disposición.',
+  },
+  multi_document: {
+    label: 'Múltiples documentos',
+    description:
+      'Respuestas que necesitan reunir evidencia de dos o más publicaciones.',
+  },
+  monitoring: {
+    label: 'Monitoreo',
+    description: 'Publicaciones localizadas por institución, fecha o edición.',
+  },
+  negative_false_premise: {
+    label: 'Premisas falsas',
+    description: 'Preguntas que el sistema debe corregir en lugar de aceptar.',
+  },
+};
+
+const difficultyLabels = {
+  easy: 'básica',
+  medium: 'intermedia',
+  hard: 'difícil',
+};
+
+const discussionUrl =
+  'https://github.com/CodeandoGuadalajara/dof-rag/discussions';
+const datasetUrl =
+  'https://github.com/CodeandoGuadalajara/dof-rag/blob/main/eval/dof_queries_v4.jsonl';
+
+const documentCount = new Set(
+  questions.flatMap((question) =>
+    question.gold_documents.map((document) => document.document_id)
+  )
+).size;
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function formatPersona(value: string): string {
+  return value.replaceAll('_', ' ');
+}
+
+function formatDifficulty(value: string): string {
+  return difficultyLabels[value as keyof typeof difficultyLabels] ?? value;
+}
+
+function feedbackUrl(questionId: string): string {
+  const url = new URL(
+    'https://github.com/CodeandoGuadalajara/dof-rag/issues/new'
+  );
+  url.searchParams.set('template', 'eval-v4-feedback.yml');
+  url.searchParams.set('title', `[Eval v4] ${questionId}: `);
+  return url.toString();
+}
+---
+
+<Layout
+  title="Revisión pública de Eval v4 | DOF-RAG"
+  description="Revisa las 42 preguntas, respuestas y citas de referencia de la evaluación de recuperación de evidencia de DOF-RAG."
+>
+  <article class="review-shell">
+    <header class="review-header">
+      <p class="kicker">Evaluación abierta · versión 4.0.0 piloto</p>
+      <h1>Revisión pública de Eval v4</h1>
+      <p class="lede">
+        Estas 42 preguntas sirven para medir si un buscador del Diario Oficial
+        encuentra la evidencia necesaria para responder, no solo un documento
+        relacionado. Publicamos las respuestas y citas de referencia para que
+        puedan ser revisadas antes de convertir el conjunto en una puerta de
+        calidad.
+      </p>
+
+      <dl class="review-summary" aria-label="Resumen del conjunto">
+        <div>
+          <dt>Preguntas</dt>
+          <dd>{questions.length}</dd>
+        </div>
+        <div>
+          <dt>Categorías</dt>
+          <dd>{categoryOrder.length}</dd>
+        </div>
+        <div>
+          <dt>Documentos</dt>
+          <dd>{documentCount}</dd>
+        </div>
+        <div>
+          <dt>Corte del corpus</dt>
+          <dd>24 abr 2026</dd>
+        </div>
+      </dl>
+
+      <div class="review-actions" aria-label="Acciones de revisión">
+        <a class="primary-action" href={discussionUrl}
+          >Discutir la metodología ↗</a
+        >
+        <a class="secondary-action" href={datasetUrl}>Consultar el dataset ↗</a>
+      </div>
+    </header>
+
+    <section class="review-guide" aria-labelledby="how-to-review">
+      <div>
+        <p class="section-number">Cómo participar</p>
+        <h2 id="how-to-review">Una observación concreta es suficiente</h2>
+      </div>
+      <div class="guide-copy">
+        <p>
+          No hace falta revisar las 42 preguntas. Elige una que conozcas y
+          comprueba cuatro cosas: que la pregunta sea clara, que la respuesta
+          sea correcta para su fecha de corte, que la cita realmente la respalde
+          y que no falte otra fuente válida.
+        </p>
+        <p>
+          Usa la discusión para comentarios generales sobre categorías o
+          metodología. Si encuentras un problema específico, abre el formulario
+          de esa pregunta; así podremos documentar la corrección y cerrarla.
+        </p>
+      </div>
+    </section>
+
+    <nav class="category-index" aria-label="Categorías de la evaluación">
+      {
+        categoryOrder.map((category) => (
+          <a href={`#${category}`}>
+            <span>{categories[category].label}</span>
+            <small>6 preguntas</small>
+          </a>
+        ))
+      }
+    </nav>
+
+    {
+      categoryOrder.map((category, categoryIndex) => {
+        const categoryQuestions = questions.filter(
+          (question) => question.category === category
+        );
+
+        return (
+          <section class="category-section" id={category}>
+            <header class="category-header">
+              <p class="section-number">
+                Categoría {String(categoryIndex + 1).padStart(2, '0')}
+              </p>
+              <h2>{categories[category].label}</h2>
+              <p>{categories[category].description}</p>
+            </header>
+
+            <div class="question-list">
+              {categoryQuestions.map((question) => (
+                <details class="question-card" id={question.id.toLowerCase()}>
+                  <summary>
+                    <span class="question-id">{question.id}</span>
+                    <span class="question-text">{question.question}</span>
+                    <span class="open-label" aria-hidden="true">
+                      Abrir
+                    </span>
+                  </summary>
+
+                  <div class="question-content">
+                    <dl class="question-meta">
+                      <div>
+                        <dt>Fecha de corte</dt>
+                        <dd>{formatDate(question.as_of)}</dd>
+                      </div>
+                      <div>
+                        <dt>Dificultad</dt>
+                        <dd>{formatDifficulty(question.difficulty)}</dd>
+                      </div>
+                      <div>
+                        <dt>Perfil de consulta</dt>
+                        <dd>{formatPersona(question.persona)}</dd>
+                      </div>
+                      <div>
+                        <dt>Fuentes necesarias</dt>
+                        <dd>{question.required_hops}</dd>
+                      </div>
+                    </dl>
+
+                    <section
+                      class="answer-block"
+                      aria-labelledby={`${question.id}-answer`}
+                    >
+                      <p class="content-label" id={`${question.id}-answer`}>
+                        Respuesta de referencia
+                      </p>
+                      <p>{question.reference_answer}</p>
+                    </section>
+
+                    {question.unanswerable_reason && (
+                      <section class="premise-block">
+                        <p class="content-label">
+                          Por qué se rechaza la premisa
+                        </p>
+                        <p>{question.unanswerable_reason}</p>
+                      </section>
+                    )}
+
+                    <section
+                      class="evidence-block"
+                      aria-labelledby={`${question.id}-evidence`}
+                    >
+                      <p class="content-label" id={`${question.id}-evidence`}>
+                        Evidencia de referencia
+                      </p>
+                      {question.gold_documents.map(
+                        (document, documentIndex) => (
+                          <div class="source-document">
+                            <p class="source-heading">
+                              Documento {documentIndex + 1} · DOF{' '}
+                              {formatDate(document.publication_date)}
+                              {' · '}sección {document.section} · ID{' '}
+                              {document.document_id}
+                            </p>
+                            {document.evidence.map((evidence) => (
+                              <blockquote>{evidence.quote}</blockquote>
+                            ))}
+                          </div>
+                        )
+                      )}
+                    </section>
+
+                    <a class="feedback-action" href={feedbackUrl(question.id)}>
+                      Informar un problema con {question.id} ↗
+                    </a>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        );
+      })
+    }
+
+    <footer class="review-footer">
+      <p>
+        Eval v4 es un piloto. Las observaciones aceptadas quedarán registradas
+        en el historial del dataset; no cambiaremos silenciosamente una pregunta
+        después de usarla para comparar sistemas.
+      </p>
+      <a
+        href={`${import.meta.env.BASE_URL}/es/blog/2026/08/eval-v4-evidencia-retrieval`}
+      >
+        Leer el reporte de resultados →
+      </a>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .review-shell {
+    max-width: 68rem;
+    margin: 0 auto;
+  }
+
+  .review-header {
+    max-width: 58rem;
+    padding: 3rem 0 4rem;
+  }
+
+  .kicker,
+  .section-number,
+  .content-label,
+  .question-id,
+  .review-summary dt {
+    margin: 0;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 15ch;
+    margin: 1rem 0 1.5rem;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.92;
+  }
+
+  .lede {
+    max-width: 48rem;
+    margin: 0;
+    color: var(--color-muted);
+    font-family: var(--font-editorial);
+    font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+    line-height: 1.45;
+  }
+
+  .review-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 3rem 0 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .review-summary div {
+    padding: 1.1rem 1rem 1.1rem 0;
+  }
+
+  .review-summary div + div {
+    border-left: 1px solid var(--color-border);
+    padding-left: 1rem;
+  }
+
+  .review-summary dd {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-editorial);
+    font-size: 1.45rem;
+    font-weight: 700;
+  }
+
+  .review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .review-actions a,
+  .feedback-action {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.8rem;
+    padding: 0.7rem 0.95rem;
+    border: 1px solid var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .primary-action,
+  .feedback-action {
+    background: var(--color-accent);
+    color: #fffaf1;
+  }
+
+  .review-actions a:hover,
+  .feedback-action:hover {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .review-guide {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.8fr) minmax(0, 1.5fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+    padding: 2.25rem;
+    background: var(--color-paper-deep);
+  }
+
+  .review-guide h2,
+  .category-header h2 {
+    margin: 0.45rem 0 0;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1;
+  }
+
+  .guide-copy p {
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .guide-copy p + p {
+    margin-top: 1rem;
+  }
+
+  .category-index {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-bottom: 5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-border);
+  }
+
+  .category-index a {
+    display: flex;
+    min-height: 6.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--color-card);
+    text-decoration: none;
+  }
+
+  .category-index a:hover {
+    background: var(--color-paper-deep);
+    color: var(--color-accent);
+  }
+
+  .category-index span {
+    font-family: var(--font-editorial);
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .category-index small {
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .category-section {
+    scroll-margin-top: 7rem;
+    margin: 0 0 6rem;
+  }
+
+  .category-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.75fr);
+    column-gap: 3rem;
+    align-items: end;
+    margin-bottom: 1.5rem;
+  }
+
+  .category-header .section-number,
+  .category-header h2 {
+    grid-column: 1;
+  }
+
+  .category-header > p:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: end;
+    margin: 0;
+    color: var(--color-muted);
+    line-height: 1.55;
+  }
+
+  .question-list {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .question-card {
+    scroll-margin-top: 7rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .question-card summary {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: start;
+    padding: 1.35rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .question-card summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .question-card[open] summary {
+    color: var(--color-accent);
+  }
+
+  .question-text {
+    max-width: 48rem;
+    font-family: var(--font-editorial);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  .open-label {
+    padding-top: 0.15rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .question-card[open] .open-label::before {
+    content: 'Cerrar';
+  }
+
+  .question-card[open] .open-label {
+    font-size: 0;
+  }
+
+  .question-card[open] .open-label::before {
+    font-size: 0.68rem;
+  }
+
+  .question-content {
+    margin: 0 0 1.5rem 6.25rem;
+    padding: 1.5rem;
+    border-left: 3px solid var(--color-accent);
+    background: var(--color-card);
+  }
+
+  .question-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0 0 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .question-meta dt {
+    color: var(--color-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .question-meta dd {
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+    font-weight: 650;
+  }
+
+  .answer-block,
+  .premise-block,
+  .evidence-block {
+    max-width: 50rem;
+  }
+
+  .answer-block > p:last-child,
+  .premise-block > p:last-child {
+    margin: 0.45rem 0 0;
+    font-family: var(--font-editorial);
+    font-size: 1.15rem;
+    line-height: 1.55;
+  }
+
+  .premise-block,
+  .evidence-block {
+    margin-top: 1.75rem;
+  }
+
+  .source-document {
+    margin-top: 0.8rem;
+  }
+
+  .source-heading {
+    margin: 0;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  blockquote {
+    margin: 0.75rem 0 0;
+    padding: 0.85rem 1rem;
+    border-left: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-family: var(--font-editorial);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .feedback-action {
+    margin-top: 1.75rem;
+  }
+
+  .review-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+    align-items: flex-end;
+    margin-top: 2rem;
+    padding: 2.25rem 0 1rem;
+    border-top: 2px solid var(--color-text);
+  }
+
+  .review-footer p {
+    max-width: 42rem;
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  .review-footer a {
+    flex: none;
+    color: var(--color-accent);
+    font-weight: 750;
+  }
+
+  @media (max-width: 760px) {
+    .review-header {
+      padding-top: 1.5rem;
+    }
+
+    .review-summary,
+    .category-index {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .review-summary div:nth-child(3) {
+      border-left: 0;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .review-summary div:nth-child(4) {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .review-guide,
+    .category-header {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .category-header > p:last-child {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .question-card summary {
+      grid-template-columns: 4rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+
+    .open-label {
+      display: none;
+    }
+
+    .question-content {
+      margin-left: 0;
+      padding: 1.25rem;
+    }
+
+    .question-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .review-footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .review-summary,
+    .category-index,
+    .question-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .review-summary div + div,
+    .review-summary div:nth-child(3) {
+      border-top: 1px solid var(--color-border);
+      border-left: 0;
+      padding-left: 0;
+    }
+  }
+</style>

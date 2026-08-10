@@ -190,3 +190,9 @@ V4 es un piloto, no un examen definitivo. Antes de usar un número suyo para apr
 4. **Más juicios de relevancia.** Algunas preguntas admiten varias fuentes válidas. El set debe registrar relevancia graduada y documentos alternativos, no forzar una única fuente correcta cuando la tarea no lo requiere.
 
 El cambio importante de v4 no es el tamaño —42 preguntas son pocas— sino el contrato. Una respuesta buena necesita fuentes completas, pasajes concretos y capacidad para rechazar una premisa incorrecta. Ahora podemos medir esas tres cosas por separado y observar dónde falla cada etapa del buscador.
+
+## Ayúdanos a revisar el conjunto
+
+Publicamos una [edición de revisión de las 42 preguntas](/es/evals/v4) con sus respuestas, fechas de corte y citas de referencia. Buscamos observaciones sobre preguntas ambiguas, respuestas incompletas, problemas de vigencia y fuentes alternativas que también deberían aceptarse.
+
+No hace falta revisar el conjunto completo. Una corrección bien sustentada sobre una sola pregunta es útil y quedará registrada antes de que v4 se convierta en una puerta de calidad.
