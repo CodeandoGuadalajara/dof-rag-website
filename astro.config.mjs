@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import tailwindcss from '@tailwindcss/vite';
 import remarkAddBasepathToImages from './src/lib/remark-plugins/remark-add-basepath-to-images.js';
 
@@ -28,7 +29,9 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
-    remarkPlugins: [remarkAddBasepathToImages],
+    processor: unified({
+      remarkPlugins: [remarkAddBasepathToImages],
+    }),
   },
   server: {
     port: 4321,
