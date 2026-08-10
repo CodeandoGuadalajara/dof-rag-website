@@ -242,8 +242,8 @@ Los boxplots revelan que Gemini mantiene estabilidad empresarial, Nomic Embed pr
 * **Performance Boxplots L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/performance_boxplots_native.png)
 * **Timing Histograms Coseno:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_histograms_native.png)
 * **Timing Histograms L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_histograms_native.png)
-* **Timing Scatter Coseno:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_scatter_native.png)\`\`
-* **Timing Scatter L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_scatter_native.png)\`\`
+* **Timing Scatter Coseno:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_scatter_native.png)
+* **Timing Scatter L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_scatter_native.png)
 
 ### Visualizaciones del espacio vectorial
 

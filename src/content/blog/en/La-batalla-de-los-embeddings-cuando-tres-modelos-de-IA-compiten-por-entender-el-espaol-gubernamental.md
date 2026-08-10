@@ -242,8 +242,8 @@ Boxplots reveal that Gemini maintains enterprise-grade stability, Nomic Embed sh
 * **Performance Boxplots L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/performance_boxplots_native.png)
 * **Timing Histograms Cosine:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_histograms_native.png)
 * **Timing Histograms L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_histograms_native.png)
-* **Timing Scatter Cosine:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_scatter_native.png)``
-* **Timing Scatter L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_scatter_native.png)``
+* **Timing Scatter Cosine:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_coseno/timing_scatter_native.png)
+* **Timing Scatter L2:** ![](/images/posts/2025/08/comparacion-embeddings/metrics_native_l2/timing_scatter_native.png)
 
 ### Vector Space Visualizations
 

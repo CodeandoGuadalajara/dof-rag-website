@@ -1,8 +1,8 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
-import { unified } from '@astrojs/markdown-remark';
+import { satteri } from '@astrojs/markdown-satteri';
 import tailwindcss from '@tailwindcss/vite';
-import remarkAddBasepathToImages from './src/lib/remark-plugins/remark-add-basepath-to-images.js';
+import addBasepathToImages from './src/lib/satteri-plugins/add-basepath-to-images.js';
 
 export default defineConfig({
   site: 'https://codeandoguadalajara.github.io',
@@ -31,8 +31,13 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
-    processor: unified({
-      remarkPlugins: [remarkAddBasepathToImages],
+    processor: satteri({
+      mdastPlugins: [addBasepathToImages],
+      // Keep the site's typographic quotes and ellipses without rewriting the
+      // repeated hyphens used in prompts and ASCII tables as en/em dashes.
+      features: {
+        smartPunctuation: { quotes: true, dashes: false, ellipses: true },
+      },
     }),
   },
   server: {
