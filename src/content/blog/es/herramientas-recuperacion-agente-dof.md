@@ -261,11 +261,13 @@ El nuevo runner selecciona por omisión una pregunta por categoría:
 
 También puede recibir una lista explícita de IDs o ejecutar las 42 preguntas. El reporte calcula precisión y recall de citas contra los chunks anotados, corrección de premisa falsa, errores de herramientas, turnos, llamadas, tokens y latencia. La corrección general de la respuesta sigue requiriendo revisión humana o un juez separado; no la inferimos a partir de una cita coincidente.
 
-Una corrida remota enviaría al proveedor los fragmentos que el modelo necesita leer. Esa transferencia no se hizo como parte de este hito: requiere una autorización explícita sobre el destino y los datos. Por eso todavía no publicamos cifras de calidad del modelo. El código de conexión está probado contra un cliente simulado y el recorrido local está verificado sobre las bases reales, pero no presentamos eso como si fuera una evaluación con LLM.
+Después de obtener autorización explícita para enviar datos públicos del DOF, intentamos la muestra con `gpt-5.6-luna`, esfuerzo `low`, BM25 y `store: false`. Las siete solicitudes recibieron `429 insufficient_quota`: la cuenta configurada no tenía créditos. El resultado fue 0 de 7 preguntas completadas, sin turnos válidos, llamadas a herramientas, tokens reportados ni métricas de calidad. Como el rechazo ocurrió en la primera solicitud de cada pregunta, ninguna herramienta llegó a recuperar fragmentos para un turno posterior.
+
+La primera versión del runner siguió probando las siete preguntas porque trataba cada error como independiente. La corrida permitió detectar esa conducta. Ahora los errores de autenticación, permiso y saldo insuficiente abortan la sesión después del primer rechazo y marcan el resto como no ejecutado; un límite transitorio de solicitudes sigue tratándose como recuperable. Esto evita siete llamadas destinadas a fallar sin ocultar cuántas preguntas quedaron pendientes.
 
 ## Qué falta medir
 
-La primera corrida remota debe comparar, sobre las mismas siete preguntas:
+Cuando la cuenta tenga saldo, la primera corrida remota completa debe comparar, sobre las mismas siete preguntas:
 
 1. recuperación determinista sin modelo;
 2. recuperación seguida de una sola generación;
@@ -273,4 +275,4 @@ La primera corrida remota debe comparar, sobre las mismas siete preguntas:
 
 Después conviene repetirla con un modelo económico y uno de mayor capacidad, sin cambiar los límites ni el conjunto de preguntas. La comparación útil no es si el modelo “razona mejor” en abstracto, sino si encuentra más evidencia correcta, corrige la premisa falsa y justifica el aumento de tokens y latencia.
 
-Este hito deja listo el instrumento para hacer esa medición y, a la vez, registra lo que todavía no se ha observado. El artículo permanecerá en borrador hasta incorporar una corrida autorizada y revisar manualmente sus siete respuestas.
+Este hito deja listo el instrumento para hacer esa medición y registra por separado una integración local exitosa y una ejecución remota rechazada antes de inferencia. El artículo permanecerá en borrador hasta completar la corrida y revisar manualmente sus siete respuestas.
