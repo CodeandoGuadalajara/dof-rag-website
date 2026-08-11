@@ -13,6 +13,7 @@ tags:
     'rag-agentico',
     'evaluacion',
     'evidencia',
+    'kimi',
   ]
 author: 'Joaquín Bravo Contreras'
 ---
@@ -167,7 +168,7 @@ El siguiente paso ya está implementado en el mismo PR. Es un orquestador peque�
 1. el modelo solicita una herramienta con argumentos estructurados;
 2. el modelo entrega la respuesta final.
 
-Cuando hay una solicitud, el programa valida los argumentos, ejecuta la función local y devuelve el resultado asociado al identificador de esa llamada. Después el modelo puede hacer otra consulta o terminar. El proceso tiene dos límites independientes: cuatro turnos del modelo y ocho llamadas a herramientas por pregunta.
+Cuando hay una solicitud, el programa valida los argumentos, ejecuta la función local y devuelve el resultado asociado al identificador de esa llamada. Después el modelo puede hacer otra consulta o terminar. El proceso tiene dos límites independientes: seis turnos del modelo y ocho llamadas a herramientas por pregunta.
 
 ```text
 pregunta
@@ -180,6 +181,8 @@ modelo ──solicita herramienta──→ validador ──→ DOF-RAG/SQLite
 ```
 
 El límite no es sólo una protección de costo. También vuelve comparables las corridas. Si una configuración usa veinte búsquedas para resolver una pregunta que otra contesta con tres, esa diferencia debe aparecer en la evaluación.
+
+Las herramientas tampoco se muestran todas al mismo tiempo. El recorrido tiene cuatro estados: descubrir documentos, descubrir chunks, leer chunks y responder. En cada estado el modelo sólo ve las operaciones válidas. Esto redujo búsquedas repetidas y el tamaño del contexto, y reserva los últimos turnos para producir o reparar el JSON final.
 
 ## Esquemas estrictos y errores visibles
 
@@ -232,7 +235,7 @@ Cada llamada registra:
 - tiempo de ejecución;
 - identificador de llamada que enlaza la solicitud y la respuesta.
 
-La ejecución agrega la respuesta final, citas aceptadas y rechazadas, motivo de terminación, tokens de entrada y salida y latencia total. El adaptador actual usa la API Responses de OpenAI con `store: false`; conserva y reenvía los elementos de salida necesarios para continuar el razonamiento entre turnos, incluido el contenido de razonamiento cifrado. La respuesta final usa un [esquema de salida estructurada](https://developers.openai.com/api/docs/guides/structured-outputs) distinto del esquema de cada herramienta. El orquestador, sin embargo, es independiente del proveedor y las pruebas usan respuestas guionadas sin red.
+La ejecución agrega la respuesta final, citas aceptadas y rechazadas, motivo de terminación, tokens de entrada y salida y latencia total. Hay dos adaptadores. El primero usa la API Responses de OpenAI con `store: false`, conserva los elementos de salida necesarios entre turnos y aplica un [esquema de salida estructurada](https://developers.openai.com/api/docs/guides/structured-outputs). El segundo usa Chat Completions compatible con OpenAI y conserva el campo `reasoning_content` que devuelven modelos como Kimi. El orquestador y las herramientas no dependen de ninguno de los dos protocolos, y las pruebas unitarias usan respuestas guionadas sin red.
 
 Hicimos una integración local completa con la pregunta `SP-001`, usando decisiones guionadas para excluir la variación del modelo:
 
@@ -245,7 +248,7 @@ Hicimos una integración local completa con la pregunta `SP-001`, usando decisio
 
 La búsqueda documental tomó 1.68 segundos en la primera ejecución y 0.50 segundos al repetirla con cachés calientes; la búsqueda interna tomó 8.6–8.7 milisegundos y la lectura verificada, 0.6 milisegundos. El resultado final conservó los valores de 315.04 y 440.87 pesos y rechazó cualquier cita que no proviniera de la tercera llamada. Son comprobaciones de integración en una sola máquina, no un benchmark de latencia.
 
-## Cómo se ejecutará la muestra de v4
+## Cómo ejecutamos la muestra de v4
 
 El nuevo runner selecciona por omisión una pregunta por categoría:
 
@@ -265,14 +268,66 @@ Después de obtener autorización explícita para enviar datos públicos del DOF
 
 La primera versión del runner siguió probando las siete preguntas porque trataba cada error como independiente. La corrida permitió detectar esa conducta. Ahora los errores de autenticación, permiso y saldo insuficiente abortan la sesión después del primer rechazo y marcan el resto como no ejecutado; un límite transitorio de solicitudes sigue tratándose como recuperable. Esto evita siete llamadas destinadas a fallar sin ocultar cuántas preguntas quedaron pendientes.
 
-## Qué falta medir
+## Una segunda conexión con Kimi K2.7 Code
 
-Cuando la cuenta tenga saldo, la primera corrida remota completa debe comparar, sobre las mismas siete preguntas:
+La cuenta de Kimi Code disponible en el proyecto sí tenía cuota. Este producto usa un endpoint distinto de la plataforma de pago por uso. De acuerdo con la [documentación de Kimi Code](https://www.kimi.com/code/docs/en/), su interfaz compatible con OpenAI está en `https://api.kimi.com/coding/v1` y Kimi K2.7 Code se solicita con el identificador `kimi-for-coding`, no con `kimi-2.7`.
 
-1. recuperación determinista sin modelo;
-2. recuperación seguida de una sola generación;
-3. el bucle que puede elegir y repetir herramientas.
+La primera prueba confirmó que el modelo podía llamar las herramientas, pero también expuso tres problemas del orquestador: ofrecíamos demasiadas operaciones en cada turno, contábamos una ejecución agotada como completada y sólo aceptábamos JSON sin cercas de Markdown. Una muestra de siete preguntas con cuatro turnos terminó con 0 de 7 respuestas válidas, aunque una ejecución aislada de `SP-001` sí había encontrado y citado el chunk correcto.
 
-Después conviene repetirla con un modelo económico y uno de mayor capacidad, sin cambiar los límites ni el conjunto de preguntas. La comparación útil no es si el modelo “razona mejor” en abstracto, sino si encuentra más evidencia correcta, corrige la premisa falsa y justifica el aumento de tokens y latencia.
+Corregimos el criterio de éxito, convertimos el recorrido en una máquina de estados, aceptamos un objeto JSON aun cuando venga dentro de una cerca y aumentamos el presupuesto a seis turnos sin cambiar el máximo de ocho herramientas. Además, el turno de cierre usa `tool_choice: none` y una instrucción explícita para impedir nuevas búsquedas.
 
-Este hito deja listo el instrumento para hacer esa medición y registra por separado una integración local exitosa y una ejecución remota rechazada antes de inferencia. El artículo permanecerá en borrador hasta completar la corrida y revisar manualmente sus siete respuestas.
+La segunda corrida usó BM25, Kimi K2.7 Code y las mismas siete preguntas congeladas. El índice vectorial no intervino.
+
+| Métrica                              | Resultado |
+| ------------------------------------ | --------: |
+| Ejecuciones con cierre válido        |       7/7 |
+| Precisión de citas                   |     0.429 |
+| Recall de citas                      |     0.357 |
+| Corrección de premisa falsa (`n=1`)  |     1.000 |
+| Llamadas a herramientas por pregunta |      3.14 |
+| Turnos del modelo por pregunta       |      4.71 |
+| Errores de herramientas              |         1 |
+| Latencia promedio                    |    78.6 s |
+| Tokens de entrada                    |   155,356 |
+| Tokens de salida                     |    14,997 |
+| Tokens totales                       |   170,353 |
+
+“Cierre válido” sólo significa que el proceso terminó con el esquema esperado. No implica que la respuesta sea correcta. La precisión y el recall comparan los IDs citados con los chunks anotados en v4; una respuesta sin citas recibe cero. El conteo de tokens es el reportado por el endpoint y sirve para comparar configuraciones, aunque la cuenta Kimi Code se rige por la cuota de la membresía.
+
+## Revisión de las siete respuestas
+
+Revisamos manualmente cada respuesta contra las anotaciones de v4:
+
+| Pregunta | Evaluación  | Qué ocurrió                                                                                             |
+| -------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| `SP-001` | Correcta    | Recuperó 315.04 y 440.87 pesos y citó el chunk `6632609`.                                               |
+| `NE-001` | Correcta    | Rechazó la existencia del “artículo 99” y citó los resolutivos reales.                                  |
+| `LI-001` | Parcial     | Explicó los rangos de 16–50 y más de 50, pero no recuperó la regla completa para hasta 15 trabajadores. |
+| `MD-001` | Parcial     | Dio correctamente los valores de 2025, pero no leyó la evidencia de 2026.                               |
+| `CR-001` | No resuelta | Recuperó otra NOM-035 y se abstuvo.                                                                     |
+| `MO-001` | No resuelta | Seleccionó una publicación distinta del 9 de enero y concluyó que faltaba evidencia.                    |
+| `TE-001` | No resuelta | Encontró una referencia posterior a la NOM, no sus transitorios.                                        |
+
+El resultado manual es dos respuestas correctas, dos parciales y tres no resueltas. No observamos respuestas que inventaran valores: cuando la evidencia era insuficiente, Kimi tendió a abstenerse. Esa prudencia evita una respuesta falsa, pero no compensa una recuperación equivocada.
+
+Dos ejemplos muestran la diferencia. En `SP-001`, la secuencia fue la esperada:
+
+```text
+search_documents → search_evidence → read_chunks(6632609) → respuesta
+```
+
+La respuesta reprodujo ambos salarios y la cita coincidió con v4. En `NE-001`, el retrieval determinista original tenía recall de evidencia igual a cero para la categoría de premisa falsa. El agente localizó el decreto, leyó sus resolutivos y contestó que no existe el artículo 99. Aquí la navegación sí añadió una capacidad que la consulta única no había mostrado.
+
+Las fallas también son específicas. `CR-001` y `TE-001` confunden normas que comparten el número 035; hace falta dar más peso al identificador completo `NOM-035-STPS-2018`. En `MO-001`, el documento correcto era `652586`, pero el agente eligió `652600`; listar publicaciones sólo con fecha, ruta y sección no da suficiente información para reconocer al INEGI. En `MD-001`, ambos documentos correctos aparecieron entre los candidatos, pero el agente sólo leyó el pasaje de 2025. Esto último requiere seguimiento explícito de subpreguntas, no otra fórmula de BM25.
+
+## Qué sigue
+
+Antes de ampliar a las 42 preguntas conviene corregir tres puntos medibles:
+
+1. enriquecer `list_publications` con título o institución validada para consultas de monitoreo;
+2. añadir coincidencia exacta o expansión controlada para identificadores normativos;
+3. registrar qué partes de una pregunta multidocumento ya tienen evidencia y no permitir el cierre mientras falte una.
+
+Después repetiremos las mismas siete preguntas. Sólo si mejoran las categorías afectadas tendrá sentido ejecutar las 42 y comparar otro modelo. Kimi K2.7 Code está diseñado principalmente para tareas de programación, de modo que esta corrida valida el protocolo y ofrece una línea base útil, pero no debe interpretarse como una clasificación general de modelos para investigación jurídica.
+
+Este hito ya contiene una corrida remota reproducible y una revisión de sus respuestas. El siguiente cambio debe concentrarse en la evidencia que faltó, no en añadir autonomía o más herramientas.
