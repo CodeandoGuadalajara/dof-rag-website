@@ -181,7 +181,8 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   }
   
   .prose strong {
-    @apply font-bold text-[var(--color-accent)];
+    @apply font-bold;
+    color: inherit;
   }
   
   .prose code {
@@ -195,6 +196,7 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
   
   .prose pre code {
     @apply bg-transparent;
+    color: var(--color-code-block-text);
   }
   
   .prose a {
