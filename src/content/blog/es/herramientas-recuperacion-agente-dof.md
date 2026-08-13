@@ -29,7 +29,7 @@ Esto cambia la arquitectura del sistema. Buscar entre 657,867 publicaciones y bu
 
 Podríamos haber conectado un modelo de lenguaje al primer buscador disponible y pedirle que respondiera. El problema es que entonces mezclaríamos dos fallas. Si la respuesta fuera incorrecta, no sabríamos si el modelo interpretó mal la evidencia o si nunca recibió el pasaje necesario.
 
-Por eso el primer avance hacia un RAG agéntico no fue el agente. Construimos herramientas deterministas, medimos qué recuperan y mantuvimos el modelo generativo fuera del experimento. La implementación está en el PR [#67 de dof-rag](https://github.com/CodeandoGuadalajara/dof-rag/pull/67).
+Por eso el primer avance hacia un RAG agéntico no fue el agente. Construimos herramientas deterministas, medimos qué recuperan y mantuvimos el modelo generativo fuera del experimento. El trabajo completo está en el PR [#67 de dof-rag](https://github.com/CodeandoGuadalajara/dof-rag/pull/67); el primer corte quedó registrado en el commit [`3b3ecd2`, “add evidence retrieval tools”](https://github.com/CodeandoGuadalajara/dof-rag/commit/3b3ecd25d3e9cf8e1508a5263dfca4793a138e34).
 
 ## Qué significa una herramienta en este sistema
 
@@ -163,7 +163,7 @@ Estas fallas no se corrigen pidiendo al modelo que sea más cuidadoso. Primero n
 
 ## Segundo hito: un bucle de herramientas ejecutable
 
-El siguiente paso ya está implementado en el mismo PR. Es un orquestador pequeño, no un marco general de agentes. En cada turno ocurre una de dos cosas:
+El siguiente paso llegó en el commit [`0f4deee`, “add bounded tool-calling loop”](https://github.com/CodeandoGuadalajara/dof-rag/commit/0f4deee568253ab86d6173a0f8aaa3203f417a38). Es un orquestador pequeño, no un marco general de agentes. En cada turno ocurre una de dos cosas:
 
 1. el modelo solicita una herramienta con argumentos estructurados;
 2. el modelo entrega la respuesta final.
@@ -266,7 +266,7 @@ También puede recibir una lista explícita de IDs o ejecutar las 42 preguntas. 
 
 Después de obtener autorización explícita para enviar datos públicos del DOF, intentamos la muestra con `gpt-5.6-luna`, esfuerzo `low`, BM25 y `store: false`. Las siete solicitudes recibieron `429 insufficient_quota`: la cuenta configurada no tenía créditos. El resultado fue 0 de 7 preguntas completadas, sin turnos válidos, llamadas a herramientas, tokens reportados ni métricas de calidad. Como el rechazo ocurrió en la primera solicitud de cada pregunta, ninguna herramienta llegó a recuperar fragmentos para un turno posterior.
 
-La primera versión del runner siguió probando las siete preguntas porque trataba cada error como independiente. La corrida permitió detectar esa conducta. Ahora los errores de autenticación, permiso y saldo insuficiente abortan la sesión después del primer rechazo y marcan el resto como no ejecutado; un límite transitorio de solicitudes sigue tratándose como recuperable. Esto evita siete llamadas destinadas a fallar sin ocultar cuántas preguntas quedaron pendientes.
+La primera versión del runner siguió probando las siete preguntas porque trataba cada error como independiente. La corrida permitió detectar esa conducta. La corrección quedó aislada en [`594b0d3`, “stop after fatal provider errors”](https://github.com/CodeandoGuadalajara/dof-rag/commit/594b0d36b03424ce0f8d22491a2394eb902ccbf2): ahora los errores de autenticación, permiso y saldo insuficiente abortan la sesión después del primer rechazo y marcan el resto como no ejecutado; un límite transitorio de solicitudes sigue tratándose como recuperable. Esto evita siete llamadas destinadas a fallar sin ocultar cuántas preguntas quedaron pendientes.
 
 ## Una segunda conexión con Kimi K2.7 Code
 
@@ -274,7 +274,7 @@ La cuenta de Kimi Code disponible en el proyecto sí tenía cuota. Este producto
 
 La primera prueba confirmó que el modelo podía llamar las herramientas, pero también expuso tres problemas del orquestador: ofrecíamos demasiadas operaciones en cada turno, contábamos una ejecución agotada como completada y sólo aceptábamos JSON sin cercas de Markdown. Una muestra de siete preguntas con cuatro turnos terminó con 0 de 7 respuestas válidas, aunque una ejecución aislada de `SP-001` sí había encontrado y citado el chunk correcto.
 
-Corregimos el criterio de éxito, convertimos el recorrido en una máquina de estados, aceptamos un objeto JSON aun cuando venga dentro de una cerca y aumentamos el presupuesto a seis turnos sin cambiar el máximo de ocho herramientas. Además, el turno de cierre usa `tool_choice: none` y una instrucción explícita para impedir nuevas búsquedas.
+El adaptador de Kimi y los cambios derivados de estas pruebas están juntos en [`d1c3075`, “add Kimi tool-calling adapter”](https://github.com/CodeandoGuadalajara/dof-rag/commit/d1c30759c07c453d5ad1b2f73f9326054be52a63). Ahí corregimos el criterio de éxito, convertimos el recorrido en una máquina de estados, aceptamos un objeto JSON aun cuando venga dentro de una cerca y aumentamos el presupuesto a seis turnos sin cambiar el máximo de ocho herramientas. Además, el turno de cierre usa `tool_choice: none` y una instrucción explícita para impedir nuevas búsquedas.
 
 La segunda corrida usó BM25, Kimi K2.7 Code y las mismas siete preguntas congeladas. El índice vectorial no intervino.
 
