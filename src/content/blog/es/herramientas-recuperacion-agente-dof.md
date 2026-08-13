@@ -1,7 +1,7 @@
 ---
 title: 'De encontrar documentos a encontrar evidencia: primeras herramientas para consultar el DOF'
 description: 'Separamos la búsqueda documental de la recuperación de pasajes y construimos un bucle acotado, trazable y evaluable para que un modelo use cinco herramientas sobre el DOF.'
-date: '2026-08-11'
+date: '2026-08-13'
 heroImage: ''
 category: 'desarrollo'
 tags:
@@ -320,14 +320,111 @@ La respuesta reprodujo ambos salarios y la cita coincidió con v4. En `NE-001`, 
 
 Las fallas también son específicas. `CR-001` y `TE-001` confunden normas que comparten el número 035; hace falta dar más peso al identificador completo `NOM-035-STPS-2018`. En `MO-001`, el documento correcto era `652586`, pero el agente eligió `652600`; listar publicaciones sólo con fecha, ruta y sección no da suficiente información para reconocer al INEGI. En `MD-001`, ambos documentos correctos aparecieron entre los candidatos, pero el agente sólo leyó el pasaje de 2025. Esto último requiere seguimiento explícito de subpreguntas, no otra fórmula de BM25.
 
+## Tercer hito: identidad del documento y cobertura explícita
+
+El siguiente cambio atacó esas tres fallas sin añadir otra herramienta. Está en el commit [`6fd8039`, “improve agent retrieval coverage”](https://github.com/CodeandoGuadalajara/dof-rag/commit/6fd80399da45a18d2c6e5cbbbd1eb224a8f22b53).
+
+Primero, `list_publications` ahora devuelve dos campos informativos: `title` e `institution`. Se extraen del encabezado Markdown cuando existen y, para documentos antiguos sin encabezados, de los primeros bloques en negritas o líneas de texto. Son metadatos de presentación obtenidos bajo demanda, no filtros nuevos: seguimos sin afirmar que toda la colección tiene una institución normalizada.
+
+La diferencia se ve en dos publicaciones del 9 de enero de 2026:
+
+```text
+652586  INSTITUTO NACIONAL DE ESTADISTICA Y GEOGRAFIA
+        ÍNDICE nacional de precios al consumidor
+
+652600  Secretaría de Seguridad y Protección Ciudadana
+        PUBLICACIÓN DE SANCIÓN
+```
+
+Antes, ambas entradas llegaban como fecha, ruta, sección e ID. La segunda menciona UMA dentro de una multa y BM25 la colocaba arriba para la consulta `INPC UMA INEGI`. Mostrar la identidad del documento permite distinguir una publicación del INEGI de otra que sólo contiene una coincidencia incidental.
+
+Además añadimos expansiones controladas para tres abreviaturas de esta pregunta: `INEGI`, `INPC` y `UMA`. No son sinónimos generados por el modelo; forman parte del código y siempre producen los mismos términos. Con la fecha fijada al 9 de enero, el documento `652586` pasó al primer lugar.
+
+## Una coincidencia en el título no vale lo mismo que una cita en el cuerpo
+
+El segundo cambio trata identificadores como `NOM-035-STPS-2018`. La búsqueda de cuerpo encuentra tanto la norma como acuerdos, convocatorias y otras publicaciones que la citan. En la primera corrida, una de esas referencias quedó arriba de la fuente emisora.
+
+El nuevo recorrido conserva los candidatos BM25 y añade una búsqueda de frase por el identificador normativo. Después aplica un aumento de puntaje si el identificador aparece en el título, con un aumento adicional cuando el título comienza con “Norma Oficial Mexicana”. El resultado expone `title_boost` junto con el puntaje BM25 original; el cambio de orden no queda oculto dentro de una sola cifra.
+
+Por ejemplo, para `NOM-035-STPS-2018` la fuente `500086` ahora aparece primero:
+
+```text
+document_id: 500086
+title: NORMA Oficial Mexicana NOM-035-STPS-2018,
+       Factores de riesgo psicosocial en el trabajo...
+```
+
+Una pregunta que sólo dice `NOM-035` sigue siendo ambigua: existen normas con ese número en trabajo, transporte y pesca. En ese caso no fingimos que el número basta. Los títulos de las primeras posiciones permiten que el modelo elija la norma laboral por el resto de la pregunta.
+
+## Cobertura antes del cierre
+
+Encontrar dos documentos no garantiza que el modelo lea los dos. Por eso el estado de la ejecución ahora conserva requisitos de cobertura que pueden verificarse después de `read_chunks`.
+
+En una comparación que contiene dos años explícitos, la respuesta de la herramienta incluye un mapa como éste:
+
+```json
+{
+  "coverage": {
+    "2025": true,
+    "2026": false
+  }
+}
+```
+
+El año se considera cubierto cuando el agente leyó un chunk de un documento cuyo título corresponde a ese año. Mientras quede un valor falso, las herramientas de búsqueda y lectura siguen disponibles y el orquestador rechaza un intento prematuro de respuesta final. La corrida termina de forma normal cuando ambos valores son verdaderos; si agota el límite, la traza queda marcada como cobertura incompleta.
+
+Las referencias cruzadas usan el mismo mecanismo con requisitos distintos. En `CR-001` se registran `transitorio` y `numeral 5.2`. Leer el segundo transitorio sólo cubre el primero. Para cubrir el segundo debe aparecer en un chunk una disposición que comience con `5.2`, no una oración que simplemente cite ese número. El ranking local de chunks también favorece ese encabezado exacto.
+
+Este seguimiento no es una descomposición general de cualquier pregunta. Por ahora reconoce comparaciones con varios años y referencias desde transitorios hacia numerales. Es suficiente para hacer comprobables los dos patrones observados sin pedirle al modelo que se califique a sí mismo. El presupuesto subió de seis a siete turnos para permitir la búsqueda, lectura y cierre de una referencia cruzada; el máximo sigue siendo ocho llamadas a herramientas.
+
+## Segunda corrida sobre las mismas siete preguntas
+
+Repetimos la muestra congelada con Kimi K2.7 Code, BM25 y el mismo corte de datos. No usamos el índice vectorial. La traza quedó fuera del repositorio porque contiene resultados generados, pero se produjo con el runner versionado y este comando:
+
+```bash
+.venv/bin/python scripts/eval_v4_agent.py \
+  --provider kimi-code \
+  --model kimi-for-coding \
+  --output eval/cache/eval_v4_agent_smoke_kimi_k27_v4.json
+```
+
+| Métrica                              | Primera corrida | Segunda corrida |
+| ------------------------------------ | --------------: | --------------: |
+| Ejecuciones con cierre válido        |             7/7 |             7/7 |
+| Precisión de citas                   |           0.429 |           0.857 |
+| Recall de citas                      |           0.357 |           0.857 |
+| Corrección de premisa falsa (`n=1`)  |           1.000 |           1.000 |
+| Cobertura de requisitos              |   no registrada |           1.000 |
+| Llamadas a herramientas por pregunta |            3.14 |            3.43 |
+| Turnos del modelo por pregunta       |            4.71 |            4.43 |
+| Errores de herramientas              |               1 |               0 |
+| Latencia promedio                    |          78.6 s |          41.0 s |
+| Tokens de entrada                    |         155,356 |         163,886 |
+| Tokens de salida                     |          14,997 |           9,786 |
+| Tokens totales                       |         170,353 |         173,672 |
+
+La latencia bajó, pero una muestra de siete llamadas a un servicio remoto no permite atribuir esa diferencia al código. Los cambios que sí podemos inspeccionar están en las trazas y las citas.
+
+`CR-001` leyó el chunk `4733287` con los transitorios y el `4733254` con la obligación del numeral 5.2: identificar y analizar factores de riesgo psicosocial en centros con entre 16 y 50 trabajadores. `MO-001` seleccionó el documento `652586` y citó los chunks `6658934` y `6658935`, que contienen el INPC y los tres valores de UMA. `MD-001` citó `6389054` para 2025 y `6632609` para 2026; el mapa de cobertura terminó con ambos años en `true`.
+
+La revisión manual de esta segunda corrida dio seis respuestas correctas y una parcial:
+
+| Pregunta | Evaluación | Qué ocurrió                                                                                  |
+| -------- | ---------- | -------------------------------------------------------------------------------------------- |
+| `CR-001` | Correcta   | Siguió la referencia del transitorio al numeral 5.2 y citó ambos pasajes.                    |
+| `MO-001` | Correcta   | Recuperó en una sola publicación el INPC mensual, el quincenal y los valores de UMA.         |
+| `MD-001` | Correcta   | Comparó 2025 y 2026 con un chunk de cada resolución.                                         |
+| `NE-001` | Correcta   | Comprobó que el decreto no contiene el supuesto artículo 99.                                 |
+| `SP-001` | Correcta   | Respondió 315.04 y 440.87 pesos con el chunk anotado.                                        |
+| `TE-001` | Correcta   | Recuperó las fechas de la regla general y de las obligaciones diferidas.                     |
+| `LI-001` | Parcial    | Contestó el rango de más de 50, pero cerró sin cubrir por completo hasta 15 y entre 16 y 50. |
+
+La precisión y el recall automáticos de 0.857 reflejan el mismo patrón: seis preguntas citaron exactamente los chunks anotados y `LI-001` no. La métrica no sustituye la lectura de las respuestas, pero en esta muestra dejó de ocultar las fallas que motivaron el cambio.
+
 ## Qué sigue
 
-Antes de ampliar a las 42 preguntas conviene corregir tres puntos medibles:
+Los tres problemas que bloqueaban la muestra pequeña ya tienen una corrección medible. El siguiente paso razonable es ejecutar las 42 preguntas de v4 con esta configuración, conservar la revisión por categoría y medir cuánto se generalizan las reglas de cobertura. `LI-001` indica una extensión concreta: representar rangos o elementos enumerados como requisitos separados, en vez de asumir que un solo chunk cubre toda una lista.
 
-1. enriquecer `list_publications` con título o institución validada para consultas de monitoreo;
-2. añadir coincidencia exacta o expansión controlada para identificadores normativos;
-3. registrar qué partes de una pregunta multidocumento ya tienen evidencia y no permitir el cierre mientras falte una.
+Después podremos comparar BM25 con búsqueda híbrida cuando la cobertura del índice vectorial sea suficiente y esté registrada en cada corrida. La comparación debe mantener iguales las preguntas, límites, modelo y reglas de cierre; de otro modo no sabremos si una diferencia provino del retrieval o de una trayectoria más larga.
 
-Después repetiremos las mismas siete preguntas. Sólo si mejoran las categorías afectadas tendrá sentido ejecutar las 42 y comparar otro modelo. Kimi K2.7 Code está diseñado principalmente para tareas de programación, de modo que esta corrida valida el protocolo y ofrece una línea base útil, pero no debe interpretarse como una clasificación general de modelos para investigación jurídica.
-
-Este hito ya contiene una corrida remota reproducible y una revisión de sus respuestas. El siguiente cambio debe concentrarse en la evidencia que faltó, no en añadir autonomía o más herramientas.
+Kimi K2.7 Code sigue siendo aquí una conexión funcional y una línea base, no una clasificación general de modelos para investigación jurídica. La mejora importante de este hito no es que el agente haga más cosas: es que ahora podemos ver qué documento eligió, por qué cambió su orden y qué parte de la pregunta todavía no tiene evidencia.
