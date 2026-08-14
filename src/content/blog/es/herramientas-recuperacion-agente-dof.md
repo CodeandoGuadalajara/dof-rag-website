@@ -428,3 +428,110 @@ Los tres problemas que bloqueaban la muestra pequeña ya tienen una corrección 
 Después podremos comparar BM25 con búsqueda híbrida cuando la cobertura del índice vectorial sea suficiente y esté registrada en cada corrida. La comparación debe mantener iguales las preguntas, límites, modelo y reglas de cierre; de otro modo no sabremos si una diferencia provino del retrieval o de una trayectoria más larga.
 
 Kimi K2.7 Code sigue siendo aquí una conexión funcional y una línea base, no una clasificación general de modelos para investigación jurídica. La mejora importante de este hito no es que el agente haga más cosas: es que ahora podemos ver qué documento eligió, por qué cambió su orden y qué parte de la pregunta todavía no tiene evidencia.
+
+## Cuarto hito: las 42 preguntas
+
+Ese siguiente paso ya ocurrió. Ejecutamos las 42 preguntas de v4 con Kimi K2.7 Code, BM25 documental y búsqueda lexical dentro de los documentos candidatos. El índice vectorial siguió fuera de esta corrida: todavía está creciendo y mezclarlo aquí habría vuelto a juntar calidad de recuperación con cobertura del índice.
+
+La ejecución completa se lanzó con:
+
+```bash
+.venv/bin/python scripts/eval_v4_agent.py \
+  --provider kimi-code \
+  --model kimi-for-coding \
+  --all \
+  --output eval/cache/eval_v4_agent_all_kimi_k27_v5.json
+```
+
+El runner ahora escribe un checkpoint después de cada pregunta. Una interrupción en la pregunta 38 ya no elimina las 37 trazas anteriores. Los archivos generados permanecen fuera del repositorio: contienen respuestas, resultados intermedios y varios cientos de miles de tokens, mientras que el código, el conjunto v4 y las reglas de medición sí quedan versionados.
+
+| Métrica                                            | Resultado |
+| -------------------------------------------------- | --------: |
+| Preguntas ejecutadas                               |        42 |
+| Cierres válidos                                    |     35/42 |
+| Precisión de citas                                 |     0.660 |
+| Recall de citas                                    |     0.714 |
+| Corrección de premisa falsa, entre cierres válidos |     0.800 |
+| Cobertura completa de requisitos registrados       |     0.400 |
+| Llamadas a herramientas por cierre válido          |      3.66 |
+| Turnos del modelo por cierre válido                |      4.49 |
+| Errores de herramientas                            |         1 |
+| Latencia promedio por cierre válido                |    63.4 s |
+| Tokens totales reportados                          |   870,750 |
+
+La precisión y el recall de citas se calculan únicamente sobre las 35 ejecuciones que alcanzaron un cierre válido. La cobertura, en cambio, incluye las ejecuciones incompletas que alcanzaron a leer evidencia. Esta diferencia importa: excluir una ejecución porque no consiguió el segundo año convertiría una falla de cobertura en un dato ausente.
+
+El desglose automático muestra que el comportamiento no es uniforme:
+
+| Categoría               | Cierres | Precisión de citas | Recall de citas | Cobertura completa |
+| ----------------------- | ------: | -----------------: | --------------: | -----------------: |
+| Pasaje único            |     6/6 |              0.583 |           0.667 |                  — |
+| Lista completa          |     4/6 |              0.500 |           0.750 |              0.333 |
+| Temporal y transitorios |     5/6 |              0.900 |           1.000 |                  — |
+| Referencia cruzada      |     5/6 |              0.600 |           0.500 |              0.667 |
+| Múltiples documentos    |     4/6 |              0.625 |           0.500 |              0.333 |
+| Monitoreo               |     6/6 |              0.889 |           0.917 |                  — |
+| Premisa falsa           |     5/6 |              0.450 |           0.600 |              0.000 |
+
+“Cierre” tampoco significa “respuesta correcta”. Estas métricas comparan identificadores de chunk y estados del recorrido; la corrección sustantiva requiere leer la respuesta. El resultado más sólido de la corrida fue monitoreo: las seis preguntas cerraron y cinco citaron exactamente la evidencia anotada. Los problemas se concentraron en listas, comparaciones multidocumento y algunas preguntas cuya fuente tiene un título repetido o poco visible en el archivo agrupado del DOF.
+
+## Qué reveló la corrida completa
+
+La muestra de siete preguntas sólo había obligado a comprobar dos años y una referencia a un numeral. Las 42 preguntas mostraron más formas de quedar a medias.
+
+`LI-001`, por ejemplo, pregunta qué obligaciones corresponden a centros con hasta 15 trabajadores, entre 16 y 50 y con más de 50. No basta con marcar la pregunta como “lista”: el estado debe registrar tres requisitos independientes. El runner ahora extrae esos rangos cuando aparecen explícitamente en la pregunta y normaliza formas como “quince” y `15` antes de comprobar los chunks leídos. La misma regla sirve para enumeraciones explícitas como valores diario, mensual y anual.
+
+La pregunta `CR-002` expuso otro detalle. Menciona los numerales 8.3, 8.4 y 8.5 desde un transitorio; la primera expresión regular sólo conservaba el primer número. Ahora se registran los tres y cada uno debe aparecer como disposición, no sólo como una referencia incidental.
+
+También había requisitos falsos. El periodo `PND 2025-2030` se interpretaba como una comparación entre dos años. Eso obligaba al agente a buscar evidencia de 2025 y de 2030 aunque la pregunta no solicitara comparar esos años. La detección temporal quedó limitada a construcciones explícitas como “de 2025 a 2026” y “entre 2025 y 2026”.
+
+## Recuperar la fuente emisora, no el documento que más la cita
+
+Dos fallas distintas tenían la misma apariencia: BM25 encontraba muchas coincidencias correctas en términos, pero no la publicación que emitió el instrumento.
+
+El Plan Nacional de Desarrollo 2025-2030 está dentro de un archivo que agrupa varias publicaciones. El encabezado inicial del archivo no siempre es el título que buscamos, aunque el título exacto sí aparece en la ruta de encabezados de sus chunks. Cuando la consulta contiene el nombre y periodo completos, el buscador añade como candidatos los documentos con ese encabezado y muestra el aumento de puntaje aplicado. En la validación local, el decreto de aprobación, documento `637402`, pasó al primer lugar.
+
+La Ley General de Aguas presentó el caso complementario. Una consulta sin fecha encontraba primero lineamientos, sentencias y acuerdos que repiten muchas veces el nombre de la ley. El decreto del 11 de diciembre de 2025 sí contenía la frase, pero quedaba debajo de esos documentos. La corrección extrae nombres explícitos que comienzan con `Ley`, `Código` o `Reglamento`, hace una búsqueda adicional por frase exacta y conserva sólo candidatos cuyo título extraído contiene ese nombre. No supone un año ni asigna de antemano un ID.
+
+El efecto se puede inspeccionar en el resultado:
+
+```text
+1  document_id=651357  2025-12-11
+   DECRETO por el que se expide la Ley General de Aguas...
+   title_boost=200
+```
+
+Antes de esta regla, `CR-006` leyó un lineamiento sobre perforación de pozos y se abstuvo de contestar qué derecho desarrolla la Ley General de Aguas. Después, el recorrido completo necesitó tres herramientas y citó el chunk `6634172`, el mismo anotado en v4.
+
+## Fragmentos centrados en la pregunta
+
+`search_evidence` devolvía los primeros 600 caracteres de cada chunk. Eso funciona si la respuesta está al principio, pero un chunk largo puede mencionar el artículo buscado varios párrafos después. Ahora el fragmento se centra primero en anclas explícitas como `artículo 3`, `numeral 8.5` o `5.2`; si no existen, usa el primer término informativo de la consulta.
+
+La búsqueda dentro de un conjunto acotado de chunks conserva BM25, pero suma dos señales estructurales pequeñas. Una disposición cuyo encabezado comienza exactamente con el numeral solicitado supera a un párrafo que sólo lo cita. De forma parecida, una definición numerada —por ejemplo `4.7 Factores de Riesgo Psicosocial`— recibe prioridad cuando la consulta pide definir ese término. En la prueba focalizada, `SP-003` pasó a recuperar y citar en primer lugar el chunk `4733254`, que contiene la definición de la NOM-035.
+
+## Un cierre exige haber leído algo
+
+Una de las 35 ejecuciones marcadas originalmente como cerradas terminó sin citas después de varias búsquedas. El esquema JSON era válido, pero el agente no había usado `read_chunks`. Ese estado ya no cuenta como completado. Si todavía quedan turnos, el runner exige una lectura; si se agota el presupuesto, termina como `evidence_not_read`.
+
+El máximo de herramientas permanece en ocho y el de turnos subió de siete a ocho. La intención no es permitir búsquedas indefinidas, sino reservar un turno para leer la evidencia y otro para cerrar después de una comparación o referencia cruzada. El motivo de terminación permite distinguir falta de lectura, cobertura incompleta, límite del modelo y cierre normal.
+
+Todas estas modificaciones quedaron en el commit [`ba4e954`, “improve full-eval agent coverage”](https://github.com/CodeandoGuadalajara/dof-rag/commit/ba4e954bc8629f4849f7040da6c67614e6142189) del PR [#67](https://github.com/CodeandoGuadalajara/dof-rag/pull/67). Además de las reglas de recuperación, el commit agrega checkpoints, métricas por categoría y pruebas para listas, periodos, definiciones, fragmentos y cierres sin lectura.
+
+## Reparaciones focalizadas sin reescribir el resultado original
+
+Después de la corrida de 42 preguntas repetimos seis casos que representaban fallas distintas: definición, lista, título del PND, Ley General de Aguas y premisa falsa. Esa corrida focalizada cerró 6/6, con precisión y recall automáticos de citas de 0.667. La revisión de las respuestas dio cinco correctas; `CR-006` seguía recuperando el documento equivocado. La regla de título exacto descrita arriba se probó después sólo con `CR-006`: cerró con tres herramientas, citó `6634172` y obtuvo precisión y recall de citas de 1.0.
+
+No sumamos esas reparaciones a la corrida original para fabricar un nuevo promedio. Son ejecuciones distintas, útiles para demostrar que una falla observada tiene una corrección reproducible. El próximo resultado comparable debe volver a ejecutar las 42 preguntas desde cero con el commit nuevo.
+
+Hay otra razón para no tratar el recall de citas como verdad absoluta. En una prueba aislada de `LI-001`, el agente dio los tres rangos correctos y citó un chunk válido que no estaba anotado entre los chunks de referencia. El recall automático lo penalizó. `LI-004` mostró lo mismo con pasajes alternativos del PND. V4 necesita registrar evidencia alternativa o relevancia graduada antes de convertirse en una puerta de calidad automática.
+
+## El siguiente corte
+
+Ya no necesitamos otra regla para una pregunta aislada antes de avanzar. El siguiente corte útil tiene dos partes:
+
+1. repetir las 42 preguntas con este commit y hacer una revisión humana por categoría;
+2. cuando el índice vectorial tenga cobertura suficiente y medible, repetir la misma configuración con búsqueda híbrida.
+
+La segunda comparación debe registrar cuántos chunks del corpus y cuántos documentos de referencia de v4 están embebidos. “El índice va cerca de la mitad” sirve para seguir el proceso, pero no para interpretar una métrica. La cobertura exacta tiene que quedar dentro del reporte de la corrida.
+
+Después de eso conviene trabajar en dos problemas más generales: un índice lexical a nivel chunk que evite ordenar un conjunto limitado en memoria, y una representación explícita de subpreguntas para casos multidocumento. Ambas mejoras responden a fallas visibles en las trazas; ninguna requiere cambiar de LLM para poder medirse.
