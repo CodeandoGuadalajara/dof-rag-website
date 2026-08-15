@@ -632,30 +632,30 @@ Ejecutamos `LI-005`, `MD-002`, `MD-004`, `MD-005`, `MD-006`, `NE-002` y `NE-003`
 | Métrica                                   | Resultado |
 | ----------------------------------------- | --------: |
 | Preguntas ejecutadas                      |         7 |
-| Cierres válidos                           |       4/7 |
-| Precisión de citas entre cierres válidos  |     0.875 |
-| Recall de citas entre cierres válidos     |     0.875 |
-| Cobertura completa                        |     0.571 |
-| Corrección de premisa falsa entre cierres |     0.500 |
-| Errores de herramientas                   |         0 |
-| Llamadas por cierre válido                |      4.25 |
-| Turnos por cierre válido                  |      5.25 |
-| Tokens totales reportados                 |   117,654 |
+| Cierres válidos                           |       5/7 |
+| Precisión de citas entre cierres válidos  |     0.700 |
+| Recall de citas entre cierres válidos     |     0.700 |
+| Cobertura completa                        |     0.714 |
+| Corrección de premisa falsa entre cierres |     1.000 |
+| Errores de herramientas                   |         1 |
+| Llamadas por cierre válido                |       4.4 |
+| Turnos por cierre válido                  |       5.4 |
+| Tokens totales reportados                 |   161,749 |
 
 La caída de 41/42 cierres globales a 4/7 en esta muestra seleccionada no es una comparación de dificultad equivalente. Son precisamente las siete fallas de la corrida anterior y el contrato nuevo deja de contar respuestas parciales como terminadas. Tres ejecuciones que antes podían cerrar con una sola mitad o una fuente incorrecta ahora quedan explícitamente incompletas.
 
-La revisión manual fue:
+La revisión manual de esta nueva corrida fue:
 
 | Pregunta | Evaluación  | Resultado                                                                                                                          |
 | -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `LI-005` | Correcta    | Recuperó el decreto constitucional de abril y citó los tres elementos mínimos.                                                     |
-| `MD-002` | No resuelta | Leyó 2025, pero no alcanzó a leer y citar 2026; terminó como `citation_coverage_incomplete`.                                       |
-| `MD-004` | No resuelta | Agotó el turno final tras siete búsquedas sin reconstruir los tres documentos.                                                     |
-| `MD-005` | Correcta    | Citó `4891366` y `6468820` y respondió qué remitió la Cámara para ambos PND.                                                       |
+| `MD-002` | Correcta    | Leyó y citó los documentos de 2025 y 2026, con los tres valores y sus incrementos.                                               |
+| `MD-004` | No resuelta | El contrato de tres documentos distintos impidió aceptar el cierre después de siete llamadas; no reconstruyó la secuencia de 2026. |
+| `MD-005` | Incorrecta | Alcanzó las anclas nominales de ambos PND, pero leyó documentos no suficientes para responder la pregunta.                         |
 | `MD-006` | No resuelta | Leyó la NOM-035 y una reforma laboral distinta; no cubrió vacaciones dignas.                                                       |
-| `NE-002` | Parcial     | Encontró el decreto correcto y explicó que reforma, adiciona y deroga disposiciones, pero quedó `unclear` sin leer el transitorio. |
+| `NE-002` | Correcta    | Citó el transitorio del decreto correcto y corrigió que no hubo una abrogación completa.                                          |
 | `NE-003` | Correcta    | Citó `5829271`, corrigió que se reformaron los artículos 76 y 78 de la LFT y no el 123 constitucional.                             |
 
-Los contratos mejoraron tres respuestas completas y una parcial sin convertir fallas de búsqueda en respuestas correctas por decreto. También muestran el límite inmediato: `required_hops` puede impedir un cierre incompleto, pero no hace que BM25 encuentre por sí solo una secuencia difícil dentro de ocho turnos. Por eso no repetimos todavía las 42 preguntas.
+Los contratos mejoraron la cobertura de las comparaciones y bloquearon dos cierres incompletos, pero no convierten una ancla nominal en evidencia suficiente: `MD-005` cerró con dos documentos y aun así fue incorrecta. La corrección semántica de una premisa falsa sigue requiriendo revisión humana. `required_hops` puede impedir un cierre incompleto, pero no hace que BM25 encuentre por sí solo una secuencia difícil dentro de ocho turnos. Por eso no repetimos todavía las 42 preguntas.
 
 La validación del cambio incluyó Ruff, formato, 38 pruebas unitarias, `compileall`, validación de v4 y comprobaciones positivas y negativas sobre las bases reales. La indexación vectorial y sus bases no se modificaron. La comparación híbrida sigue pospuesta hasta registrar el porcentaje exacto de chunks embebidos y la cobertura exacta de documentos y chunks gold de v4.
