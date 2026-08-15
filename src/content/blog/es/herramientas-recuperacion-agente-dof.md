@@ -598,3 +598,64 @@ El siguiente hito debe concentrarse en tres contratos generales:
 3. en premisas falsas, exigir evidencia que contradiga la premisa, no sólo ausencia de coincidencias en un documento relacionado.
 
 Después de medir esas tres reglas sobre los casos fallidos, podremos ejecutar la comparación híbrida. Para entonces el reporte deberá registrar automáticamente la cobertura exacta del índice vectorial y la cobertura de los documentos de referencia de v4; sin esos dos valores, cualquier diferencia entre BM25 e híbrido seguiría siendo difícil de interpretar.
+
+## Sexto hito: contratos de cierre, documentos y premisas falsas
+
+Implementamos los tres contratos sin añadir excepciones para IDs de v4 y los separamos en commits revisables:
+
+1. [`5b612e7`, “require cited agent answers”](https://github.com/CodeandoGuadalajara/dof-rag/commit/5b612e7e902609d48db1e642dbfe27bdafcd5b7a) exige al menos una cita en el esquema final y vuelve a comprobarla después de eliminar IDs que no provienen de `read_chunks`;
+2. [`103f572`, “enforce multi-document evidence coverage”](https://github.com/CodeandoGuadalajara/dof-rag/commit/103f57286cb16eb605a4889a26a2043852cd4220) convierte `required_hops` en un mínimo de documentos leídos y citados distintos, y extrae anclas explícitas de la pregunta;
+3. [`eefdb1c`, “require substantive premise corrections”](https://github.com/CodeandoGuadalajara/dof-rag/commit/eefdb1c3e618308bbd5656723239c3efbfe68b7b) rechaza una premisa marcada como falsa cuando la respuesta sólo informa una búsqueda fallida.
+
+El primer contrato tiene dos capas. `citations` declara `minItems: 1`, pero eso no basta: una lista como `[999]` satisface el esquema y puede quedar vacía al filtrar las citas no leídas. Por eso el runner exige después del filtrado al menos un ID válido. Si quedan turnos, pide una corrección; si se agota el límite, registra `citation_required` en vez de `completed`. La ausencia total de lectura conserva el estado más específico `evidence_not_read`.
+
+## `required_hops` sin revelar documentos de referencia
+
+El runner de v4 ahora entrega a la ejecución el número `required_hops`, pero nunca los IDs, rutas, títulos ni chunks gold. Un valor mayor que uno exige evidencia leída y citada de ese número de documentos distintos. Una simple conjunción en la pregunta no activa esta regla: una publicación puede contestar dos conceptos y no toda pregunta con “A y B” es multidocumento.
+
+El conteo de documentos se combina con requisitos tomados del texto de la pregunta. La extracción determinista reconoce comparaciones explícitas de años, fechas o meses asociados con una publicación o reforma, periodos nominales del PND, identificadores NOM/NMX, reformas nombradas y acciones jurídicas explícitas como una declaratoria de utilidad pública o un decreto de expropiación. Cada requisito se comprueba contra metadatos y chunks leídos.
+
+Así, `MD-005` requiere los temas `PND 2019-2024` y `PND 2025-2030` más dos documentos distintos. `MD-006` requiere `NOM-035`, la reforma de vacaciones y dos documentos. `MD-004` conserva sus tres saltos anotados y debe cubrir tanto la declaratoria como el decreto. Las mismas reglas se derivan de cualquier pregunta con esas formas; no consultan el ID del ejemplo.
+
+Las pruebas sobre las bases reales comprobaron ambos sentidos. Los chunks gold de las siete preguntas focalizadas satisfacen sus requisitos. En cambio, las fuentes equivocadas de la corrida anterior quedan bloqueadas: los lineamientos de octubre no cubren `publicación 2025-04` para `LI-005`; el acuerdo del 18 de diciembre no cubre `publicación 2025-12-11` para `NE-002`; y la reforma de justicia para adolescentes no cubre `tema reforma: vacaciones dignas` para `NE-003`.
+
+## Qué podemos validar en una corrección de premisa
+
+Para `premise_status: false`, el runner comprueba de forma determinista cuatro condiciones: existe una cita válida de un chunk leído, se cubrieron las anclas explícitas, se alcanzó el número de documentos requerido y la respuesta contiene una corrección afirmativa. Frases como “no se encontró” o “los chunks no muestran” no bastan por sí solas.
+
+Hay un límite deliberado. El código no decide mediante una expresión regular si el pasaje implica jurídicamente la corrección. La traza registra `correction_supported_by_citations: human_review_required` para una respuesta de premisa falsa. La procedencia y la forma se validan automáticamente; la relación semántica entre afirmación y evidencia queda para adjudicación humana. Si el agente no puede documentar la corrección, debe usar `unclear`, no presentar la ausencia de una coincidencia como prueba de falsedad.
+
+## Corrida focalizada de los siete casos pendientes
+
+Ejecutamos `LI-005`, `MD-002`, `MD-004`, `MD-005`, `MD-006`, `NE-002` y `NE-003` con Kimi K2.7 Code, `kimi-for-coding`, BM25 y sin búsqueda vectorial. El resultado se guardó separado de la corrida de 42 preguntas; no se mezcló con los promedios anteriores.
+
+| Métrica                                   | Resultado |
+| ----------------------------------------- | --------: |
+| Preguntas ejecutadas                      |         7 |
+| Cierres válidos                           |       4/7 |
+| Precisión de citas entre cierres válidos  |     0.875 |
+| Recall de citas entre cierres válidos     |     0.875 |
+| Cobertura completa                        |     0.571 |
+| Corrección de premisa falsa entre cierres |     0.500 |
+| Errores de herramientas                   |         0 |
+| Llamadas por cierre válido                |      4.25 |
+| Turnos por cierre válido                  |      5.25 |
+| Tokens totales reportados                 |   117,654 |
+
+La caída de 41/42 cierres globales a 4/7 en esta muestra seleccionada no es una comparación de dificultad equivalente. Son precisamente las siete fallas de la corrida anterior y el contrato nuevo deja de contar respuestas parciales como terminadas. Tres ejecuciones que antes podían cerrar con una sola mitad o una fuente incorrecta ahora quedan explícitamente incompletas.
+
+La revisión manual fue:
+
+| Pregunta | Evaluación  | Resultado                                                                                                                          |
+| -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `LI-005` | Correcta    | Recuperó el decreto constitucional de abril y citó los tres elementos mínimos.                                                     |
+| `MD-002` | No resuelta | Leyó 2025, pero no alcanzó a leer y citar 2026; terminó como `citation_coverage_incomplete`.                                       |
+| `MD-004` | No resuelta | Agotó el turno final tras siete búsquedas sin reconstruir los tres documentos.                                                     |
+| `MD-005` | Correcta    | Citó `4891366` y `6468820` y respondió qué remitió la Cámara para ambos PND.                                                       |
+| `MD-006` | No resuelta | Leyó la NOM-035 y una reforma laboral distinta; no cubrió vacaciones dignas.                                                       |
+| `NE-002` | Parcial     | Encontró el decreto correcto y explicó que reforma, adiciona y deroga disposiciones, pero quedó `unclear` sin leer el transitorio. |
+| `NE-003` | Correcta    | Citó `5829271`, corrigió que se reformaron los artículos 76 y 78 de la LFT y no el 123 constitucional.                             |
+
+Los contratos mejoraron tres respuestas completas y una parcial sin convertir fallas de búsqueda en respuestas correctas por decreto. También muestran el límite inmediato: `required_hops` puede impedir un cierre incompleto, pero no hace que BM25 encuentre por sí solo una secuencia difícil dentro de ocho turnos. Por eso no repetimos todavía las 42 preguntas.
+
+La validación del cambio incluyó Ruff, formato, 38 pruebas unitarias, `compileall`, validación de v4 y comprobaciones positivas y negativas sobre las bases reales. La indexación vectorial y sus bases no se modificaron. La comparación híbrida sigue pospuesta hasta registrar el porcentaje exacto de chunks embebidos y la cobertura exacta de documentos y chunks gold de v4.
