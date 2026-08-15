@@ -535,3 +535,66 @@ Ya no necesitamos otra regla para una pregunta aislada antes de avanzar. El sigu
 La segunda comparación debe registrar cuántos chunks del corpus y cuántos documentos de referencia de v4 están embebidos. “El índice va cerca de la mitad” sirve para seguir el proceso, pero no para interpretar una métrica. La cobertura exacta tiene que quedar dentro del reporte de la corrida.
 
 Después de eso conviene trabajar en dos problemas más generales: un índice lexical a nivel chunk que evite ordenar un conjunto limitado en memoria, y una representación explícita de subpreguntas para casos multidocumento. Ambas mejoras responden a fallas visibles en las trazas; ninguna requiere cambiar de LLM para poder medirse.
+
+## Quinta corrida: las 42 preguntas desde el commit corregido
+
+Repetimos las 42 preguntas desde `ba4e954`, sin cambiar el modelo, los límites ni el retrieval. Esta vez el objetivo sí era comparar el resultado completo contra la corrida anterior. El índice vectorial continuó fuera del experimento.
+
+| Métrica                     | Corrida anterior | Desde `ba4e954` |
+| --------------------------- | ---------------: | --------------: |
+| Cierres válidos             |            35/42 |       **41/42** |
+| Precisión de citas          |            0.660 |       **0.701** |
+| Recall de citas             |            0.714 |       **0.768** |
+| Corrección de premisa falsa |            0.800 |       **0.833** |
+| Cobertura completa          |            0.400 |       **0.833** |
+| Llamadas por cierre válido  |             3.66 |        **3.44** |
+| Turnos por cierre válido    |             4.49 |            4.49 |
+| Errores de herramientas     |                1 |               2 |
+| Latencia promedio           |           63.4 s |          42.2 s |
+| Tokens totales              |          870,750 |       1,038,116 |
+
+La reducción de latencia no puede atribuirse al código: son llamadas remotas ejecutadas en momentos distintos. El aumento de tokens tampoco contradice la reducción promedio de herramientas. La segunda corrida completó seis preguntas adicionales y acumuló más contexto total.
+
+Por categoría, el cambio más claro ocurrió en listas y referencias cruzadas:
+
+| Categoría               | Cierres anteriores | Cierres nuevos | Precisión nueva | Recall nuevo | Cobertura nueva |
+| ----------------------- | -----------------: | -------------: | --------------: | -----------: | --------------: |
+| Pasaje único            |                6/6 |            6/6 |           0.833 |        0.833 |               — |
+| Lista completa          |                4/6 |        **6/6** |           0.650 |        0.833 |       **1.000** |
+| Temporal y transitorios |                5/6 |        **6/6** |           0.833 |        1.000 |               — |
+| Referencia cruzada      |                5/6 |        **6/6** |           0.833 |        0.833 |       **1.000** |
+| Múltiples documentos    |                4/6 |            5/6 |           0.800 |        0.600 |           0.500 |
+| Monitoreo               |                6/6 |            6/6 |           0.722 |        0.917 |               — |
+| Premisa falsa           |                5/6 |        **6/6** |           0.250 |        0.333 |               — |
+
+La precisión de citas bajó en monitoreo y premisa falsa aunque las respuestas no empeoraron en la misma proporción. El modelo leyó más chunks alternativos del mismo decreto y los citó. V4 sigue tratando como error cualquier chunk válido que no esté anotado en el conjunto de referencia. En `SP-005`, por ejemplo, la respuesta dio correctamente 14 inmuebles y 48,661.703 m², pero ninguno de sus cuatro chunks estaba en el gold set; en `CR-003` contestó correctamente el plazo de diez días y el alcance del procedimiento judicial con un pasaje equivalente de otro decreto.
+
+## Revisión manual de la nueva corrida
+
+Revisamos las 42 respuestas contra la respuesta de referencia y la evidencia disponible. El resultado conservador fue:
+
+| Evaluación                 | Preguntas |
+| -------------------------- | --------: |
+| Correctas                  |        35 |
+| Parciales                  |         3 |
+| Incorrectas o no resueltas |         4 |
+
+Las seis preguntas de pasaje único, las seis temporales, las seis referencias cruzadas y las seis de monitoreo quedaron sustantivamente correctas. Cinco de seis listas también: `LI-005` recuperó lineamientos posteriores y enumeró políticas públicas, buenas prácticas y capacidades tecnológicas, en lugar de los tres elementos mínimos del transitorio constitucional.
+
+La categoría multidocumento sigue siendo el cuello de botella. `MD-002` fue la única ejecución que no cerró: encontró los valores de UMA de 2025, agotó ocho herramientas sin leer 2026 y terminó correctamente como `coverage_incomplete`. `MD-005` respondió sólo la parte del PND 2019-2024. `MD-006` recuperó las fases de la NOM-035, con fechas desplazadas un día, pero no la reforma de vacaciones. `MD-004` eligió una declaratoria del Tren Maya de 2023 y no reconstruyó la secuencia de 2026.
+
+En premisas falsas hubo cuatro correcciones completas y dos fallas. `NE-002` afirmó que no encontró una abrogación de la Ley de Aguas Nacionales, pero sustentó la respuesta con un acuerdo de días inhábiles del 18 de diciembre, no con el decreto del día 11 que reformó y derogó disposiciones concretas. `NE-003` leyó una reforma de justicia para adolescentes, se abstuvo y cerró sin citas; nunca encontró la reforma a los artículos 76 y 78 de la Ley Federal del Trabajo.
+
+Ese último caso revela una regla que todavía falta: haber leído un chunk no basta si la respuesta final no cita ninguno. El runner evita cerrar sin lectura, pero aún acepta `citations: []`. La siguiente versión debe rechazar también ese estado.
+
+## Qué cambia en el siguiente hito
+
+La corrida confirma que las reglas nuevas resolvieron los casos que las motivaron: `LI-001`, `LI-004`, `TE-002`, `CR-005` y `CR-006` cerraron con la evidencia esperada. Añadir más reglas de títulos antes de atender los casos restantes tendría rendimientos decrecientes.
+
+El siguiente hito debe concentrarse en tres contratos generales:
+
+1. exigir al menos una cita leída para aceptar el cierre;
+2. convertir `required_hops` y las partes explícitas de una pregunta multidocumento en cobertura verificable;
+3. en premisas falsas, exigir evidencia que contradiga la premisa, no sólo ausencia de coincidencias en un documento relacionado.
+
+Después de medir esas tres reglas sobre los casos fallidos, podremos ejecutar la comparación híbrida. Para entonces el reporte deberá registrar automáticamente la cobertura exacta del índice vectorial y la cobertura de los documentos de referencia de v4; sin esos dos valores, cualquier diferencia entre BM25 e híbrido seguiría siendo difícil de interpretar.
