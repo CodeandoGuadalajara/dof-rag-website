@@ -167,7 +167,18 @@ La idea es importante: el agente no se califica a sí mismo. El runner comprueba
 
 ## Qué aprendimos de las evaluaciones
 
-En la primera comparación de recuperación, sobre 42 preguntas y usando únicamente BM25, el cambio principal ocurrió dentro de los documentos:
+La evaluación separa las mismas dos etapas que las herramientas. Primero medimos si BM25 encontraba las publicaciones de referencia entre todo el corpus:
+
+| Métrica documental                           |  BM25 |
+| -------------------------------------------- | ----: |
+| MRR del primer documento correcto            | 0.221 |
+| Recall documental@5                          | 0.381 |
+| Recall documental@10                         | 0.429 |
+| Preguntas con todos sus documentos en top-10 | 0.405 |
+
+El recall documental@10 de 0.429 significa que, en promedio, más de la mitad de los documentos de referencia quedó fuera de las primeras diez posiciones. La última fila es todavía más estricta: en preguntas con varios saltos, exige que todos los documentos necesarios aparezcan en el top-10.
+
+Después, sin cambiar esa selección inicial de documentos, comparamos cómo se ordenaban los chunks dentro de los candidatos:
 
 | Métrica                           | Prototipo | Herramientas nuevas |
 | --------------------------------- | --------: | ------------------: |
@@ -176,9 +187,9 @@ En la primera comparación de recuperación, sobre 42 preguntas y usando únicam
 | Recall de evidencia@5             |     0.083 |               0.167 |
 | Recall de evidencia@10            |     0.155 |               0.187 |
 
-La lectura es mixta. La cobertura entre las primeras cinco posiciones se duplicó, pero el primer resultado empeoró ligeramente y el MRR apenas subió. En términos absolutos, ambos sistemas siguen recuperando poca evidencia: son líneas base de investigación, no resultados suficientes para un producto. El MRR documental de BM25 fue 0.221 y el recall documental@10, 0.429. Esta segunda cifra significa que más de la mitad de los documentos de referencia quedó fuera de las primeras diez posiciones. El recall documental no cambió entre el prototipo y las herramientas porque esa primera comparación modificó principalmente el ordenamiento posterior de chunks.
+La lectura de esta segunda tabla es mixta. La cobertura entre las primeras cinco posiciones se duplicó, pero el primer resultado empeoró ligeramente y el MRR apenas subió. En términos absolutos, ambos sistemas siguen recuperando poca evidencia: son líneas base de investigación, no resultados suficientes para un producto. La etapa documental no cambió entre el prototipo y las herramientas porque esa comparación modificó principalmente el ordenamiento posterior de chunks.
 
-MRR tampoco resume toda la tarea. Sólo considera la posición de la primera evidencia correcta. Una lista, una comparación entre años o una referencia cruzada puede encontrar un pasaje temprano y aun así omitir los demás. Por eso lo acompañamos con recall, all-hop, cobertura de requisitos y revisión de la respuesta final.
+Los dos MRR tampoco deben compararse entre sí como si midieran lo mismo. Uno ordena publicaciones y el otro, chunks dentro de un conjunto de candidatos. En ambos casos MRR sólo considera la posición del primer resultado correcto. Una lista, una comparación entre años o una referencia cruzada puede encontrar un pasaje temprano y aun así omitir los demás. Por eso lo acompañamos con recall, cobertura de todos los documentos, requisitos explícitos y revisión de la respuesta final.
 
 Después probamos el bucle con siete preguntas representativas usando Kimi K2.7 Code. La primera versión logró cierres válidos en 7/7, pero la revisión manual encontró sólo dos respuestas correctas, dos parciales y tres no resueltas. Había problemas concretos: confundía normas con el mismo número, elegía una publicación equivocada del mismo día y leía sólo uno de los dos documentos de una comparación.
 
