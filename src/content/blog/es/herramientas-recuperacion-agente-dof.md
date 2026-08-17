@@ -129,4 +129,4 @@ La lectura es mixta. La cobertura entre las primeras cinco posiciones se duplic�
 
 Los dos MRR no miden lo mismo. Uno ordena publicaciones y el otro, chunks dentro de un conjunto de candidatos. Además, MRR sólo considera la posición del primer resultado correcto. Una lista, una comparación entre años o una referencia cruzada puede encontrar un pasaje temprano y aun así omitir los demás. Para esas preguntas también necesitamos medir cobertura de todos los documentos y de cada parte de la respuesta.
 
-Ese requisito nos llevó al siguiente experimento. En [el segundo artículo](/es/blog/2026/08/agente-dof-evidencia-cobertura/) conectamos estas herramientas a un modelo, seguimos sus decisiones y comprobamos qué ocurre cuando encontrar un pasaje no basta para contestar toda la pregunta.
+Ese requisito nos llevó al siguiente experimento. En [el segundo artículo](../agente-dof-evidencia-cobertura/) conectamos estas herramientas a un modelo, seguimos sus decisiones y comprobamos qué ocurre cuando encontrar un pasaje no basta para contestar toda la pregunta.

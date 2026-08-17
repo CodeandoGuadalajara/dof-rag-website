@@ -11,7 +11,7 @@ author: 'Joaquín Bravo Contreras'
 
 ## De herramientas aisladas a un recorrido completo
 
-En el [artículo anterior](/es/blog/2026/08/herramientas-recuperacion-agente-dof/) separamos la búsqueda de publicaciones de la recuperación de pasajes. El resultado fueron cinco herramientas deterministas: listar publicaciones, buscar documentos, buscar evidencia, navegar el índice de un documento y leer chunks.
+En el [artículo anterior](../herramientas-recuperacion-agente-dof/) separamos la búsqueda de publicaciones de la recuperación de pasajes. El resultado fueron cinco herramientas deterministas: listar publicaciones, buscar documentos, buscar evidencia, navegar el índice de un documento y leer chunks.
 
 El siguiente paso fue permitir que un modelo decidiera cómo combinarlas. No queríamos que el modelo buscara sin límites ni que una respuesta fluida ocultara una recuperación incompleta. Construimos un orquestador pequeño: en cada turno el modelo solicita una herramienta con argumentos estructurados o entrega la respuesta final.
 
@@ -137,9 +137,9 @@ La progresión se entiende mejor si se separa cierre formal de corrección susta
 
 La última fila no debe compararse como si fuera una muestra aleatoria: contiene precisamente siete fallas de la corrida anterior. Que sólo cinco hayan cerrado indica que los contratos dejaron de aceptar algunas respuestas parciales, no que el sistema completo cayera de 41/42 a 5/7.
 
-Dos casos ilustran la diferencia. [MD-002](/es/evals/v4/#md-002) preguntaba cómo cambiaron los valores diario, mensual y anual de la UMA entre 2025 y 2026. El agente leyó y citó la publicación de cada año antes de comparar los tres valores.
+Dos casos ilustran la diferencia. [MD-002](../../../../evals/v4/#md-002) preguntaba cómo cambiaron los valores diario, mensual y anual de la UMA entre 2025 y 2026. El agente leyó y citó la publicación de cada año antes de comparar los tres valores.
 
-[MD-004](/es/evals/v4/#md-004) pedía reconstruir otra clase de respuesta: la secuencia desde las dos publicaciones de una declaratoria de utilidad pública hasta el decreto de expropiación de 14 inmuebles para el Tren Maya, incluidos los plazos para presentar pruebas y controvertir la indemnización. La tarea requería evidencia de tres publicaciones. El agente no reunió la secuencia completa dentro del presupuesto y terminó como cobertura incompleta. No contestó la pregunta, pero describió correctamente la limitación de esa ejecución.
+[MD-004](../../../../evals/v4/#md-004) pedía reconstruir otra clase de respuesta: la secuencia desde las dos publicaciones de una declaratoria de utilidad pública hasta el decreto de expropiación de 14 inmuebles para el Tren Maya, incluidos los plazos para presentar pruebas y controvertir la indemnización. La tarea requería evidencia de tres publicaciones. El agente no reunió la secuencia completa dentro del presupuesto y terminó como cobertura incompleta. No contestó la pregunta, pero describió correctamente la limitación de esa ejecución.
 
 Las métricas automáticas también necesitan contexto. La precisión y el recall de citas se calculan sólo sobre ejecuciones con cierre válido; la tasa de cierres se reporta por separado. Además, v4 puede penalizar un chunk alternativo que contenga la misma evidencia pero no esté anotado en el conjunto de referencia. Una cita coincidente ayuda a verificar procedencia, pero no sustituye la lectura de la respuesta.
 
