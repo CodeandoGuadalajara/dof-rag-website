@@ -47,6 +47,8 @@ El primer conjunto tiene cinco operaciones:
 
 La diferencia entre las dos búsquedas es crucial. `search_documents` responde “¿qué publicación debería revisar?”. `search_evidence` responde “¿qué pasaje de esas publicaciones contiene la respuesta?”. La segunda no vuelve a buscar en los 6.73 millones de chunks: trabaja sobre el conjunto acotado de candidatos.
 
+El contrato admite estrategias `lexical`, `vector` e `hybrid`, pero las corridas descritas en este artículo usaron únicamente búsqueda lexical. El índice vectorial seguía incompleto; mezclarlo habría confundido la calidad del método con la cobertura disponible del índice.
+
 Los contratos también hacen explícitas las limitaciones. Hoy podemos filtrar de manera confiable por fecha, intervalo de fechas y sección matutina, vespertina o extraordinaria. Todavía no ofrecemos filtros generales por institución o tipo de documento porque esa metadata no está normalizada para todo el corpus. La herramienta rechaza un filtro que no puede cumplir en vez de simular que lo aplicó.
 
 ## Un ejemplo: los salarios mínimos de 2026
@@ -110,7 +112,7 @@ La capa de respuesta aplica otra regla: sólo se puede citar un chunk que el age
 
 Esto no prueba por sí solo que la cita sostenga la afirmación. Sí garantiza procedencia básica y permite que una evaluación posterior revise la relación entre afirmación y pasaje. Cada corrida registra también la versión del corpus, del chunker y de los índices; sin esas versiones no sabríamos si un cambio provino del código o de los datos.
 
-## El agente sólo decide el recorrido
+## El agente decide el recorrido y redacta la respuesta
 
 Con las herramientas listas construimos un bucle pequeño de llamadas, no un marco general de agentes. En cada turno el modelo hace una de dos cosas: solicita una herramienta con argumentos estructurados o entrega la respuesta final.
 
@@ -165,11 +167,22 @@ La idea es importante: el agente no se califica a sí mismo. El runner comprueba
 
 ## Qué aprendimos de las evaluaciones
 
-En la primera comparación de recuperación, sobre 42 preguntas y usando únicamente BM25, el cambio más importante fue dentro de los documentos. El recall de evidencia a cinco posiciones subió de 0.083 a 0.167 y a diez posiciones de 0.155 a 0.187. El recall documental no cambió: era esperable, porque todavía no habíamos cambiado la selección inicial de documentos.
+En la primera comparación de recuperación, sobre 42 preguntas y usando únicamente BM25, el cambio principal ocurrió dentro de los documentos:
+
+| Métrica                           | Prototipo | Herramientas nuevas |
+| --------------------------------- | --------: | ------------------: |
+| MRR del primer chunk de evidencia |     0.092 |               0.104 |
+| Recall de evidencia@1             |     0.060 |               0.048 |
+| Recall de evidencia@5             |     0.083 |               0.167 |
+| Recall de evidencia@10            |     0.155 |               0.187 |
+
+La lectura es mixta. La cobertura entre las primeras cinco posiciones se duplicó, pero el primer resultado empeoró ligeramente y el MRR apenas subió. En términos absolutos, ambos sistemas siguen recuperando poca evidencia: son líneas base de investigación, no resultados suficientes para un producto. El MRR documental de BM25 fue 0.221 y el recall documental@10, 0.429. Esta segunda cifra significa que más de la mitad de los documentos de referencia quedó fuera de las primeras diez posiciones. El recall documental no cambió entre el prototipo y las herramientas porque esa primera comparación modificó principalmente el ordenamiento posterior de chunks.
+
+MRR tampoco resume toda la tarea. Sólo considera la posición de la primera evidencia correcta. Una lista, una comparación entre años o una referencia cruzada puede encontrar un pasaje temprano y aun así omitir los demás. Por eso lo acompañamos con recall, all-hop, cobertura de requisitos y revisión de la respuesta final.
 
 Después probamos el bucle con siete preguntas representativas usando Kimi K2.7 Code. La primera versión logró cierres válidos en 7/7, pero la revisión manual encontró sólo dos respuestas correctas, dos parciales y tres no resueltas. Había problemas concretos: confundía normas con el mismo número, elegía una publicación equivocada del mismo día y leía sólo uno de los dos documentos de una comparación.
 
-La incorporación de identidad documental, cobertura explícita y fragmentos centrados en la consulta produjo una segunda corrida de 7/7 cierres válidos, con seis respuestas correctas y una parcial. En la corrida completa de 42 preguntas, desde `ba4e954`, hubo 41/42 cierres válidos; la revisión humana clasificó 35 respuestas como correctas, tres parciales y cuatro incorrectas o no resueltas. Las categorías de listas y referencias cruzadas mejoraron, pero las preguntas multidocumento siguieron siendo el cuello de botella.
+Sobre esas mismas preguntas, la incorporación de identidad documental, cobertura explícita y fragmentos centrados en la consulta produjo una segunda corrida de 7/7 cierres válidos, con seis respuestas correctas y una parcial. En la corrida completa de 42 preguntas, desde `ba4e954`, hubo 41/42 cierres válidos; la revisión humana clasificó 35 respuestas como correctas, tres parciales y cuatro incorrectas o no resueltas. Las categorías de listas y referencias cruzadas mejoraron, pero las preguntas multidocumento siguieron siendo el cuello de botella.
 
 La última prueba fue deliberadamente focalizada: siete casos que habían fallado. Con los contratos nuevos hubo 5/7 cierres válidos. Eso puede parecer peor que 41/42, pero no es una contradicción: eran precisamente los casos difíciles, y el sistema dejó de contar como “completadas” varias respuestas parciales o sustentadas por una fuente equivocada. Dos ejemplos muestran el valor de esa decisión:
 
@@ -178,10 +191,16 @@ La última prueba fue deliberadamente focalizada: siete casos que habían fallad
 
 Los números de citas deben leerse con cuidado. v4 compara contra chunks anotados y puede penalizar un pasaje alternativo que sí sea válido. En una prueba, el agente respondió correctamente una lista pero citó un chunk equivalente que no estaba en el conjunto gold. Por eso el recall automático es una señal útil de procedencia, no una prueba definitiva de corrección sustantiva.
 
+Además, la precisión y el recall de citas del runner se calculan sólo sobre las ejecuciones que alcanzaron un cierre válido. La tasa de cierres se reporta por separado para no convertir una ejecución incompleta en un dato ausente.
+
+Hay una limitación metodológica mayor. Las fallas de v4 sirvieron para diseñar varias de las reglas posteriores: abreviaturas institucionales, identificadores normativos, periodos, listas y requisitos multidocumento. En consecuencia, v4 se convirtió de hecho en nuestro conjunto de desarrollo. Los resultados muestran que las correcciones resolvieron casos observados y que el sistema puede detectar más cierres incompletos; no demuestran todavía que las reglas se generalicen a preguntas nuevas.
+
 ## Qué sigue
 
 El trabajo de este PR no convierte al DOF en un sistema que responde cualquier pregunta. Hace algo más básico y necesario: vuelve visible el camino entre una pregunta, los documentos candidatos, la evidencia leída y la cita final.
 
-El siguiente paso es repetir las 42 preguntas con los contratos de cierre, documentos y premisas falsas, y revisar los casos que siguen incompletos. Después podremos comparar BM25 con búsqueda híbrida cuando el índice vectorial tenga una cobertura exacta y reportable. La comparación deberá mantener constantes las preguntas, los límites, el modelo y las reglas de cierre.
+V4 seguirá siendo útil como prueba de regresión: el siguiente paso inmediato es repetir sus 42 preguntas con los contratos de cierre, documentos y premisas falsas. El siguiente resultado que puede demostrar generalización, sin embargo, necesita un conjunto nuevo y bloqueado. Debemos escribir y anotar esas preguntas antes de ejecutar el sistema, congelar el código y evitar añadir reglas después de ver los resultados.
 
-También quedan dos extensiones claras: representar mejor las subpreguntas de consultas multidocumento y registrar evidencia alternativa en v4. Ambas surgen de fallas visibles en las trazas. No requieren cambiar de modelo; requieren que el sistema sepa declarar qué encontró, qué leyó y qué todavía no puede sostener.
+Después podremos comparar BM25 con búsqueda híbrida cuando el índice vectorial tenga una cobertura exacta y reportable. La comparación deberá mantener constantes las preguntas, los límites, el modelo y las reglas de cierre.
+
+También quedan dos extensiones claras: representar mejor las subpreguntas de consultas multidocumento y registrar evidencia alternativa en v4. Ambas surgen de fallas visibles en las trazas y pueden investigarse manteniendo fijo el modelo. El objetivo del siguiente corte no es conseguir una cifra alta a cualquier costo, sino saber qué encontró el sistema, qué leyó, qué todavía no puede sostener y si esas decisiones se repiten fuera del conjunto con el que las diseñamos.
