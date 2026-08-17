@@ -26,6 +26,18 @@ export function getEntryLang(id: string): 'en' | 'es' {
 }
 
 /**
+ * Orders blog entries from newest to oldest. Entry id is a stable tie-breaker
+ * for posts that intentionally share a publication date.
+ */
+export function comparePostsByDateDesc(
+  a: CollectionEntry<'blog'>,
+  b: CollectionEntry<'blog'>
+): number {
+  const dateDifference = b.data.date.getTime() - a.data.date.getTime();
+  return dateDifference || a.id.localeCompare(b.id);
+}
+
+/**
  * Builds the dated URL path (`YYYY/MM/slug`) for a blog entry.
  *
  * Content files are stored flat (`blog/{lang}/{slug}.md`), but URLs keep a

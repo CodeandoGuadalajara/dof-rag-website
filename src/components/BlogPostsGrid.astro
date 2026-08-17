@@ -1,5 +1,8 @@
 ---
-import { getPostUrlPath } from '../lib/content-utils.ts';
+import {
+  comparePostsByDateDesc,
+  getPostUrlPath,
+} from '../lib/content-utils.ts';
 import type { CollectionEntry } from 'astro:content';
 import type { SupportedLanguage } from '../i18n/config.ts';
 
@@ -17,9 +20,7 @@ export interface Props {
 }
 
 const { posts, lang, baseUrl, translations } = Astro.props;
-const sortedPosts = [...posts].sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
+const sortedPosts = [...posts].sort(comparePostsByDateDesc);
 
 function formatDate(dateObj: Date): string {
   try {
