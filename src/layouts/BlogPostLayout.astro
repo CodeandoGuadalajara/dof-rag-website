@@ -6,6 +6,11 @@ import { getLangFromUrl } from '../i18n/utils.ts';
 import type { SupportedLanguage } from '../i18n/config.ts';
 import GiscusComments from '../components/GiscusComments.astro';
 
+interface AdjacentPostLink {
+  title: string;
+  href: string;
+}
+
 interface Props {
   post?: CollectionEntry<'blog'>;
   title?: string;
@@ -15,10 +20,23 @@ interface Props {
   author?: string;
   tags?: string[];
   lang?: SupportedLanguage;
+  previousPost?: AdjacentPostLink;
+  nextPost?: AdjacentPostLink;
 }
 
 // Permitir dos formas de pasar las props: como objeto post completo o como props individuales
-const { post, title: propTitle, description: propDescription, date: propDate, image: propImage, author: propAuthor, tags: propTags, lang: propLang } = Astro.props;
+const {
+  post,
+  title: propTitle,
+  description: propDescription,
+  date: propDate,
+  image: propImage,
+  author: propAuthor,
+  tags: propTags,
+  lang: propLang,
+  previousPost,
+  nextPost,
+} = Astro.props;
 
 // Si se recibe el objeto post, extraer sus propiedades, sino usar las props individuales
 const title = post?.data?.title || propTitle || 'Blog Post';
@@ -150,6 +168,41 @@ const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${
       <div class="prose prose-lg dark:prose-invert prose-a:text-[var(--color-accent)] max-w-none mb-12">
         <slot />
       </div>
+
+      {(previousPost || nextPost) && (
+        <nav
+          class="grid grid-cols-1 gap-4 border-y border-[var(--color-border)] py-6 sm:grid-cols-2"
+          aria-label={lang === 'es' ? 'Navegación entre artículos' : 'Article navigation'}
+        >
+          {previousPost && (
+            <a
+              href={previousPost.href}
+              class="group block rounded-lg border border-[var(--color-border)] p-4 no-underline transition-colors hover:border-[var(--color-accent)]"
+            >
+              <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-[var(--color-muted)]">
+                {lang === 'es' ? '← Artículo anterior' : '← Previous article'}
+              </span>
+              <span class="font-bold text-[var(--color-text)] group-hover:text-[var(--color-accent)]">
+                {previousPost.title}
+              </span>
+            </a>
+          )}
+
+          {nextPost && (
+            <a
+              href={nextPost.href}
+              class="group block rounded-lg border border-[var(--color-border)] p-4 text-right no-underline transition-colors hover:border-[var(--color-accent)] sm:col-start-2"
+            >
+              <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-[var(--color-muted)]">
+                {lang === 'es' ? 'Artículo siguiente →' : 'Next article →'}
+              </span>
+              <span class="font-bold text-[var(--color-text)] group-hover:text-[var(--color-accent)]">
+                {nextPost.title}
+              </span>
+            </a>
+          )}
+        </nav>
+      )}
       
       <!-- Componente de comentarios -->
       <GiscusComments language={lang} />

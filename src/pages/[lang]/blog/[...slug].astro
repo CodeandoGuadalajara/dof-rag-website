@@ -1,6 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
-import { getEntryLang, getPostUrlPath } from '../../../lib/content-utils.ts';
+import {
+  comparePostsByDateDesc,
+  getEntryLang,
+  getPostUrlPath,
+} from '../../../lib/content-utils.ts';
 import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
 import { getLangFromUrl } from '../../../i18n/utils.ts';
 import { dateFormatOptions, type SupportedLanguage } from '../../../i18n/config.ts';
@@ -19,10 +23,37 @@ function t(key: string): string {
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
-  
+
+  const entriesByLanguage = {
+    es: blogEntries
+      .filter((entry) => getEntryLang(entry.id) === 'es')
+      .sort(comparePostsByDateDesc),
+    en: blogEntries
+      .filter((entry) => getEntryLang(entry.id) === 'en')
+      .sort(comparePostsByDateDesc),
+  };
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+  function navigationLink(
+    entry: (typeof blogEntries)[number],
+    lang: SupportedLanguage
+  ) {
+    return {
+      title: entry.data.title,
+      href: `${basePath}/${lang}/blog/${getPostUrlPath(entry)}/`,
+    };
+  }
+
   return blogEntries.map(entry => {
     // Detectar el idioma del post basado en la ruta si está en una carpeta específica de idioma
     const postLang: SupportedLanguage = getEntryLang(entry.id);
+    const languageEntries = entriesByLanguage[postLang];
+    const entryIndex = languageEntries.findIndex(
+      (candidate) => candidate.id === entry.id
+    );
+    const newerEntry = languageEntries[entryIndex - 1];
+    const olderEntry = languageEntries[entryIndex + 1];
 
     // El slug se deriva de la fecha del frontmatter (YYYY/MM/slug),
     // no de la estructura de carpetas (los archivos están planos por idioma)
@@ -33,13 +64,19 @@ export async function getStaticPaths() {
       },
       props: {
         entry,
-        lang: postLang
+        lang: postLang,
+        previousPost: olderEntry
+          ? navigationLink(olderEntry, postLang)
+          : undefined,
+        nextPost: newerEntry
+          ? navigationLink(newerEntry, postLang)
+          : undefined,
       },
     };
   });
 }
 
-const { entry, lang } = Astro.props;
+const { entry, lang, previousPost, nextPost } = Astro.props;
 const entryLang = lang as SupportedLanguage;
 const { Content } = await render(entry);
 
@@ -65,6 +102,8 @@ function formatDate(dateObj: Date): string {
   image={entry.data.image}
   tags={entry.data.tags}
   lang={entryLang}
+  previousPost={previousPost}
+  nextPost={nextPost}
 >
   <Content />
-</BlogPostLayout> 
+</BlogPostLayout>
