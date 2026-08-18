@@ -193,6 +193,6 @@ The important change in v4 is not the size —42 questions are few— but the co
 
 ## Help us review the dataset
 
-We have published a [review edition of the 42 questions](/dof-rag-website/en/evals/v4) with their answers, cutoff dates, and reference citations. We are looking for observations on ambiguous questions, incomplete answers, effective-date problems, and alternative sources that should also be accepted.
+We have published a [Spanish-language review edition of the 42 questions](/dof-rag-website/es/evals/v4) with their answers, cutoff dates, and reference citations. We are looking for observations on ambiguous questions, incomplete answers, effective-date problems, and alternative sources that should also be accepted.
 
 There is no need to review the whole set. One well-supported correction on a single question is useful and will be recorded before v4 becomes a quality gate.

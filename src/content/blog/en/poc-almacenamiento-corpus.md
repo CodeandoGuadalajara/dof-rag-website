@@ -48,7 +48,7 @@ The important check is not speed but correctness: we read all 10,000 documents f
 
 This is the most interesting part of the design. A chunk of 800 tokens is ~2.5 KB of text. With 5 million chunks, storing each chunk's text duplicates the corpus. The architecture says: store only *offsets* (start, end) within the document, and at query time slice the text.
 
-The problem is that our [chunker](/en/blog/2026/08/chunker-patron-dof/) does not cut the document into clean slices. Before chunking, it transforms the text:
+The problem is that our [chunker](/en/blog/2026/05/chunker-patron-dof/) does not cut the document into clean slices. Before chunking, it transforms the text:
 
 1. Converts comments `<!-- IMAGE_DESCRIPTION: ... -->` into text paragraphs.
 2. Removes boilerplate headers (`## Al margen un sello...`).

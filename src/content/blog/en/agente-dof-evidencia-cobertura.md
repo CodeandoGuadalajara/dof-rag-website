@@ -137,9 +137,9 @@ The progression is clearer when formal closure is separated from substantive cor
 
 The last row should not be compared as if it were a random sample: it contains exactly seven failures from the previous run. That only five closed means the contracts stopped accepting some partial answers, not that the whole system fell from 41/42 to 5/7.
 
-Two cases illustrate the difference. [MD-002](../../../../evals/v4/#md-002) asked how the daily, monthly, and yearly UMA values changed between 2025 and 2026. The agent read and cited the publication for each year before comparing the three values.
+Two cases illustrate the difference. [MD-002](/dof-rag-website/es/evals/v4/#md-002) asked how the daily, monthly, and yearly UMA values changed between 2025 and 2026. The agent read and cited the publication for each year before comparing the three values.
 
-[MD-004](../../../../evals/v4/#md-004) asked for a different kind of reconstruction: the sequence from the two publications of a declaration of public utility to the expropriation decree for 14 properties for the Tren Maya, including deadlines for submitting evidence and contesting compensation. The task required evidence from three publications. The agent did not assemble the complete sequence within the budget and ended as incomplete coverage. It did not answer the question, but it correctly described the limitation of that run.
+[MD-004](/dof-rag-website/es/evals/v4/#md-004) asked for a different kind of reconstruction: the sequence from the two publications of a declaration of public utility to the expropriation decree for 14 properties for the Tren Maya, including deadlines for submitting evidence and contesting compensation. The task required evidence from three publications. The agent did not assemble the complete sequence within the budget and ended as incomplete coverage. It did not answer the question, but it correctly described the limitation of that run.
 
 Automatic metrics also need context. Citation precision and recall are calculated only over runs with valid closure; the closure rate is reported separately. Also, v4 may penalize an alternative chunk that contains the same evidence but is not annotated in the reference set. A matching citation helps verify provenance, but it does not replace reading the answer.
 
