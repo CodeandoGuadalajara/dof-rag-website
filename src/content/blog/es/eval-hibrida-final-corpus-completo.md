@@ -87,10 +87,41 @@ v3:
 
 El último post reportó W0.5 a 0.402 y prometió que el número final sería distinto. Lo es (0.369 con W0.5, 0.390 con W0.75), y la diferencia está explicada por el diseño del smoke test, no por una sorpresa: aquella corrida solo medía las 665 consultas cuyo documento oro ya estaba embebido — un subconjunto con sesgo optimista, porque excluía exactamente las consultas cuyos documentos tardaron más en procesarse— y la búsqueda vectorial barría 1.39 millones de vectores en vez de 6.73 millones. La evaluación final no tiene esas concesiones: todas las consultas, todos los distractores, todos los vectores. Que el número final quede dentro de ~3 puntos del smoke test dice que la mecánica medida entonces era genuina.
 
+## La segunda lente: el set curado v4
+
+Todo lo anterior se midió con los sets v2 y v3, que son automáticos y masivos: miles de consultas generadas a partir de los documentos, con el documento oro inferido por construcción. Eso da volumen, pero deja fuera las preguntas que más nos interesan para el agente: las que exigen cruzar varios documentos. Para eso construimos el **set v4**: 42 preguntas redactadas y verificadas a mano, seis por cada una de siete categorías — pasaje único, enumeración de listas, transitorios temporales, referencias cruzadas, multi-documento, monitoreo y premisas falsas. Cada pregunta trae anotados sus **documentos oro** y también los **chunks de evidencia** exactos que la sustentan, así que aquí podemos medir dos niveles: si el sistema encuentra el documento correcto y si encuentra el pasaje correcto dentro de él.
+
+El set v4 es multi-hop: muchas preguntas requieren más de un documento oro, así que además del MRR usamos **all-hop@k**, la fracción de preguntas donde *todos* los documentos oro aparecen en el top-k. Es una métrica deliberadamente estricta: recuperar dos de tres documentos cuenta como cero. Con 42 preguntas cada punto porcentual vale media pregunta, así que los números absolutos hay que leerlos con humildad; lo informativo es el orden y las brechas entre sistemas.
+
+| Sistema | MRR | Doc R@10 | All-hop@10 | All-hop@20 |
+|---|---:|---:|---:|---:|
+| W0.5 (50/50) | **0.339** | 0.452 | 0.429 | **0.595** |
+| RRF | 0.331 | 0.464 | 0.429 | 0.571 |
+| W0.75 | 0.326 | 0.452 | 0.429 | 0.476 |
+| W0.25 | 0.312 | 0.476 | 0.452 | 0.548 |
+| solo vectores | 0.284 | 0.476 | 0.452 | 0.476 |
+| solo BM25 | 0.221 | 0.429 | 0.405 | 0.429 |
+
+La fusión vuelve a ganar, pero con un margen mucho más amplio que en v2/v3: el mejor híbrido supera a BM25 puro por 53% relativo en MRR (0.339 contra 0.221) y por 39% en all-hop@20 (0.595 contra 0.429). Es exactamente lo que la hipótesis de las anclas predice: las preguntas v4 están escritas como las haría una persona — con parafraseo, sin copiar identificadores, y repartiendo la respuesta entre varios documentos — y ese es el terreno donde el componente vectorial aporta más. El desglose por categoría lo muestra con claridad:
+
+| Categoría | BM25 | vectores | W0.5 | W0.75 | RRF |
+|---|---:|---:|---:|---:|---:|
+| single_passage | 0.500 | 0.548 | **0.667** | **0.667** | 0.625 |
+| multi_document | 0.282 | 0.429 | **0.538** | 0.422 | 0.546 |
+| temporal_transitorio | 0.255 | **0.435** | 0.403 | 0.351 | 0.386 |
+| list_enumeration | 0.151 | 0.204 | **0.359** | 0.355 | 0.354 |
+| negative_false_premise | 0.208 | 0.219 | 0.261 | **0.315** | 0.225 |
+| monitoring | 0.097 | 0.107 | 0.100 | 0.108 | 0.111 |
+| cross_reference | 0.056 | 0.042 | 0.048 | 0.063 | 0.070 |
+
+Dos lecturas. La primera: en las categorías donde la respuesta vive en varios documentos o hay que parafrasear, la fusión casi duplica a BM25 (multi_document: 0.538 contra 0.282; list_enumeration: 0.359 contra 0.151), y en pasaje único, la categoría más amable, la híbrida llega a 0.667. La segunda, más importante: **cross_reference (0.048) y monitoring (0.100) son malas en todos los sistemas**, incluidos los híbridos. Cuando ninguna configuración de ranking pasa de 0.11, el problema ya no es el ranking: son preguntas del tipo «¿qué cambió respecto al acuerdo que lo modificó?» o «¿qué se publicó sobre este tema entre estas fechas?», que se resuelven navegando metadata — fechas, secciones, instrumentos — y no ordenando mejor una lista de candidatos. Es una medición directa de por qué el siguiente trabajo es el punto 3 de la lista de abajo: herramientas de metadata para el agente.
+
+Hay un dato más que vale la pena, a nivel de pasaje y no de documento. En el mejor híbrido, el top-20 contiene en promedio el 63% de los documentos oro de cada pregunta, pero la búsqueda de pasajes recupera solo el 36.5% de los chunks de evidencia oro en el mismo corte. El cuello de botella no es encontrar el documento correcto sino el párrafo correcto dentro de él — argumento adicional para el re-ranking del top fusionado con embeddings de mayor capacidad, que apunta justo a esa brecha. Resultados completos, reproducibles y deterministas en `reports/eval_v4_retrieval.md` y en el JSON de comparación que ahora sí queda versionado en el repositorio.
+
 ## Estado y lo que falta
 
 1. **Recuperación a escala real: medida y cerrada.** Corpus (657,867 documentos), chunks (6.73 M), FTS5, embeddings y vec0 construidos; evaluación híbrida final corrida en ambos cortes con resultados deterministas publicados. La documentación de construcción quedó actualizada en `docs/full-corpus-build.md`.
 2. **Siguiente experimento de recuperación**: α adaptativo por consulta según densidad de anclas, y re-ranking del top fusionado con embeddings de mayor capacidad. Ambos usan infraestructura que ya existe.
-3. **Herramientas de metadata para el agente**: búsqueda por título, lookup por ruta/slug y filtros por fecha/sección/emisor — las columnas ya están en el corpus. Con un agente que elija herramienta y peso por pregunta, los tipos que hoy se ven débiles cambian de naturaleza.
+3. **Herramientas de metadata para el agente**: búsqueda por título, lookup por ruta/slug y filtros por fecha/sección/emisor — las columnas ya están en el corpus. El set v4 midió la necesidad: cross_reference y monitoring son débiles en *todos* los sistemas de ranking, y ese tipo de consulta cambia de naturaleza cuando un agente elige herramienta y peso por pregunta.
 4. **Pendiente no técnico**: la revisión de licencias de sqlite-vector (Elastic 2.0 modificada) y sqlite-zstd (LGPL-3.0) antes de producción; sqlite-vec es MIT.
 5. **Del otro lado del pipeline**: con la recuperación medida, la frontera del proyecto se mueve a la calidad de las respuestas completas del agente — y para eso está en marcha el piloto de evaluación humana, donde cada respuesta publicada podrá ser revisada por personas. De eso escribimos pronto.
