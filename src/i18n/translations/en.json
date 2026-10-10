@@ -67,8 +67,8 @@
   "about.blog_description": "This blog documents the progress and learnings of the DOF-RAG project. Here we will share news, system improvements, developing ideas, and reflections on how to bring technology closer to people.",
 
   "about.want_to_know_more": "Want to know more?",
-  "about.contact_description": "If you have questions, comments, or are interested in collaborating with us, you can write to us at:",
-  "about.contact_email": "contacto@dofrag.mx",
+  "about.contact_description": "If you have questions, comments, or are interested in collaborating with us, join the GitHub discussions or open an issue:",
+  "about.contact_email": "GitHub Discussions ↗",
 
   "common.unknown_author": "Unknown author",
   "common.date_not_available": "Date not available",
