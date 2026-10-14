@@ -51,6 +51,13 @@ Dos decisiones metodológicas marcaron todo lo demás:
    Cada una de las 42 respuestas de cada brazo fue revisada a mano contra los
    pasajes que ese modelo efectivamente leyó. Si el modelo no leyó el pasaje
    donde está la respuesta, no se le prestó.
+
+Hay un término que usaremos a lo largo del post: el **arnés** (del inglés
+*harness*). Es todo lo que envuelve al modelo para que pueda trabajar: las
+descripciones de las herramientas, la validación de argumentos, la gestión de
+las premisas, la preservación de lo leído y la validación de la respuesta
+final. El modelo genera texto; el arnés decide qué puede pedir, qué ve y
+cuándo su respuesta se acepta.
 2. **Un brazo por configuración completa.** Cuando cambiamos algo —un helper,
    un formato de finalización, un límite de razonamiento— corrimos las 42
    preguntas de nuevo. Nunca adjudicamos una mejora a un cambio sin una
@@ -182,7 +189,7 @@ capacidad y ejecución — un caso emblemático fue una pregunta cuyo contexto
 rebasó su techo de 32,768 tokens y el servidor respondió con un error HTTP
 400. Estirar su ventana a 64K preservó el resultado pero no lo mejoró. En
 otras palabras: a TensorFold lo limitaba el envoltorio, a Qwen3.6 lo limita
-el cuerpo, y el envoltorio es mucho más barato de cambiar. Por eso el
+el modelo, y el envoltorio es mucho más barato de cambiar. Por eso el
 siguiente frente de trabajo no es cambiar de modelo, sino seguir mejorando el
 arnés —y repetir el brazo completo después de cada cambio, porque la
 variación entre repeticiones existe y hay que medirla, no asumirla.
