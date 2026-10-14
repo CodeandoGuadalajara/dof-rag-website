@@ -171,10 +171,21 @@ modelo ni el servidor, cambió sus resultados así:
 Nueve respuestas correctas de diferencia vinieron de cambios en el arnés:
 cómo se formulan las premisas, cómo se preserva el historial de lecturas al
 compactar, cómo se valida el JSON final. El modelo ya sabía; el arnés no lo
-dejaba demostrarlo. Por eso el siguiente frente de trabajo no es cambiar de
-modelo, sino seguir mejorando el arnés —y rerunning el brazo completo después
-de cada cambio, porque la variación entre repeticiones existe y hay que
-medirla, no asumirla.
+dejaba demostrarlo.
+
+Un contraste útil: Qwen3.6 no mostró ese mismo potencial. Con el agente
+original ya alcanzaba 28 correctas, y los mismos helpers que le dieron nueve a
+TensorFold apenas lo movieron (25 con los helpers iniciales, 29 tras un
+segundo ajuste). La razón es diagnóstica: las fallas de TensorFold eran
+del arnés (serialización y finalización), mientras que las de Qwen3.6 son de
+capacidad y ejecución — un caso emblemático fue una pregunta cuyo contexto
+rebasó su techo de 32,768 tokens y el servidor respondió con un error HTTP
+400. Estirar su ventana a 64K preservó el resultado pero no lo mejoró. En
+otras palabras: a TensorFold lo limitaba el envoltorio, a Qwen3.6 lo limita
+el cuerpo, y el envoltorio es mucho más barato de cambiar. Por eso el
+siguiente frente de trabajo no es cambiar de modelo, sino seguir mejorando el
+arnés —y repetir el brazo completo después de cada cambio, porque la
+variación entre repeticiones existe y hay que medirla, no asumirla.
 
 De los dos candidatos añadidos, MiniCPM-V4.7 quedó en 26 correctas (rápido, con
 visión y mucha memoria libre, pero por debajo en exactitud); LFM2.5, aunque un
