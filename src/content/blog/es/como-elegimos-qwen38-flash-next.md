@@ -79,7 +79,7 @@ respuestas **sustentadas por los pasajes leídos**, de un total de 42:
 | 5 | Qwopus (SGLang) base | 33 | 36 | 41.8 s |
 | 6 | TensorFold BF16, corregido (2 repeticiones) | 33 | 39 | 33.4–34.2 s |
 | 7 | **TensorFold FP8, corregido (2 repeticiones)** | **31** | **37** | **31.6 s** |
-| 8 | Qwen3.6 vLLM0.28 “producción 262K” (NVFP4 local + [draft DFlash](https://huggingface.co/z-lab/Qwen3.6-35B-A3B-DFlash)) | 30 | 36 | 20.4 s |
+| 8 | Qwen3.6 vLLM0.28 “producción 262K” ([NVFP4](https://huggingface.co/nvidia/Qwen3.6-35B-A3B-NVFP4) + [draft DFlash](https://huggingface.co/z-lab/Qwen3.6-35B-A3B-DFlash)) | 30 | 36 | 20.4 s |
 | 9 | [MiniCPM-V4.7](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B-gguf) (muestreo pareado) | 26 | 32 | 24.5 s |
 | 10 | LFM2.5, configuración ajustada | 22 | 33 | 41.8 s |
 | 11 | [LFM2.5](https://huggingface.co/unsloth/LFM2.5-24B-A2B-GGUF), base | 14 | 19 | 62.8 s |
