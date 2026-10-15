@@ -48,7 +48,7 @@ Dos decisiones metodológicas marcaron todo lo demás:
 
 1. **Contar respuestas correctas, no respuestas terminadas.** Un JSON válido
    con la fecha equivocada es una respuesta incorrecta con buena ortografía.
-   Cada una de las 42 respuestas de cada brazo fue revisada a mano contra los
+   Cada una de las 42 respuestas de cada configuración fue revisada a mano contra los
    pasajes que ese modelo efectivamente leyó. Si el modelo no leyó el pasaje
    donde está la respuesta, no se le prestó.
 
@@ -58,31 +58,31 @@ descripciones de las herramientas, la validación de argumentos, la gestión de
 las premisas, la preservación de lo leído y la validación de la respuesta
 final. El modelo genera texto; el arnés decide qué puede pedir, qué ve y
 cuándo su respuesta se acepta.
-2. **Un brazo por configuración completa.** Cuando cambiamos algo —un helper,
+2. **Cada cambio, una prueba completa.** Cuando cambiamos algo —un helper,
    un formato de finalización, un límite de razonamiento— corrimos las 42
    preguntas de nuevo. Nunca adjudicamos una mejora a un cambio sin una
-   corrida completa posterior.
+   prueba completa posterior.
 
 ## Los resultados, ordenados
 
-Treinta y tres brazos completos: 29 configuraciones Qwen (TensorFold, vLLM en
+Treinta y tres configuraciones completas: 29 de la familia Qwen (TensorFold, vLLM en
 varias versiones, SGLang/Qwopus, llama.cpp/GSQ, myllmbox) más dos candidatos
 que el equipo pidió explorar (MiniCPM-V4.7 y LFM2.5). Los números son
 respuestas **sustentadas por los pasajes leídos**, de un total de 42:
 
 | # | Configuración | Correctas | Completadas | Latencia media |
 |---:|---|---:|---:|---:|
-| 1 | Stock Qwen3.8 (27B NVFP4) + DFlash2, corregido | 38 | 40 | 63.5 s |
+| 1 | [Stock Qwen3.8 (27B NVFP4)](https://huggingface.co/RadixArk/Qwen3.8-27B-NVFP4) + [DFlash2](https://huggingface.co/maurienne-ai/Qwen3.8-27B-DFlash2-NVFP4-RTNcal), corregido | 38 | 40 | 63.5 s |
 | 2 | Stock Qwen3.8 corregido, repetición | 37 | 38 | 54.1 s |
 | 3 | GSQ (llama.cpp) corregido | 36 | 39 | 76.0 s |
 | 4 | Myllmbox corregido | 35 | 40 | 145.3 s |
 | 5 | Qwopus (SGLang) base | 33 | 36 | 41.8 s |
 | 6 | TensorFold BF16, corregido (2 repeticiones) | 33 | 39 | 33.4–34.2 s |
 | 7 | **TensorFold FP8, corregido (2 repeticiones)** | **31** | **37** | **31.6 s** |
-| 8 | Qwen3.6 vLLM0.28 “producción 262K” | 30 | 36 | 20.4 s |
-| 9 | MiniCPM-V4.7 (muestreo pareado) | 26 | 32 | 24.5 s |
-| 10 | LFM2.5, brazo ajustado | 22 | 33 | 41.8 s |
-| 11 | LFM2.5, base | 14 | 19 | 62.8 s |
+| 8 | Qwen3.6 vLLM0.28 “producción 262K” (NVFP4 local + [draft DFlash](https://huggingface.co/z-lab/Qwen3.6-35B-A3B-DFlash)) | 30 | 36 | 20.4 s |
+| 9 | [MiniCPM-V4.7](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B-gguf) (muestreo pareado) | 26 | 32 | 24.5 s |
+| 10 | LFM2.5, configuración ajustada | 22 | 33 | 41.8 s |
+| 11 | [LFM2.5](https://huggingface.co/unsloth/LFM2.5-24B-A2B-GGUF), base | 14 | 19 | 62.8 s |
 
 Una aclaración importante sobre velocidad: la latencia de la tabla es tiempo
 por pregunta completa (búsquedas, lectura de pasajes, generación). La
@@ -96,11 +96,11 @@ completo de herramientas alrededor.
 Si sólo importara la columna de correctas, ganaría el stock Qwen3.8 de 27B con
 38. Lo descartamos como default por una razón simple: sus 63 segundos por
 pregunta son el doble que TensorFold, y su stack de serving (vLLM afinado con
-draft model) consumía más memoria con menos asientos. En un producto
+draft model) consumía más memoria con menos sesiones concurrentes. En un producto
 interactivo, una respuesta correcta a los dos minutos compite con una
 razonable a los treinta segundos.
 
-Qwen3.8 Flash Next es un modelo de ~125B parámetros totales con activación de
+Qwen3.8 Flash Next ([azampatti/Qwen3.8-Flash-Next-125B-A5B-INT4-AutoRound](https://huggingface.co/azampatti/Qwen3.8-Flash-Next-125B-A5B-INT4-AutoRound)) es un modelo de ~125B parámetros totales con activación de
 ~5B por token (arquitectura A5B, cuantización AutoRound INT4). Servido con
 TensorFold 1.0 en nuestra DGX Spark nos dio una combinación que nadie más
 igualó:
@@ -128,7 +128,7 @@ debes tratar con guantes.
 ## Qué le falla: ejemplos reales
 
 Ser honestos sobre las fallas fue lo que hizo útil a la evaluación. Estas son
-respuestas reales del brazo corregido de TensorFold, con nuestro veredicto de
+respuestas reales de la configuración corregida de TensorFold, con nuestro veredicto de
 revisión:
 
 **Un desfase de un día en el tipo de cambio (MD-003).** La pregunta pide la
@@ -191,7 +191,7 @@ rebasó su techo de 32,768 tokens y el servidor respondió con un error HTTP
 otras palabras: a TensorFold lo limitaba el envoltorio, a Qwen3.6 lo limita
 el modelo, y el envoltorio es mucho más barato de cambiar. Por eso el
 siguiente frente de trabajo no es cambiar de modelo, sino seguir mejorando el
-arnés —y repetir el brazo completo después de cada cambio, porque la
+arnés —y repetir la prueba completa después de cada cambio, porque la
 variación entre repeticiones existe y hay que medirla, no asumirla.
 
 De los dos candidatos añadidos, MiniCPM-V4.7 quedó en 26 correctas (rápido, con
@@ -203,14 +203,14 @@ restringe a organizaciones con ingresos anuales bajos 10 millones de dólares.
 ## Qué sigue
 
 Qwen 4 aparecerá tarde o temprano, y con él habrá que repetir todo. Por eso
-dejamos el protocolo congelado, la tabla completa de 33 brazos y el índice
+dejamos el protocolo congelado, la tabla completa de las 33 configuraciones y el índice
 machine-readable en el repositorio (`docs/all-qwen-model-selection-results.md`),
 junto con la guía para evaluar cualquier candidato nuevo contra los mismos 42
 casos.
 
 Las conclusiones tienen límites y conviene declararlos: comparamos sistemas
 completos, no modelos aislados; las mejoras por tweak están confundidas con la
-variación natural entre corridas salvo que se repitan; y ningún brazo prueba
+variación natural entre pruebas salvo que se repitan; y ninguna configuración prueba
 capacidad de cuatro ventanas completas de 262K tokens en simultáneo — probamos
 un asiento a la vez.
 
