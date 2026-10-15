@@ -101,9 +101,19 @@ interactivo, una respuesta correcta a los dos minutos compite con una
 razonable a los treinta segundos.
 
 Qwen3.8 Flash Next ([azampatti/Qwen3.8-Flash-Next-125B-A5B-INT4-AutoRound](https://huggingface.co/azampatti/Qwen3.8-Flash-Next-125B-A5B-INT4-AutoRound)) es un modelo de ~125B parámetros totales con activación de
-~5B por token (arquitectura A5B, cuantización AutoRound INT4). Servido con
-TensorFold 1.0 en nuestra DGX Spark nos dio una combinación que nadie más
-igualó:
+~5B por token (arquitectura A5B, cuantización AutoRound INT4).
+
+Una pausa para presentar al otro protagonista: [TensorFold](https://github.com/ashhart/TensorFold)
+es un motor de inferencia open source, escrito en Zig, para aceleradoras Metal
+y CUDA. No es un servidor más sobre PyTorch: implementa el ciclo completo de
+inferencia —cuantización, KV cache, speculative decoding con modelos
+borrador— con binarios pequeños y arranque rápido. Valió la pena evaluarlo por
+sí mismo: para una máquina como la DGX Spark, donde la memoria unificada
+compartida entre CPU y GPU cambia las reglas del juego, un motor pensado para
+esa clase de hardware rinde diferente que la pila estándar.
+
+Servido con TensorFold 1.0 en nuestra DGX Spark nos dio una combinación que
+nadie más igualó:
 
 | Criterio | TensorFold FP8 | Stock 27B | GSQ |
 |---|---|---|---|
