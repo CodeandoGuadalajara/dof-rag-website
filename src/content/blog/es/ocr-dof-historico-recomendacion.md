@@ -169,6 +169,82 @@ Una persona detecta el problema de inmediato. Un índice de búsqueda, si nadie
 lo detiene, simplemente lo almacena. Por eso la regla no es “revisar Ovis
 cuando tengamos tiempo”, sino **no aceptar esa salida en primer lugar**.
 
+## Más joyas del archivo: balances, cantinas y minerales
+
+Los ejemplos anteriores muestran la lógica general. Estas tres páginas de 1920
+y 1930 muestran por qué, en el archivo histórico, cada tipo de contenido merece
+una revisión distinta.
+
+### 1930: un balance donde los números también cambian de fila
+
+Este estado de contabilidad del Banco Mercantil y Agrícola tiene importes,
+subtotales y celdas deliberadamente vacías.
+
+![Estado de contabilidad bancaria del DOF de 1930](/images/posts/ocr-historico/1930-p13-expanded-difficult.jpg)
+
+En la primera sección, la referencia dice:
+
+| Concepto | Importe |
+|---|---:|
+| Caja.—Oro y Billetes | $10,838.50 |
+| Caja.—Plata | $192,806.04 |
+| **Total de Caja** | **$203,644.54** |
+
+LightOn conservó esos valores, aunque dejó una tabla HTML mal formada. Ovis
+también acertó varios importes, pero repitió `$203,644.54` junto a Oro, Plata y
+Moneda Extranjera en “Depósitos en el Banco de México”. En la imagen, esas
+posiciones no contienen ese importe tres veces: el total aparece a la derecha.
+Además, cambió Préstamos Hipotecarios de `$29,593.82` a `$29,598.82`.
+
+Aquí el problema no es sólo leer dígitos: es **entender a qué fila y columna
+pertenecen**. Por eso una salida con muchos números correctos puede seguir
+siendo un balance incorrecto.
+
+### 1930: pulquerías, cantinas y una cuota que no cuadra
+
+Este registro de contribuyentes tiene nombres, domicilios, giros comerciales y
+cuotas. Entre las categorías aparecen pulquerías, cantinas, misceláneas y una
+fábrica de pan: una pequeña radiografía de la vida económica de la época.
+
+![Registro de contribuyentes y cuotas del DOF de 1930](/images/posts/ocr-historico/1930-p18-expanded-difficult.jpg)
+
+La fila de Ramón Villaverde contiene una comprobación aritmética útil:
+
+```text
+R. 214. Ramón Villaverde. Restaurant y cantina.
+Cuota: $10.84 + adicional del artículo 63: $50.00 = $60.84.
+```
+
+Ovis leyó `$10.51` en la primera cantidad, pero conservó el total `$60.84`.
+El resultado ya no cuadra: `10.51 + 50.00 = 60.51`. También cambió el año del
+encabezado de **1930 a 1939**. LightOn acertó esas cifras, pero convirtió el
+nombre impreso `Sóstenes Avila` en `Sóstenes Aviln`.
+
+Este ejemplo enseña dos validaciones baratas: **comprobar las sumas cuando el
+documento las proporciona y comparar el año del encabezado con los metadatos
+de la edición**. No detectan todo, pero sí errores que una lectura rápida
+pasaría por alto.
+
+### 1920: cuotas de minerales y una palabra que cambia la cantidad
+
+Esta página fija cuotas de exportación para oro, cobre, plomo, estaño, zinc,
+antimonio, tungsteno, molibdeno, manganeso y grafito.
+
+![Cuotas de exportación de minerales del DOF de 1920](/images/posts/ocr-historico/1920-p02-expanded-prose.jpg)
+
+En una cuota de cobre, el impreso dice:
+
+> c4.221 (cuatro centavos, doscientos **veintiún** milésimos de centavo).
+
+LightOn conservó `c4.221`, pero escribió “doscientos **veintidós** milésimos”.
+Ovis conservó la expresión correcta. El desacuerdo entre el número y las
+palabras parece pequeño; en una cuota legal, es una discrepancia real.
+
+También es un buen recordatorio de nuestra regla editorial: no “mejoramos” la
+redacción histórica. Si el documento escribe una cantidad de dos formas,
+transcribimos ambas y marcamos la duda. El OCR debe acercarse al papel, no a lo
+que el modelo cree que el papel debió decir.
+
 ## El pipeline que recomendamos, paso a paso
 
 ### 1. Renderizar y congelar
